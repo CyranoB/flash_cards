@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { useLanguage } from "@/hooks/use-language"
 import { translations } from "@/lib/translations"
@@ -36,6 +35,15 @@ export default function ConfigPage() {
       toast({
         title: t.errorTitle,
         description: t.apiKeyRequired,
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!model) {
+      toast({
+        title: t.errorTitle,
+        description: t.modelRequired,
         variant: "destructive",
       })
       return
@@ -76,16 +84,13 @@ export default function ConfigPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="model">{t.modelLabel}</Label>
-              <Select value={model} onValueChange={setModel}>
-                <SelectTrigger id="model">
-                  <SelectValue placeholder="Select model" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gpt-4o-mini">GPT-4o-mini</SelectItem>
-                  <SelectItem value="gpt-4o">GPT-4o</SelectItem>
-                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="model"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="gpt-4o-mini"
+              />
+              <p className="text-sm text-muted-foreground">{t.modelHint}</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="base-url">{t.baseUrlLabel}</Label>
