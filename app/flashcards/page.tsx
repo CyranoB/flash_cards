@@ -24,7 +24,9 @@ export default function FlashcardsPage() {
   const { language } = useLanguage()
   const t = translations[language]
   const [contentLanguage, setContentLanguage] = useState<"en" | "fr">("en")
+  const [isInitialized, setIsInitialized] = useState(false)
 
+  // Check for course data and set content language
   useEffect(() => {
     const courseData = sessionStorage.getItem("courseData")
     const storedContentLanguage = sessionStorage.getItem("contentLanguage") as "en" | "fr"
@@ -48,9 +50,15 @@ export default function FlashcardsPage() {
       sessionStorage.setItem("contentLanguage", language)
     }
 
-    // Generate first flashcard
-    generateNextFlashcard()
-  }, [router, toast, t, language])
+    setIsInitialized(true)
+  }, []) // Only run once on mount
+
+  // Generate first flashcard after initialization
+  useEffect(() => {
+    if (isInitialized && flashcards.length === 0) {
+      generateNextFlashcard()
+    }
+  }, [isInitialized])
 
   const generateNextFlashcard = async () => {
     setIsLoading(true)
