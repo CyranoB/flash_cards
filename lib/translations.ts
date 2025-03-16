@@ -40,7 +40,8 @@ export const translations = {
     processingTitle: "Processing Transcript",
     processingDesc: "Please wait while we analyze your transcript",
     analyzing: "Analyzing transcript...",
-    generating: "Generating flashcards...",
+    generating: "Generating...",
+    complete: "Processing complete!",
     noTranscript: "No transcript found. Please upload a file first.",
     aiError: "Error processing with AI. Please try again.",
 
@@ -49,6 +50,20 @@ export const translations = {
     resultsDesc: "Review your AI-generated flashcards",
     cardCount: "Cards",
     flashcardError: "Error generating flashcard",
+    subjectTitle: "Course Subject",
+    outlineTitle: "Course Outline",
+    readyButton: "Start Studying",
+
+    // Flashcards page
+    flashcardsTitle: "Study Flashcards",
+    questionLabel: "Question",
+    answerLabel: "Answer",
+    showQuestion: "Show Question",
+    showAnswer: "Show Answer",
+    nextButton: "Next Card",
+    stopButton: "End Session",
+    loading: "Loading...",
+    noResults: "No flashcards found. Please start over.",
 
     // Summary page
     summaryTitle: "Study Session Summary",
@@ -57,6 +72,9 @@ export const translations = {
     timeSpent: "Time Spent",
     accuracy: "Accuracy",
     startNew: "Start New Session",
+    studiedCards: "Cards Studied",
+    finishButton: "Finish & Start New Session",
+    noFlashcards: "No flashcards found. Please start a new session.",
 
     // Settings
     settingsTitle: "Settings",
@@ -106,7 +124,8 @@ export const translations = {
     processingTitle: "Traitement de la Transcription",
     processingDesc: "Veuillez patienter pendant l'analyse de votre transcription",
     analyzing: "Analyse de la transcription...",
-    generating: "Génération des cartes mémoire...",
+    generating: "Génération...",
+    complete: "Traitement terminé !",
     noTranscript: "Aucune transcription trouvée. Veuillez d'abord télécharger un fichier.",
     aiError: "Erreur de traitement avec l'IA. Veuillez réessayer.",
 
@@ -115,6 +134,20 @@ export const translations = {
     resultsDesc: "Examinez vos cartes mémoire générées par l'IA",
     cardCount: "Cartes",
     flashcardError: "Erreur lors de la génération de la fiche",
+    subjectTitle: "Sujet du Cours",
+    outlineTitle: "Plan du Cours",
+    readyButton: "Commencer l'Étude",
+
+    // Flashcards page
+    flashcardsTitle: "Cartes d'Étude",
+    questionLabel: "Question",
+    answerLabel: "Réponse",
+    showQuestion: "Voir la Question",
+    showAnswer: "Voir la Réponse",
+    nextButton: "Carte Suivante",
+    stopButton: "Terminer la Session",
+    loading: "Chargement...",
+    noResults: "Aucune carte trouvée. Veuillez recommencer.",
 
     // Summary page
     summaryTitle: "Résumé de la Session d'Étude",
@@ -123,6 +156,9 @@ export const translations = {
     timeSpent: "Temps Passé",
     accuracy: "Précision",
     startNew: "Nouvelle Session",
+    studiedCards: "Cartes Étudiées",
+    finishButton: "Terminer et Commencer une Nouvelle Session",
+    noFlashcards: "Aucune carte trouvée. Veuillez commencer une nouvelle session.",
 
     // Settings
     settingsTitle: "Paramètres",
