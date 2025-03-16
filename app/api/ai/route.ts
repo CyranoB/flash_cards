@@ -27,7 +27,9 @@ function getOpenAIConfig() {
 
 export async function POST(request: Request) {
   try {
-    const { transcript, language, type } = await request.json()
+    // Read the request body once
+    const body = await request.json()
+    const { type, language } = body
     const { apiKey, model, baseURL } = getOpenAIConfig()
 
     const openai = createOpenAI({
@@ -36,6 +38,7 @@ export async function POST(request: Request) {
     })
 
     if (type === "analyze") {
+      const { transcript } = body
       const languageInstructions = language === "en" ? "Respond in English." : "Répondez en français."
       const prompt = `
         You are an educational assistant helping university students study.
@@ -62,7 +65,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json(JSON.parse(text.trim()))
     } else if (type === "generate") {
-      const { courseData } = await request.json()
+      const { courseData } = body
       const languageInstructions = language === "en" ? "Create the flashcard in English." : "Créez la fiche en français."
       const prompt = `
         You are an educational assistant helping university students study.
