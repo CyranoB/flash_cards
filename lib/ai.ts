@@ -45,6 +45,12 @@ export async function analyzeTranscript(transcript: string, language: "en" | "fr
 // Function to generate a flashcard based on course data
 export async function generateFlashcard(courseData: any, language: "en" | "fr" = "en") {
   try {
+    console.log("generateFlashcard called with:", {
+      subject: courseData.subject,
+      outlineLength: courseData?.outline?.length,
+      language
+    });
+
     const response = await fetch("/api/ai", {
       method: "POST",
       headers: {
@@ -55,18 +61,22 @@ export async function generateFlashcard(courseData: any, language: "en" | "fr" =
         language,
         type: "generate",
       }),
-    })
+    });
+
+    console.log("API response status:", response.status);
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to generate flashcard")
+      const error = await response.json();
+      console.error("API error response:", error);
+      throw new Error(error.error || "Failed to generate flashcard");
     }
 
-    const data = await response.json()
-    return data
+    const data = await response.json();
+    console.log("API success response:", data);
+    return data;
   } catch (error) {
-    console.error("Error generating flashcard:", error)
-    throw error
+    console.error("Error generating flashcard:", error);
+    throw error;
   }
 }
 

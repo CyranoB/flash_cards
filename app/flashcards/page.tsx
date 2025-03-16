@@ -26,12 +26,21 @@ export default function FlashcardsPage() {
   const [contentLanguage, setContentLanguage] = useState<"en" | "fr">("en")
   const [isInitialized, setIsInitialized] = useState(false)
 
+  console.log("FlashcardsPage rendered", { isInitialized, currentIndex, flashcardsLength: flashcards.length })
+
   // Check for course data and set content language
   useEffect(() => {
+    console.log("Initialization useEffect running")
     const courseData = sessionStorage.getItem("courseData")
     const storedContentLanguage = sessionStorage.getItem("contentLanguage") as "en" | "fr"
 
+    console.log("Session data:", { 
+      hasCourseData: !!courseData,
+      storedContentLanguage
+    })
+
     if (!courseData) {
+      console.log("No course data found, redirecting to home")
       toast({
         title: t.errorTitle,
         description: t.noResults,
@@ -43,36 +52,58 @@ export default function FlashcardsPage() {
 
     // Set the content language (the language used for generating content)
     if (storedContentLanguage) {
+      console.log("Using stored content language:", storedContentLanguage)
       setContentLanguage(storedContentLanguage)
     } else {
       // If no stored content language, use the current UI language
+      console.log("No stored content language, using UI language:", language)
       setContentLanguage(language)
       sessionStorage.setItem("contentLanguage", language)
     }
 
     setIsInitialized(true)
+    console.log("Initialization complete")
   }, []) // Only run once on mount
 
   // Generate first flashcard after initialization
   useEffect(() => {
+    console.log("Second useEffect running", { isInitialized, flashcardsLength: flashcards.length })
     if (isInitialized && flashcards.length === 0) {
+      console.log("Generating first flashcard")
       generateNextFlashcard()
     }
-  }, [isInitialized])
+  }, [isInitialized, flashcards.length])
 
   const generateNextFlashcard = async () => {
+    console.log("generateNextFlashcard called")
     setIsLoading(true)
     setShowAnswer(false)
 
     try {
       const courseData = JSON.parse(sessionStorage.getItem("courseData") || "{}")
+      console.log("Course data for flashcard generation:", { 
+        subject: courseData.subject,
+        outlineLength: courseData?.outline?.length,
+        contentLanguage
+      })
 
       // Use the content language for generating flashcards
+      console.log("Calling generateFlashcard API")
       const newFlashcard = await generateFlashcard(courseData, contentLanguage)
+      console.log("Received new flashcard:", newFlashcard)
 
-      setFlashcards((prev) => [...prev, newFlashcard])
-      setCurrentIndex((prev) => prev + 1)
+      setFlashcards((prev) => {
+        const updated = [...prev, newFlashcard];
+        console.log("Updated flashcards array:", updated)
+        return updated;
+      })
+      setCurrentIndex((prev) => {
+        const newIndex = prev + 1;
+        console.log("New current index:", newIndex)
+        return newIndex;
+      })
     } catch (error) {
+      console.error("Error in generateNextFlashcard:", error)
       toast({
         title: t.errorTitle,
         description: t.flashcardError,
@@ -80,16 +111,19 @@ export default function FlashcardsPage() {
       })
     } finally {
       setIsLoading(false)
+      console.log("Flashcard generation complete")
     }
   }
 
   const handleStop = () => {
+    console.log("handleStop called, navigating to summary")
     // Store the flashcards for the summary
     sessionStorage.setItem("flashcards", JSON.stringify(flashcards))
     router.push("/summary")
   }
 
   const currentFlashcard = flashcards[currentIndex - 1]
+  console.log("Current flashcard:", currentFlashcard)
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
