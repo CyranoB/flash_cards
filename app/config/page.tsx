@@ -14,12 +14,14 @@ export default function ConfigPage() {
   const [apiKey, setApiKey] = useState("")
   const [model, setModel] = useState("gpt-4o-mini")
   const [baseUrl, setBaseUrl] = useState("https://api.openai.com/v1")
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
   const { language } = useLanguage()
   const t = translations[language]
 
   useEffect(() => {
+    setMounted(true)
     // Load saved configuration
     const savedApiKey = localStorage.getItem("openai_api_key")
     const savedModel = localStorage.getItem("openai_model")
@@ -31,6 +33,8 @@ export default function ConfigPage() {
   }, [])
 
   const handleSave = () => {
+    if (!mounted) return
+
     if (!apiKey) {
       toast({
         title: t.errorTitle,
@@ -61,6 +65,41 @@ export default function ConfigPage() {
 
     // Redirect to home
     router.push("/")
+  }
+
+  // Show a loading state during SSR and initial mount
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card>
+            <CardHeader>
+              <div className="h-7 w-40 bg-gray-200 animate-pulse rounded mb-2" />
+              <div className="h-4 w-60 bg-gray-200 animate-pulse rounded" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
+                <div className="h-10 w-full bg-gray-200 animate-pulse rounded" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
+                <div className="h-10 w-full bg-gray-200 animate-pulse rounded" />
+                <div className="h-4 w-full bg-gray-200 animate-pulse rounded" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
+                <div className="h-10 w-full bg-gray-200 animate-pulse rounded" />
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <div className="h-10 w-24 bg-gray-200 animate-pulse rounded" />
+              <div className="h-10 w-24 bg-gray-200 animate-pulse rounded" />
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   return (
