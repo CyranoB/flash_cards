@@ -33,10 +33,15 @@ A modern web application that automatically generates study flashcards from cour
    pnpm install
    ```
 
-3. Create a `.env.local` file in the root directory:
+3. Copy the example environment file and configure your settings:
+   ```bash
+   cp .env.example .env
+   ```
+   Then edit `.env` with your OpenAI API key and preferred settings:
    ```env
    OPENAI_API_KEY=your_api_key_here
    OPENAI_MODEL=gpt-4o-mini
+   OPENAI_BASE_URL=https://api.openai.com/v1
    ```
 
 4. Start the development server:
@@ -48,7 +53,7 @@ A modern web application that automatically generates study flashcards from cour
 
 ### Configuration
 
-- Configure your OpenAI API key through the settings page
+- Set your OpenAI API key and model in the `.env` file
 - Choose your preferred interface language (English/French)
 - Customize theme settings (light/dark mode)
 
@@ -116,6 +121,7 @@ flash_cards/
 - Implement proper client/server component separation
 - Handle SSR hydration carefully
 - Use proper error boundaries and loading states
+- Keep sensitive data in environment variables
 
 ## Contributing
 

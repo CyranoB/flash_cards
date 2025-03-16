@@ -3,25 +3,15 @@ import { createOpenAI } from "@ai-sdk/openai"
 
 // Function to get OpenAI configuration
 function getOpenAIConfig() {
-  // Check if we're in a browser environment
-  if (typeof window !== "undefined") {
-    const apiKey = localStorage.getItem("openai_api_key")
-    const model = localStorage.getItem("openai_model") || "gpt-4o-mini"
-    const baseURL = localStorage.getItem("openai_base_url") || "https://api.openai.com/v1"
+  const apiKey = process.env.OPENAI_API_KEY
+  const model = process.env.OPENAI_MODEL || "gpt-4o-mini"
+  const baseURL = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
 
-    if (!apiKey) {
-      throw new Error("OpenAI API key is missing. Please configure it in the settings.")
-    }
-
-    return { apiKey, model, baseURL }
+  if (!apiKey) {
+    throw new Error("OpenAI API key is missing. Please check your environment variables.")
   }
 
-  // Default values for server-side rendering (these won't be used in practice)
-  return {
-    apiKey: "not-available-during-ssr",
-    model: "gpt-4o-mini",
-    baseURL: "https://api.openai.com/v1",
-  }
+  return { apiKey, model, baseURL }
 }
 
 // Function to analyze transcript and generate course subject and outline
