@@ -35,9 +35,9 @@ A modern web application that automatically generates study flashcards from cour
 
 3. Copy the example environment file and configure your settings:
    ```bash
-   cp .env.example .env
+   cp .env.example .env.local
    ```
-   Then edit `.env` with your OpenAI API key and preferred settings:
+   Then edit `.env.local` with your OpenAI API key and preferred settings:
    ```env
    OPENAI_API_KEY=your_api_key_here
    OPENAI_MODEL=gpt-4o-mini
@@ -53,7 +53,7 @@ A modern web application that automatically generates study flashcards from cour
 
 ### Configuration
 
-- Set your OpenAI API key and model in the `.env` file
+- Set your OpenAI API key and model in the `.env.local` file
 - Choose your preferred interface language (English/French)
 - Customize theme settings (light/dark mode)
 

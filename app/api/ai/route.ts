@@ -4,9 +4,19 @@ import { createOpenAI } from "@ai-sdk/openai"
 
 // Function to get OpenAI configuration from environment variables
 function getOpenAIConfig() {
+  // Debug: Log all environment variables (without values)
+  console.log("Available environment variables:", Object.keys(process.env))
+  
   const apiKey = process.env.OPENAI_API_KEY
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini"
   const baseURL = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
+
+  // Debug: Log configuration (without API key)
+  console.log("OpenAI Config:", {
+    hasApiKey: !!apiKey,
+    model,
+    baseURL,
+  })
 
   if (!apiKey) {
     throw new Error("OpenAI API key is missing. Please check your environment variables.")
