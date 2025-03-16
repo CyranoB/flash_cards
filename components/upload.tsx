@@ -13,6 +13,17 @@ import { useLanguage } from "@/hooks/use-language"
 import { convertDocxToText } from "@/lib/document-converter"
 import Link from "next/link"
 
+async function verifyApiKey() {
+  try {
+    const response = await fetch('/api/verify-key');
+    const data = await response.json();
+    return data.hasApiKey;
+  } catch (error) {
+    console.error('Error verifying API key:', error);
+    return false;
+  }
+}
+
 export function Upload() {
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -106,20 +117,24 @@ export function Upload() {
   }
 
   const handleUpload = async () => {
-    if (!file || !mounted) return
+    if (!file) return;
 
-    // Check if API key is configured
-    if (!hasApiKey) {
-      toast({
-        title: t.errorTitle,
-        description: t.noApiKey,
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsUploading(true)
+    setIsUploading(true);
+    
     try {
+      // Verify API key before processing
+      const hasApiKey = await verifyApiKey();
+      
+      if (!hasApiKey) {
+        toast({
+          title: t.apiKeyMissing,
+          description: t.apiKeyMissingDesc,
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        return;
+      }
+      
       // Get text content based on file type
       let text: string
       if (file.type === "text/plain") {
