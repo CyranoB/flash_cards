@@ -4,7 +4,7 @@ A modern web application that automatically generates study flashcards from cour
 
 ## Features
 
-- 📝 **Transcript Upload**: Upload course transcripts (up to 50,000 words) in plain text format
+- 📝 **Transcript Upload**: Upload course transcripts (up to 50,000 words) in .txt or .docx format
 - 🤖 **AI-Powered Analysis**: Automatically generates course subjects and detailed outlines
 - 🎴 **Smart Flashcards**: Creates study-optimized flashcards from your course material
 - 🌐 **Multilingual Interface**: Supports both English and French
@@ -55,9 +55,10 @@ A modern web application that automatically generates study flashcards from cour
 ## Usage
 
 1. **Upload Transcript**
-   - Drag and drop your text file or use the file browser
+   - Drag and drop your file or use the file browser
+   - Supported formats: .txt (plain text) and .docx (Word documents)
    - Maximum file size: 50,000 words
-   - Supported format: Plain text (.txt)
+   - Files are processed locally for privacy
 
 2. **Processing**
    - The AI will analyze your transcript
@@ -77,6 +78,7 @@ A modern web application that automatically generates study flashcards from cour
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui
 - **AI Integration**: OpenAI GPT-4o Mini
+- **Document Processing**: Mammoth.js
 - **State Management**: React Context
 - **Deployment**: Vercel (recommended)
 
@@ -131,4 +133,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [Next.js](https://nextjs.org/)
 - UI components from [shadcn/ui](https://ui.shadcn.com/)
-- AI powered by [OpenAI](https://openai.com/) 
+- AI powered by [OpenAI](https://openai.com/)
+- Document processing by [Mammoth.js](https://github.com/mwilliamson/mammoth.js) 

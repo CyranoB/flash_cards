@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { translations } from "@/lib/translations"
 import { useLanguage } from "@/hooks/use-language"
+import { convertDocxToText } from "@/lib/document-converter"
 import Link from "next/link"
 
 export function Upload() {
@@ -56,8 +57,11 @@ export function Upload() {
   }
 
   const validateAndSetFile = async (file: File) => {
-    // Check if file is a text file
-    if (file.type !== "text/plain") {
+    // Check if file type is supported
+    const isTextFile = file.type === "text/plain"
+    const isDocxFile = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+    if (!isTextFile && !isDocxFile) {
       toast({
         title: t.errorTitle,
         description: t.errorFileType,
@@ -66,24 +70,39 @@ export function Upload() {
       return
     }
 
-    // Check file content length
-    const text = await file.text()
-    const wordCount = text.trim().split(/\s+/).length
+    try {
+      // Get text content based on file type
+      let text: string
+      if (isTextFile) {
+        text = await file.text()
+      } else {
+        text = await convertDocxToText(file)
+      }
 
-    if (wordCount > 50000) {
+      // Check word count
+      const wordCount = text.trim().split(/\s+/).length
+
+      if (wordCount > 50000) {
+        toast({
+          title: t.errorTitle,
+          description: t.errorWordCount,
+          variant: "destructive",
+        })
+        return
+      }
+
+      setFile(file)
+      toast({
+        title: t.fileReadyTitle,
+        description: t.fileReadyDesc,
+      })
+    } catch (error) {
       toast({
         title: t.errorTitle,
-        description: t.errorWordCount,
+        description: t.errorProcessing,
         variant: "destructive",
       })
-      return
     }
-
-    setFile(file)
-    toast({
-      title: t.fileReadyTitle,
-      description: t.fileReadyDesc,
-    })
   }
 
   const handleUpload = async () => {
@@ -101,7 +120,13 @@ export function Upload() {
 
     setIsUploading(true)
     try {
-      const text = await file.text()
+      // Get text content based on file type
+      let text: string
+      if (file.type === "text/plain") {
+        text = await file.text()
+      } else {
+        text = await convertDocxToText(file)
+      }
 
       // Store the transcript in session storage for processing
       sessionStorage.setItem("transcript", text)
@@ -185,12 +210,19 @@ export function Upload() {
                 <UploadIcon className="h-10 w-10 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">{t.uploadTitle}</h3>
                 <p className="text-sm text-muted-foreground text-center mb-4">{t.uploadDesc}</p>
-                <input type="file" id="file-upload" accept=".txt" className="hidden" onChange={handleFileChange} />
+                <input 
+                  type="file" 
+                  id="file-upload" 
+                  accept=".txt,.docx" 
+                  className="hidden" 
+                  onChange={handleFileChange} 
+                />
                 <label htmlFor="file-upload">
                   <Button variant="outline" className="cursor-pointer" asChild>
                     <span>{t.browseFiles}</span>
                   </Button>
                 </label>
+                <p className="text-xs text-muted-foreground mt-2">Supported formats: .txt, .docx</p>
               </>
             )}
           </div>

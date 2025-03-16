@@ -7,21 +7,21 @@ export const translations = {
     noteTitle: "Note",
 
     // Upload page
-    uploadTitle: "Upload Course Transcript",
-    uploadDesc: "Drag and drop your text file here, or click to browse",
+    uploadTitle: "Upload Your Course Transcript",
+    uploadDesc: "Drag and drop your transcript file here or click to browse",
     browseFiles: "Browse Files",
-    change: "Change",
-    upload: "Upload",
-    uploading: "Uploading...",
+    change: "Change File",
+    upload: "Process Transcript",
+    uploading: "Processing...",
     fileReadyTitle: "File Ready",
-    fileReadyDesc: "Your file is ready to be processed",
-    errorFileType: "Please upload a plain text (.txt) file",
-    errorWordCount: "Transcript exceeds 50,000 word limit",
-    errorProcessing: "Error processing file",
-    apiKeyMissing: "OpenAI API Key Required",
-    apiKeyMissingDesc: "Please configure your OpenAI API key before uploading transcripts",
+    fileReadyDesc: "Your file has been loaded successfully. Click 'Process Transcript' to continue.",
+    errorFileType: "Please upload a valid .txt or .docx file",
+    errorWordCount: "File exceeds 50,000 words limit",
+    errorProcessing: "Error processing file. Please try again.",
+    apiKeyMissing: "API Key Required",
+    apiKeyMissingDesc: "Please configure your OpenAI API key to use the flashcard generator",
     configureApiKey: "Configure API Key",
-    noApiKey: "OpenAI API key is not configured. Please go to settings to add your API key.",
+    noApiKey: "Please configure your OpenAI API key first",
 
     // Processing page
     processingTitle: "Processing Your Transcript",
@@ -49,8 +49,7 @@ export const translations = {
     generating: "Generating...",
     cardCount: "Cards",
     flashcardError: "Error generating flashcard",
-    contentLanguageNote:
-      "Changing the interface language will not affect the language of existing content. New content will use the selected language.",
+    contentLanguageNote: "Previously generated content will remain in its original language",
 
     // Summary page
     summaryTitle: "Study Session Summary",
@@ -79,21 +78,21 @@ export const translations = {
     noteTitle: "Remarque",
 
     // Upload page
-    uploadTitle: "Télécharger la Transcription du Cours",
-    uploadDesc: "Glissez-déposez votre fichier texte ici, ou cliquez pour parcourir",
+    uploadTitle: "Téléchargez Votre Transcription de Cours",
+    uploadDesc: "Glissez-déposez votre fichier de transcription ici ou cliquez pour parcourir",
     browseFiles: "Parcourir les Fichiers",
-    change: "Changer",
-    upload: "Télécharger",
-    uploading: "Téléchargement...",
+    change: "Changer le Fichier",
+    upload: "Traiter la Transcription",
+    uploading: "Traitement en cours...",
     fileReadyTitle: "Fichier Prêt",
-    fileReadyDesc: "Votre fichier est prêt à être traité",
-    errorFileType: "Veuillez télécharger un fichier texte (.txt)",
-    errorWordCount: "La transcription dépasse la limite de 50 000 mots",
-    errorProcessing: "Erreur lors du traitement du fichier",
-    apiKeyMissing: "Clé API OpenAI Requise",
-    apiKeyMissingDesc: "Veuillez configurer votre clé API OpenAI avant de télécharger des transcriptions",
+    fileReadyDesc: "Votre fichier a été chargé avec succès. Cliquez sur 'Traiter la Transcription' pour continuer.",
+    errorFileType: "Veuillez télécharger un fichier .txt ou .docx valide",
+    errorWordCount: "Le fichier dépasse la limite de 50 000 mots",
+    errorProcessing: "Erreur lors du traitement du fichier. Veuillez réessayer.",
+    apiKeyMissing: "Clé API Requise",
+    apiKeyMissingDesc: "Veuillez configurer votre clé API OpenAI pour utiliser le générateur de cartes mémoire",
     configureApiKey: "Configurer la Clé API",
-    noApiKey: "La clé API OpenAI n'est pas configurée. Veuillez aller dans les paramètres pour ajouter votre clé API.",
+    noApiKey: "Veuillez d'abord configurer votre clé API OpenAI",
 
     // Processing page
     processingTitle: "Traitement de Votre Transcription",
@@ -101,8 +100,7 @@ export const translations = {
     complete: "Analyse terminée !",
     noTranscript: "Aucune transcription trouvée. Veuillez d'abord télécharger un fichier.",
     aiError: "Erreur de traitement avec l'IA. Veuillez réessayer.",
-    noLanguageChangeProcessing:
-      "Impossible de changer de langue pendant le traitement. Veuillez attendre la fin du traitement.",
+    noLanguageChangeProcessing: "Impossible de changer de langue pendant le traitement. Veuillez attendre la fin du traitement.",
 
     // Results page
     resultsTitle: "Résultats de l'Analyse du Cours",
@@ -122,8 +120,7 @@ export const translations = {
     generating: "Génération...",
     cardCount: "Cartes",
     flashcardError: "Erreur lors de la génération de la fiche",
-    contentLanguageNote:
-      "Le changement de langue de l'interface n'affectera pas la langue du contenu existant. Le nouveau contenu utilisera la langue sélectionnée.",
+    contentLanguageNote: "Le contenu précédemment généré restera dans sa langue d'origine",
 
     // Summary page
     summaryTitle: "Résumé de la Session d'Étude",
@@ -144,5 +141,5 @@ export const translations = {
     apiKeyRequired: "La clé API est requise",
     configSettings: "Paramètres de Configuration",
   },
-}
+} as const
 
