@@ -4,19 +4,9 @@ import { createOpenAI } from "@ai-sdk/openai"
 
 // Function to get OpenAI configuration from environment variables
 function getOpenAIConfig() {
-  // Debug: Log all environment variables (without values)
-  console.log("Available environment variables:", Object.keys(process.env))
-  
   const apiKey = process.env.OPENAI_API_KEY
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini"
   const baseURL = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
-
-  // Debug: Log configuration (without API key)
-  console.log("OpenAI Config:", {
-    hasApiKey: !!apiKey,
-    model,
-    baseURL,
-  })
 
   if (!apiKey) {
     throw new Error("OpenAI API key is missing. Please check your environment variables.")
@@ -27,12 +17,8 @@ function getOpenAIConfig() {
 
 export async function POST(request: Request) {
   try {
-    console.log("API route called");
-    
     // Read the request body once
     const body = await request.json()
-    console.log("Request body type:", body.type);
-    
     const { type, language } = body
     const { apiKey, model, baseURL } = getOpenAIConfig()
 
@@ -43,8 +29,6 @@ export async function POST(request: Request) {
 
     if (type === "analyze") {
       const { transcript } = body
-      console.log("Analyzing transcript, length:", transcript?.length);
-      
       const languageInstructions = language === "en" ? "Respond in English." : "Répondez en français."
       const prompt = `
         You are an educational assistant helping university students study.
@@ -71,17 +55,12 @@ export async function POST(request: Request) {
 
       try {
         const result = JSON.parse(text.trim());
-        console.log("Analysis result:", { subject: result.subject, outlineLength: result.outline?.length });
         return NextResponse.json(result);
       } catch (parseError) {
-        console.error("JSON parse error:", parseError);
-        console.log("Raw response text:", text);
         throw new Error("Failed to parse AI response");
       }
     } else if (type === "generate") {
       const { courseData } = body
-      console.log("Generating flashcard for:", courseData?.subject);
-      
       const languageInstructions = language === "en" ? "Create the flashcard in English." : "Créez la fiche en français."
       const prompt = `
         You are an educational assistant helping university students study.
@@ -107,11 +86,8 @@ export async function POST(request: Request) {
 
       try {
         const result = JSON.parse(text.trim());
-        console.log("Flashcard generated:", { question: result.question?.substring(0, 20) + "..." });
         return NextResponse.json(result);
       } catch (parseError) {
-        console.error("JSON parse error:", parseError);
-        console.log("Raw response text:", text);
         throw new Error("Failed to parse AI response");
       }
     }

@@ -27,37 +27,25 @@ export default function FlashcardsPage() {
   const [isInitialized, setIsInitialized] = useState(false)
   const [hasInitialFlashcard, setHasInitialFlashcard] = useState(false)
 
-  console.log("FlashcardsPage rendered", { isInitialized, currentIndex, flashcardsLength: flashcards.length })
-
   // Memoize the generateNextFlashcard function to prevent recreation on each render
   const generateNextFlashcard = useCallback(async () => {
-    console.log("generateNextFlashcard called")
     setIsLoading(true)
     setShowAnswer(false)
 
     try {
       const courseData = JSON.parse(sessionStorage.getItem("courseData") || "{}")
-      console.log("Course data for flashcard generation:", { 
-        subject: courseData.subject,
-        outlineLength: courseData?.outline?.length,
-        contentLanguage
-      })
 
       // Use the content language for generating flashcards
-      console.log("Calling generateFlashcard API")
       const newFlashcard = await generateFlashcard(courseData, contentLanguage)
-      console.log("Received new flashcard:", newFlashcard)
 
       // Use functional updates to ensure we're working with the latest state
       setFlashcards(prev => {
         const updated = [...prev, newFlashcard];
-        console.log("Updated flashcards array:", updated)
         return updated;
       })
       
       setCurrentIndex(prev => {
         const newIndex = prev + 1;
-        console.log("New current index:", newIndex)
         return newIndex;
       })
       
@@ -65,7 +53,6 @@ export default function FlashcardsPage() {
         setHasInitialFlashcard(true)
       }
     } catch (error) {
-      console.error("Error in generateNextFlashcard:", error)
       toast({
         title: t.errorTitle,
         description: t.flashcardError,
@@ -73,26 +60,18 @@ export default function FlashcardsPage() {
       })
     } finally {
       setIsLoading(false)
-      console.log("Flashcard generation complete")
     }
   }, [contentLanguage, t, toast, hasInitialFlashcard])
 
   // Check for course data and set content language - only once on mount
   useEffect(() => {
-    console.log("Initialization useEffect running")
     let mounted = true;
     
     const initializeFlashcards = async () => {
       const courseData = sessionStorage.getItem("courseData")
       const storedContentLanguage = sessionStorage.getItem("contentLanguage") as "en" | "fr"
 
-      console.log("Session data:", { 
-        hasCourseData: !!courseData,
-        storedContentLanguage
-      })
-
       if (!courseData) {
-        console.log("No course data found, redirecting to home")
         toast({
           title: t.errorTitle,
           description: t.noResults,
@@ -104,18 +83,15 @@ export default function FlashcardsPage() {
 
       // Set the content language (the language used for generating content)
       if (storedContentLanguage && mounted) {
-        console.log("Using stored content language:", storedContentLanguage)
         setContentLanguage(storedContentLanguage)
       } else if (mounted) {
         // If no stored content language, use the current UI language
-        console.log("No stored content language, using UI language:", language)
         setContentLanguage(language)
         sessionStorage.setItem("contentLanguage", language)
       }
 
       if (mounted) {
         setIsInitialized(true)
-        console.log("Initialization complete")
       }
     }
     
@@ -128,23 +104,18 @@ export default function FlashcardsPage() {
 
   // Generate first flashcard after initialization
   useEffect(() => {
-    console.log("Second useEffect running", { isInitialized, flashcardsLength: flashcards.length, hasInitialFlashcard })
-    
     if (isInitialized && !hasInitialFlashcard && !isLoading) {
-      console.log("Generating first flashcard")
       generateNextFlashcard()
     }
   }, [isInitialized, hasInitialFlashcard, generateNextFlashcard, isLoading, flashcards.length])
 
   const handleStop = () => {
-    console.log("handleStop called, navigating to summary")
     // Store the flashcards for the summary
     sessionStorage.setItem("flashcards", JSON.stringify(flashcards))
     router.push("/summary")
   }
 
   const currentFlashcard = flashcards[currentIndex - 1]
-  console.log("Current flashcard:", currentFlashcard)
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
