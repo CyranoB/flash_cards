@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "AI Flashcard Generator",
-  description: "Generate flashcards from your course transcripts using AI",
+  description: "Generate flashcards from your course transcripts using AI"
 }
 
 export default function RootLayout({
