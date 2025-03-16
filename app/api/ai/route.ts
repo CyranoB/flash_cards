@@ -1,26 +1,7 @@
 import { NextResponse } from "next/server"
 import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
-
-// Function to get OpenAI configuration from environment variables
-function getOpenAIConfig() {
-  const apiKey = process.env.OPENAI_API_KEY
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini"
-  const baseURL = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
-
-  // Log environment variable status (without exposing values)
-  console.log("OpenAI Config Status:", {
-    hasApiKey: !!apiKey,
-    model,
-    baseURL,
-  })
-
-  if (!apiKey) {
-    throw new Error("OpenAI API key is missing. Please check your environment variables.")
-  }
-
-  return { apiKey, model, baseURL }
-}
+import { getOpenAIConfig } from "@/lib/env"
 
 // Increase function duration for AI operations
 export const maxDuration = 60;
@@ -108,7 +89,7 @@ export async function POST(request: Request) {
     } catch (configError) {
       console.error("OpenAI Configuration Error:", configError);
       return NextResponse.json(
-        { error: "API key configuration error. Please check your environment variables." },
+        { error: "API key configuration error. Please check your environment variables or .env file." },
         { status: 401 }
       )
     }

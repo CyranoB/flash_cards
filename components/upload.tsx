@@ -4,14 +4,13 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { UploadIcon, FileText, Settings } from "lucide-react"
+import { UploadIcon, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { translations } from "@/lib/translations"
 import { useLanguage } from "@/hooks/use-language"
 import { convertDocxToText } from "@/lib/document-converter"
-import Link from "next/link"
 
 async function verifyApiKey() {
   try {
@@ -28,7 +27,7 @@ export function Upload() {
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const [hasApiKey, setHasApiKey] = useState(false)
+  const [hasApiKey, setHasApiKey] = useState<boolean | null>(null)
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
@@ -37,9 +36,14 @@ export function Upload() {
 
   useEffect(() => {
     setMounted(true)
-    // Check if API key is configured
-    const apiKey = localStorage.getItem("openai_api_key")
-    setHasApiKey(!!apiKey)
+    
+    // Check if API key is configured using the API endpoint
+    async function checkApiKey() {
+      const hasKey = await verifyApiKey();
+      setHasApiKey(hasKey);
+    }
+    
+    checkApiKey();
   }, [])
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -123,9 +127,9 @@ export function Upload() {
     
     try {
       // Verify API key before processing
-      const hasApiKey = await verifyApiKey();
+      const hasKey = await verifyApiKey();
       
-      if (!hasApiKey) {
+      if (!hasKey) {
         toast({
           title: t.apiKeyMissing,
           description: t.apiKeyMissingDesc,
@@ -176,18 +180,14 @@ export function Upload() {
     )
   }
 
-  if (!hasApiKey) {
+  if (hasApiKey === false) {
     return (
       <div className="w-full max-w-md mx-auto">
         <Card className="border-2">
           <CardContent className="p-6">
             <div className="flex flex-col items-center justify-center p-6 text-center">
-              <Settings className="h-10 w-10 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">{t.apiKeyMissing}</h3>
               <p className="text-sm text-muted-foreground mb-4">{t.apiKeyMissingDesc}</p>
-              <Link href="/config" passHref>
-                <Button>{t.configureApiKey}</Button>
-              </Link>
             </div>
           </CardContent>
         </Card>
