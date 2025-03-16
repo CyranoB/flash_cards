@@ -1,0 +1,110 @@
+## Project Overview
+
+*   **Type:** cursor_project_rules
+*   **Description:** I am creating a modern flashcard website specifically designed for university students. The main feature of the website is the automatic generation of flashcards from uploaded course transcripts using OpenAI GPT-4o Mini. The site will streamline the study process by allowing students to easily upload course materials and generate study aids tailored to their needs.
+*   **Primary Goal:** To help university students study more effectively by automatically analyzing course transcripts to generate course subjects, detailed outlines, and AI-powered flashcards, all within a modern, intuitive, and multilingual user interface.
+
+## Project Structure
+
+### Framework-Specific Routing
+
+*   **Directory Rules:**
+
+    *   `next.js_14`: Enforce the App Router structure using the `app/` directory with nested route folders. For example:
+
+        *   Example 1: "Next.js 14 (App Router)" → `app/[route]/page.tsx` conventions
+        *   Example 2: "Next.js (Pages Router)" → Should not be used in this project as it conflicts with App Router conventions
+        *   Example 3: "React Router 6" → Not applicable in this project
+
+### Core Directories
+
+*   **Versioned Structure:**
+
+    *   `app`: Contains the Next.js 14 App Router implementation including:
+
+        *   `app/api` → Next.js 14 API routes with Route Handlers for serverless backend operations
+        *   `app/upload` → Home/Upload screen where students submit transcripts
+        *   `app/analysis` → Handles AI transcript processing and visual feedback
+        *   `app/flashcards` → Minimal flashcard interface for navigation through generated cards
+        *   `app/summary` → Session summary display, providing recap before resetting to the upload screen
+
+### Key Files
+
+*   **Stack-Versioned Patterns:**
+
+    *   `app/dashboard/layout.tsx` → Next.js 14 root layouts for consistent UI scaffolding
+    *   `app/api/handler.ts` → API route files using Route Handlers in Next.js 14 for serverless functions
+    *   `app/flashcards/page.tsx` → Main flashcard interface implementing navigation controls ("next" and "stop")
+
+## Tech Stack Rules
+
+*   **Version Enforcement:**
+
+    *   `next@14`: App Router required; no usage of `getInitialProps` or Pages Router patterns
+    *   `typescript@latest`: Enforce strict typing and modern TypeScript features
+    *   `tailwind_css@latest`: Utilize Tailwind CSS with purge configurations and a centralized theme
+    *   `shadcn`: Integrate shadcn components following recommended UI composition practices
+    *   `serverless_backend`: Implement serverless functions optimized for transient data processing
+    *   `openai_gpt_4o_mini`: Configure through environment variables with secure API key handling and retry logic
+
+## PRD Compliance
+
+*   **Non-Negotiable:**
+
+    *   "A home/upload screen enabling students to drag and drop or upload one plain text transcript file (max 50 words total per file)."
+    *   "The AI must analyze the full transcript to generate a course subject and outline without any additional manual input."
+    *   "The flashcard interface must offer simple navigation with 'next' to generate a new card and 'stop' to provide a session summary before resetting to the home screen."
+    *   Visual feedback (loading indicators and progress bars) is required at every AI processing step.
+    *   Multilingual support (English and French) is mandatory for the interface.
+
+## App Flow Integration
+
+*   **Stack-Aligned Flow:**
+
+    *   Example: "Next.js 14 Flashcard Flow" → The sequence starts at `app/upload/page.tsx`, moves to `app/analysis/page.tsx` for AI processing with real-time feedback, then proceeds to `app/flashcards/page.tsx` for interactive flashcard navigation, and finally uses `app/summary/page.tsx` to display a session summary before resetting.
+
+## Best Practices
+
+*   **next.js_14**
+
+    *   Use the App Router (`app/` directory) exclusively for routing.
+    *   Leverage dynamic imports and server actions to improve performance.
+    *   Avoid deprecated patterns like `getInitialProps` to maintain modern architecture.
+
+*   **typescript**
+
+    *   Enforce strict type-checking and use interfaces for robust code structure.
+    *   Utilize modern TypeScript features to improve maintainability and scalability.
+    *   Ensure proper type definitions for API responses and component props.
+
+*   **tailwind_css**
+
+    *   Centralize styling with a well-organized Tailwind configuration file.
+    *   Optimize CSS output by configuring purge paths effectively.
+    *   Use utility-first classes to maintain consistency and rapid UI development.
+
+*   **shadcn**
+
+    *   Follow component composition best practices for clean and reusable UI elements.
+    *   Keep customizations minimal to avoid conflicts with default styles.
+    *   Integrate with Tailwind CSS for consistent theming and responsive design.
+
+*   **serverless_backend**
+
+    *   Optimize cold start performance by monitoring and pre-warming serverless functions.
+    *   Implement comprehensive error handling and retries for AI processing endpoints.
+    *   Maintain stateless design to facilitate scalability and transient data handling.
+
+*   **openai_gpt_4o_mini**
+
+    *   Configure through environment variables for API keys and model settings.
+    *   Implement retry mechanisms and rate limit handling for robust performance.
+    *   Secure API interactions by not exposing keys in the client-side code.
+
+## Rules
+
+*   Derive folder/file patterns directly from tech_stack versions provided in the project context.
+*   If using Next.js 14 App Router: Enforce `app/` directory with nested route folders for all pages and components.
+*   If Pages Router were to be used (not applicable here): Use `pages/*.tsx` flat structure, but never mix version patterns.
+*   Mirror this logic for frameworks like React Router, SvelteKit, etc., while maintaining consistency with Next.js 14 conventions.
+*   Never mix version patterns (e.g., do not include `pages/` in a project that uses the App Router).

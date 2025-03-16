@@ -1,0 +1,56 @@
+# .windsurfrules
+
+## Project Overview
+
+*   **Type:** windsurf_file
+*   **Description:** I am creating a modern flashcard website specifically designed for university students. The site automatically analyzes uploaded course transcripts and generates flashcards using OpenAI GPT-4o-Mini, streamlining the study process with a clean, modern design and multilingual support (English and French).
+*   **Primary Goal:** Automatically analyze course transcripts to determine the course subject and generate flashcards with a minimalistic, user-friendly interface.
+
+## Project Structure
+
+### Framework-Specific Routing
+
+*   **Directory Rules:**
+
+    *   `Next.js 14`: Enforce the App Router architecture using the `app/` directory with nested route folders.
+    *   Example 1: "Next.js 14 (App Router)" → follows `app/[route]/page.tsx` conventions for clear route segregation.
+    *   Example 2: (For comparison) "Next.js (Pages Router)" → would use `pages/[route].tsx` pattern, but is not applicable in this project.
+    *   Example 3: "React Router 6" → structured under `src/routes/` using `createBrowserRouter` (not applicable here).
+
+### Core Directories
+
+*   **Versioned Structure:**
+
+    *   `app/api`: Next.js 14 API routes employing Route Handlers for serverless backend operations such as AI processing.
+    *   `app/home`: Implements the home/upload screen where users can drag and drop course transcripts.
+    *   `app/flashcards`: Contains the flashcard interface with routing for navigation (e.g., next and stop actions with session summary display).
+
+### Key Files
+
+*   **Stack-Versioned Patterns:**
+
+    *   `app/dashboard/layout.tsx`: Example of a root layout file for organizing major sections of the app.
+    *   `app/home/page.tsx`: Implements the modern home/upload screen.
+    *   `app/flashcards/[action]/page.tsx`: Handles flashcard navigation and session summaries.
+
+## Tech Stack Rules
+
+*   **Version Enforcement:**
+
+    *   `next@14`: App Router is required; usage of legacy features like `getInitialProps` is prohibited.
+    *   `typescript@latest`: Enforce strict type checking across the application.
+    *   `tailwind_css@latest`: Utilize Tailwind CSS for modern, utility-first styling.
+    *   `shadcn@latest`: Integrate shadcn component library for enhanced UI components.
+
+## PRD Compliance
+
+*   **Non-Negotiable:**
+
+    *   "AI comprehensively analyzes transcripts to determine course subjects and outlines": This mandates the use of OpenAI GPT-4o-Mini within a serverless architecture, ensuring that the transcript is fully processed to generate a concise subject and course outline without additional user prompts.
+
+## App Flow Integration
+
+*   **Stack-Aligned Flow:**
+
+    *   Example: "Next.js 14 Transcript Upload Flow" → Implemented in `app/home/page.tsx` with integrated server actions for AI processing and visual feedback (loading indicators and progress bars).
+    *   Example: "Next.js 14 Flashcard Session Flow" → Managed within `app/flashcards/`, where flashcards are generated upon confirmation and controlled via simple actions (next/stop) leading to a session summary before resetting to the home/upload screen.
