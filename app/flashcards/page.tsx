@@ -138,7 +138,7 @@ export default function FlashcardsPage() {
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center min-h-[8rem] px-6 space-y-6">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <Progress className="w-full" /> 
+              <Progress className="w-full" indeterminate /> 
               <p className="text-sm text-muted-foreground">
                 {t.generating}
               </p>
