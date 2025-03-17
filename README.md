@@ -1,15 +1,15 @@
 # AI Flashcard Generator
 
-A modern web application that automatically generates study flashcards from course transcripts using OpenAI GPT-4o Mini. Built with Next.js 14, TypeScript, and Tailwind CSS.
+A modern web application that automatically generates study flashcards from course transcripts using OpenAI GPT-4o Mini. Built with Next.js 15, TypeScript, and Tailwind CSS.
 
 ## Features
 
-- 📝 **Transcript Upload**: Upload course transcripts (up to 50,000 words) in .txt or .docx format
-- 🤖 **AI-Powered Analysis**: Automatically generates course subjects and detailed outlines
-- 🎴 **Smart Flashcards**: Creates study-optimized flashcards from your course material
+- 📝 **Transcript Upload**: Upload course transcripts (max 50 words per file) in plain text format
+- 🤖 **AI-Powered Analysis**: Automatically generates course subjects and detailed outlines without manual input
+- 🎴 **Smart Flashcards**: Creates study-optimized flashcards with simple navigation controls
 - 🌐 **Multilingual Interface**: Supports both English and French
-- 🎨 **Modern UI**: Clean, responsive design with dark/light mode support
-- ⚡ **Real-time Processing**: Visual feedback during AI analysis
+- 🎨 **Modern UI**: Clean, responsive design using shadcn components
+- ⚡ **Real-time Processing**: Visual feedback during AI analysis with progress indicators
 - 📱 **Mobile Responsive**: Optimized for both desktop and mobile devices
 
 ## Getting Started
@@ -60,9 +60,8 @@ A modern web application that automatically generates study flashcards from cour
 ## Usage
 
 1. **Upload Transcript**
-   - Drag and drop your file or use the file browser
-   - Supported formats: .txt (plain text) and .docx (Word documents)
-   - Maximum file size: 50,000 words
+   - Drag and drop your plain text file or use the file browser
+   - Maximum file size: 50 words
    - Files are processed locally for privacy
 
 2. **Processing**
@@ -78,30 +77,33 @@ A modern web application that automatically generates study flashcards from cour
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui
-- **AI Integration**: OpenAI GPT-4o Mini
-- **Document Processing**: Mammoth.js
-- **State Management**: React Context
+- **Framework**: Next.js 15.1.0 (App Router)
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS 3.4
+- **UI Components**: shadcn/ui with Radix UI primitives
+- **AI Integration**: OpenAI GPT-4o Mini via @ai-sdk/openai
+- **State Management**: React Context + React Hook Form
+- **Testing**: Built-in test suite
 - **Deployment**: Vercel (recommended)
 
 ## Project Structure
 
 ```
 flash_cards/
-├── app/                    # Next.js 14 App Router
+├── app/                    # Next.js 15 App Router
 │   ├── api/               # API routes
-│   ├── upload/            # Upload page
+│   ├── config/            # App configuration
 │   ├── processing/        # Processing page
+│   ├── results/          # Results display
 │   ├── flashcards/       # Flashcards interface
 │   └── summary/          # Session summary
 ├── components/            # React components
 ├── hooks/                # Custom React hooks
 ├── lib/                  # Utility functions
 ├── public/              # Static assets
-└── styles/              # Global styles
+├── styles/              # Global styles
+├── test/               # Test suite
+└── documentation/      # Project documentation
 ```
 
 ## Development
@@ -112,16 +114,16 @@ flash_cards/
 - `pnpm build`: Build for production
 - `pnpm start`: Start production server
 - `pnpm lint`: Run ESLint
-- `pnpm type-check`: Run TypeScript checks
 
 ### Best Practices
 
 - Use TypeScript for type safety
-- Follow Next.js 14 App Router conventions
+- Follow Next.js 15 App Router conventions
 - Implement proper client/server component separation
 - Handle SSR hydration carefully
 - Use proper error boundaries and loading states
 - Keep sensitive data in environment variables
+- Follow the project rules for file structure and routing
 
 ## Contributing
 
@@ -139,5 +141,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [Next.js](https://nextjs.org/)
 - UI components from [shadcn/ui](https://ui.shadcn.com/)
-- AI powered by [OpenAI](https://openai.com/)
-- Document processing by [Mammoth.js](https://github.com/mwilliamson/mammoth.js) 
+- AI powered by [OpenAI](https://openai.com/) 

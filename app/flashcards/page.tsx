@@ -34,9 +34,10 @@ export default function FlashcardsPage() {
 
     try {
       const courseData = JSON.parse(sessionStorage.getItem("courseData") || "{}")
+      const transcript = sessionStorage.getItem("transcript") || ""
 
       // Use the content language for generating flashcards
-      const newFlashcard = await generateFlashcard(courseData, contentLanguage)
+      const newFlashcard = await generateFlashcard(courseData, transcript, contentLanguage)
 
       // Use functional updates to ensure we're working with the latest state
       setFlashcards(prev => {

@@ -53,15 +53,46 @@ export async function POST(request: Request) {
           throw new Error("Failed to parse AI response");
         }
       } else if (type === "generate") {
-        const { courseData } = body
+        const { courseData, transcript } = body
         const languageInstructions = language === "en" ? "Create the flashcard in English." : "Créez la fiche en français."
         const prompt = `
           You are an educational assistant helping university students study.
-          Based on the following course information, create a single flashcard with a question and answer.
-          Make the question challenging but clear, and the answer concise but comprehensive.
+          Based on the following course information and transcript, create a single flashcard with a question and answer.
           
           Course Subject: ${courseData.subject}
           Course Outline: ${courseData.outline.join(", ")}
+          
+          Original Transcript:
+          ${transcript}
+          
+          IMPORTANT INSTRUCTIONS:
+          1. Use the actual content from the transcript to create questions, not just the subject and outline
+          2. Vary the question types between:
+             - Definitions (What is...?)
+             - Comparisons (How does X compare to Y?)
+             - Applications (How would you use...?)
+             - Analysis (Why does...?)
+             - Cause and Effect (What happens when...?)
+             - Examples (Give an example of...)
+          
+          2. Use different question formats:
+             - Open-ended questions
+             - Fill-in-the-blank statements
+             - True/False with explanation
+             - "Identify the concept" questions
+          
+          3. Vary the cognitive depth:
+             - Basic recall (remembering facts)
+             - Understanding (explaining concepts)
+             - Application (using knowledge in new situations)
+             - Analysis (breaking down complex ideas)
+          
+          4. Make questions:
+             - Based on specific details from the transcript
+             - Challenging but clear
+             - Focused on key concepts
+             - Engaging and thought-provoking
+             - Different from previous questions in the session
           
           ${languageInstructions}
           
@@ -73,7 +104,7 @@ export async function POST(request: Request) {
         const { text } = await generateText({
           model: openai(model),
           prompt,
-          temperature: 0.8,
+          temperature: 0.9,
           maxTokens: 300,
         })
 

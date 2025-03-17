@@ -43,7 +43,7 @@ export async function analyzeTranscript(transcript: string, language: "en" | "fr
 }
 
 // Function to generate a flashcard based on course data
-export async function generateFlashcard(courseData: any, language: "en" | "fr" = "en") {
+export async function generateFlashcard(courseData: any, transcript: string, language: "en" | "fr" = "en") {
   try {
     const response = await fetch("/api/ai", {
       method: "POST",
@@ -52,6 +52,7 @@ export async function generateFlashcard(courseData: any, language: "en" | "fr" =
       },
       body: JSON.stringify({
         courseData,
+        transcript,
         language,
         type: "generate",
       }),
