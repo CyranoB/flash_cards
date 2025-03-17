@@ -4,7 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai"
 import { getOpenAIConfig } from "@/lib/env"
 
 // Increase function duration for AI operations
-export const maxDuration = 120;
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
