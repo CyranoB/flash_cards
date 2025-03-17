@@ -71,3 +71,33 @@ export async function generateFlashcard(courseData: any, transcript: string, lan
   }
 }
 
+// Function to generate multiple flashcards based on course data
+export async function generateFlashcards(courseData: any, transcript: string, count: number = 10, language: "en" | "fr" = "en") {
+  try {
+    const response = await fetch("/api/ai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        courseData,
+        transcript,
+        count,
+        language,
+        type: "generate-batch",
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to generate flashcards");
+    }
+
+    const data = await response.json();
+    return data.flashcards;
+  } catch (error) {
+    console.error("Error generating flashcards:", error);
+    throw error;
+  }
+}
+

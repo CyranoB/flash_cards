@@ -4,7 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai"
 import { getOpenAIConfig } from "@/lib/env"
 
 // Increase function duration for AI operations
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function POST(request: Request) {
   try {
@@ -106,6 +106,72 @@ export async function POST(request: Request) {
           prompt,
           temperature: 0.9,
           maxTokens: 300,
+        })
+
+        try {
+          const result = JSON.parse(text.trim());
+          return NextResponse.json(result);
+        } catch (parseError) {
+          throw new Error("Failed to parse AI response");
+        }
+      } else if (type === "generate-batch") {
+        const { courseData, transcript, count = 10 } = body
+        const languageInstructions = language === "en" ? "Create the flashcards in English." : "Créez les fiches en français."
+        const prompt = `
+          You are an educational assistant helping university students study.
+          Based on the following course information and transcript, create ${count} flashcards with questions and answers.
+          
+          Course Subject: ${courseData.subject}
+          Course Outline: ${courseData.outline.join(", ")}
+          
+          Original Transcript:
+          ${transcript}
+          
+          IMPORTANT INSTRUCTIONS:
+          1. Use the actual content from the transcript to create questions, not just the subject and outline
+          2. Vary the question types between:
+             - Definitions (What is...?)
+             - Comparisons (How does X compare to Y?)
+             - Applications (How would you use...?)
+             - Analysis (Why does...?)
+             - Cause and Effect (What happens when...?)
+             - Examples (Give an example of...)
+          
+          2. Use different question formats:
+             - Open-ended questions
+             - Fill-in-the-blank statements
+             - True/False with explanation
+             - "Identify the concept" questions
+          
+          3. Vary the cognitive depth:
+             - Basic recall (remembering facts)
+             - Understanding (explaining concepts)
+             - Application (using knowledge in new situations)
+             - Analysis (breaking down complex ideas)
+          
+          4. Make questions:
+             - Based on specific details from the transcript
+             - Challenging but clear
+             - Focused on key concepts
+             - Engaging and thought-provoking
+             - Different from each other
+          
+          ${languageInstructions}
+          
+          IMPORTANT: Respond ONLY with a valid JSON object and nothing else. No markdown formatting, no backticks, no explanation text.
+          The JSON must have this exact structure:
+          {"flashcards": [
+            {"question": "Question 1", "answer": "Answer 1"},
+            {"question": "Question 2", "answer": "Answer 2"},
+            ... and so on for all ${count} flashcards
+          ]}
+        `
+
+        const { text } = await generateText({
+          model: openai(model),
+          prompt,
+          temperature: 0.9,
+          maxTokens: 2000,
         })
 
         try {

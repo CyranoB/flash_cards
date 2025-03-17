@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { generateFlashcard } from "@/lib/ai"
+import { generateFlashcards } from "@/lib/ai"
 import { useLanguage } from "@/hooks/use-language"
 import { translations } from "@/lib/translations"
+import { Progress } from "@/components/ui/progress"
+import { Loader2 } from "lucide-react"
 
 interface Flashcard {
   question: string
@@ -25,33 +27,25 @@ export default function FlashcardsPage() {
   const t = translations[language]
   const [contentLanguage, setContentLanguage] = useState<"en" | "fr">("en")
   const [isInitialized, setIsInitialized] = useState(false)
-  const [hasInitialFlashcard, setHasInitialFlashcard] = useState(false)
-
-  // Memoize the generateNextFlashcard function to prevent recreation on each render
-  const generateNextFlashcard = useCallback(async () => {
+  
+  // Memoize the generateMoreFlashcards function to prevent recreation on each render
+  const generateMoreFlashcards = useCallback(async () => {
     setIsLoading(true)
-    setShowAnswer(false)
-
+    // Remove the progress state updates since we're using indeterminate progress
+    
     try {
       const courseData = JSON.parse(sessionStorage.getItem("courseData") || "{}")
       const transcript = sessionStorage.getItem("transcript") || ""
+      const batchSize = 10 // Number of flashcards to generate at once
 
       // Use the content language for generating flashcards
-      const newFlashcard = await generateFlashcard(courseData, transcript, contentLanguage)
+      const newFlashcards = await generateFlashcards(courseData, transcript, batchSize, contentLanguage)
 
       // Use functional updates to ensure we're working with the latest state
-      setFlashcards(prev => {
-        const updated = [...prev, newFlashcard];
-        return updated;
-      })
+      setFlashcards(prev => [...prev, ...newFlashcards])
       
-      setCurrentIndex(prev => {
-        const newIndex = prev + 1;
-        return newIndex;
-      })
-      
-      if (!hasInitialFlashcard) {
-        setHasInitialFlashcard(true)
+      if (currentIndex === 0) {
+        setCurrentIndex(1) // Start at the first card if we don't have any yet
       }
     } catch (error) {
       toast({
@@ -62,7 +56,19 @@ export default function FlashcardsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [contentLanguage, t, toast, hasInitialFlashcard])
+  }, [contentLanguage, t, toast, currentIndex])
+
+  // Function to move to the next flashcard
+  const goToNextFlashcard = useCallback(() => {
+    setShowAnswer(false)
+    
+    // Check if we need to generate more flashcards
+    if (currentIndex >= flashcards.length) {
+      generateMoreFlashcards()
+    } else {
+      setCurrentIndex(prev => prev + 1)
+    }
+  }, [currentIndex, flashcards.length, generateMoreFlashcards])
 
   // Check for course data and set content language - only once on mount
   useEffect(() => {
@@ -103,12 +109,12 @@ export default function FlashcardsPage() {
     };
   }, []) // Empty dependency array - only run on mount
 
-  // Generate first flashcard after initialization
+  // Generate first batch of flashcards after initialization
   useEffect(() => {
-    if (isInitialized && !hasInitialFlashcard && !isLoading) {
-      generateNextFlashcard()
+    if (isInitialized && flashcards.length === 0 && !isLoading) {
+      generateMoreFlashcards()
     }
-  }, [isInitialized, hasInitialFlashcard, generateNextFlashcard, isLoading, flashcards.length])
+  }, [isInitialized, generateMoreFlashcards, isLoading, flashcards.length])
 
   const handleStop = () => {
     // Store the flashcards for the summary
@@ -116,14 +122,29 @@ export default function FlashcardsPage() {
     router.push("/summary")
   }
 
-  const currentFlashcard = flashcards[currentIndex - 1]
+  const currentFlashcard = currentIndex > 0 && currentIndex <= flashcards.length 
+    ? flashcards[currentIndex - 1] 
+    : null
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <h1 className="text-3xl font-bold text-center">{t.flashcardsTitle}</h1>
 
-        {currentFlashcard ? (
+        {isLoading ? (
+          <Card className="w-full min-h-[16rem]">
+            <CardHeader>
+              <CardTitle className="text-center">{t.generating}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center min-h-[8rem] px-6 space-y-6">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <Progress className="w-full" /> 
+              <p className="text-sm text-muted-foreground">
+                {t.generating}
+              </p>
+            </CardContent>
+          </Card>
+        ) : currentFlashcard ? (
           <Card className="w-full min-h-[16rem]">
             <CardHeader>
               <CardTitle className="text-center">{showAnswer ? t.answerLabel : t.questionLabel}</CardTitle>
@@ -145,7 +166,7 @@ export default function FlashcardsPage() {
           <Button variant="outline" onClick={handleStop}>
             {t.stopButton}
           </Button>
-          <Button onClick={generateNextFlashcard} disabled={isLoading}>
+          <Button onClick={goToNextFlashcard} disabled={isLoading}>
             {isLoading ? t.generating : t.nextButton}
           </Button>
         </div>
