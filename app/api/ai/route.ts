@@ -43,7 +43,7 @@ export async function POST(request: Request) {
           model: openai(model),
           prompt,
           temperature: 0.7,
-          maxTokens: 500,
+          maxTokens: 1024,
         })
 
         try {
@@ -94,6 +94,24 @@ export async function POST(request: Request) {
              - Focused on key concepts
              - Engaging and thought-provoking
              - Different from previous questions in the session
+
+          5. Make answers:
+            - Concise while maintaining informativeness
+            - Begin with a direct answer before elaboration
+            - Include relevant formulas or frameworks when applicable
+            - Provide at least one concrete example for complex concepts
+            - Limit to 3-4 sentences maximum for readability
+
+          6. Avoid redundancy:
+            - Check for conceptual overlap with previous questions
+            - Focus on unique aspects when covering related topics
+            - Use different examples when discussing similar concepts
+
+          7. Structure for learning progression:
+            - Begin with foundational concepts before advanced applications
+            - Connect new concepts to previously established ones
+            - Include metacognitive elements ("This concept is often confused with...")
+
           
           ${languageInstructions}
           
@@ -105,8 +123,8 @@ export async function POST(request: Request) {
         const { text } = await generateText({
           model: openai(model),
           prompt,
-          temperature: 0.9,
-          maxTokens: 300,
+          temperature: 0.7,
+          maxTokens: 2048,
         })
 
         try {
