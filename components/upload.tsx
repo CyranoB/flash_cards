@@ -8,34 +8,18 @@ import { UploadIcon, FileText, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { translations } from "@/lib/translations"
 import { useLanguage } from "@/hooks/use-language"
 import { convertDocumentToText } from "@/lib/document-converter"
 import { usePdfText } from "@/hooks/usePdfText"
 import { ErrorDialog } from "@/components/error-dialog"
-
-async function verifyApiKey() {
-  try {
-    console.log('🔑 Verifying API key...');
-    const response = await fetch('/api/verify-key');
-    if (!response.ok) {
-      throw new Error(`API key verification failed: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log('🔑 API key verification result:', data.hasApiKey);
-    return data.hasApiKey;
-  } catch (error) {
-    console.error('❌ API key verification error:', error);
-    return false;
-  }
-}
+import { useTranslation } from "@/hooks/use-translation"
 
 export function Upload() {
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const [hasApiKey, setHasApiKey] = useState<boolean | null>(null)
   const [mounted, setMounted] = useState(false)
   const [errorDialog, setErrorDialog] = useState({
     isOpen: false,
@@ -51,15 +35,6 @@ export function Upload() {
   useEffect(() => {
     console.log('🔄 Component mounted');
     setMounted(true)
-    
-    // Check if API key is configured using the secure API endpoint
-    async function checkApiKey() {
-      const hasKey = await verifyApiKey();
-      console.log('🔑 Initial API key check:', hasKey);
-      setHasApiKey(hasKey);
-    }
-    
-    checkApiKey();
   }, [])
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -216,17 +191,6 @@ export function Upload() {
     setIsUploading(true);
     
     try {
-      // Verify API key before processing
-      const hasKey = await verifyApiKey();
-      console.log('🔑 API key check for upload:', hasKey);
-      
-      if (!hasKey) {
-        console.warn('⚠️ Missing API key');
-        showError(t.apiKeyMissing, t.apiKeyMissingDesc);
-        setIsUploading(false);
-        return;
-      }
-      
       // Get text content based on file type
       let text: string;
       const isPdfFile = file.type === "application/pdf";
@@ -262,8 +226,8 @@ export function Upload() {
     }
   }
 
-  // During SSR or initial load, render a minimal loading state
-  if (!mounted || hasApiKey === null) {
+  // During SSR, render a minimal loading state
+  if (!mounted) {
     return (
       <div className="w-full max-w-md mx-auto">
         <Card className="border-2">
@@ -272,21 +236,6 @@ export function Upload() {
               <div className="h-10 w-10 mb-4" />
               <div className="h-6 w-32 bg-gray-200 animate-pulse rounded mb-2" />
               <div className="h-4 w-48 bg-gray-200 animate-pulse rounded mb-4" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  if (hasApiKey === false) {
-    return (
-      <div className="w-full max-w-md mx-auto">
-        <Card className="border-2">
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center justify-center p-6 text-center">
-              <h3 className="text-lg font-semibold mb-2">{t.apiKeyMissing}</h3>
-              <p className="text-sm text-muted-foreground mb-4">{t.apiKeyMissingDesc}</p>
             </div>
           </CardContent>
         </Card>
