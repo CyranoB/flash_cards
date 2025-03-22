@@ -8,14 +8,15 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_LIMIT = 3  // Allow up to 3 toasts at once
+const TOAST_REMOVE_DELAY = 10000  // Increase to 10 seconds default for better visibility
 
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  duration?: number  // Allow custom duration
 }
 
 const actionTypes = {
@@ -60,7 +61,8 @@ const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 const addToRemoveQueue = (toastId: string) => {
   if (toastTimeouts.has(toastId)) {
-    return
+    const existingTimeout = toastTimeouts.get(toastId);
+    if (existingTimeout) clearTimeout(existingTimeout);
   }
 
   const timeout = setTimeout(() => {
@@ -145,13 +147,37 @@ type Toast = Omit<ToasterToast, "id">
 function toast({ ...props }: Toast) {
   const id = genId()
 
+  // Use custom duration or default
+  const duration = props.duration || TOAST_REMOVE_DELAY;
+  console.log('🍞 Creating toast with duration:', duration, 'ms');
+
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
       toast: { ...props, id },
     })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+    
+  const dismiss = () => {
+    console.log('🔄 Dismissing toast:', id);
+    dispatch({ type: "DISMISS_TOAST", toastId: id });
+  }
 
+  // Clear any existing toasts with the same title and description to prevent duplicates
+  const existingToasts = memoryState.toasts.filter(
+    t => t.title === props.title && t.description === props.description
+  );
+  
+  if (existingToasts.length > 0) {
+    console.log('🔄 Found existing similar toast, will update instead of creating new');
+    existingToasts.forEach(t => {
+      if (toastTimeouts.has(t.id)) {
+        clearTimeout(toastTimeouts.get(t.id)!);
+      }
+      dispatch({ type: "REMOVE_TOAST", toastId: t.id });
+    });
+  }
+
+  // Add the toast to the state with a stable timeout
   dispatch({
     type: "ADD_TOAST",
     toast: {
@@ -159,13 +185,25 @@ function toast({ ...props }: Toast) {
       id,
       open: true,
       onOpenChange: (open) => {
-        if (!open) dismiss()
+        if (!open) {
+          console.log('🔄 Toast manually closed:', id);
+          dismiss();
+        }
       },
     },
-  })
+  });
+  
+  // Set up timeout for auto-dismissal
+  const timeout = setTimeout(() => {
+    console.log('⏱️ Toast timeout triggered:', id);
+    dismiss();
+  }, duration);
+  
+  // Store the timeout for potential early cancellation
+  toastTimeouts.set(id, timeout);
 
   return {
-    id: id,
+    id,
     dismiss,
     update,
   }

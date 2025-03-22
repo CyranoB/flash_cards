@@ -80,6 +80,7 @@ export async function POST(request: Request) {
              - Fill-in-the-blank statements
              - True/False with explanation
              - "Identify the concept" questions
+             - Multiple choice questions
           
           3. Vary the cognitive depth:
              - Basic recall (remembering facts)
@@ -142,7 +143,8 @@ export async function POST(request: Request) {
              - Fill-in-the-blank statements
              - True/False with explanation
              - "Identify the concept" questions
-          
+             - Multiple choice questions
+             
           3. Vary the cognitive depth:
              - Basic recall (remembering facts)
              - Understanding (explaining concepts)

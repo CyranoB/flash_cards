@@ -15,13 +15,29 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {toasts.map(function ({ id, title, description, action, variant, ...props }) {
+        const isDestructive = variant === "destructive";
         return (
-          <Toast key={id} {...props}>
+          <Toast 
+            key={id} 
+            variant={variant} 
+            {...props} 
+            className={isDestructive 
+              ? "border-2 border-destructive shadow-lg" 
+              : ""}
+          >
             <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
+              {title && (
+                <ToastTitle className={isDestructive ? "text-base font-bold" : ""}>
+                  {title}
+                </ToastTitle>
+              )}
               {description && (
-                <ToastDescription>{description}</ToastDescription>
+                <ToastDescription 
+                  className={isDestructive ? "opacity-100 text-sm font-medium" : ""}
+                >
+                  {description}
+                </ToastDescription>
               )}
             </div>
             {action}
@@ -29,7 +45,7 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      <ToastViewport className="sm:bottom-4 sm:right-4 z-50 max-w-[420px]" />
     </ToastProvider>
   )
 }

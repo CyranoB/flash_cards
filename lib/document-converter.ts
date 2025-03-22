@@ -31,4 +31,15 @@ export async function convertDocxToText(file: File): Promise<string> {
     
     reader.readAsArrayBuffer(file);
   });
+}
+
+export async function convertDocumentToText(file: File): Promise<string> {
+  switch (file.type) {
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return await convertDocxToText(file);
+    case 'text/plain':
+      return await file.text();
+    default:
+      throw new Error('Unsupported file type');
+  }
 } 

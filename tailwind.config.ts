@@ -62,10 +62,15 @@ const config: Config = {
           "0%": { transform: "translateX(-100%)" },
           "50%": { transform: "translateX(0%)" },
           "100%": { transform: "translateX(100%)" }
+        },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.85" }
         }
       },
       animation: {
-        "progress-indeterminate": "progress-indeterminate 1.5s ease-in-out infinite"
+        "progress-indeterminate": "progress-indeterminate 1.5s ease-in-out infinite",
+        "pulse-slow": "pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
       }
     },
   },
