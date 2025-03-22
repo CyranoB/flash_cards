@@ -14,7 +14,6 @@ import { useLanguage } from "@/hooks/use-language"
 import { convertDocumentToText } from "@/lib/document-converter"
 import { usePdfText } from "@/hooks/usePdfText"
 import { ErrorDialog } from "@/components/error-dialog"
-import { useTranslation } from "@/hooks/use-translation"
 
 export function Upload() {
   const [file, setFile] = useState<File | null>(null)

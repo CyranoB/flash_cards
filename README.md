@@ -4,13 +4,14 @@ A modern web application that automatically generates study flashcards from cour
 
 ## Features
 
-- 📝 **Transcript Upload**: Upload course transcripts (max 50 words per file) in plain text format
+- 📝 **Transcript Upload**: Upload course transcripts (500-50,000 words) in TXT, DOCX, or PDF format
 - 🤖 **AI-Powered Analysis**: Automatically generates course subjects and detailed outlines without manual input
 - 🎴 **Smart Flashcards**: Creates study-optimized flashcards with simple navigation controls
 - 🌐 **Multilingual Interface**: Supports both English and French
 - 🎨 **Modern UI**: Clean, responsive design using shadcn components
 - ⚡ **Real-time Processing**: Visual feedback during AI analysis with progress indicators
 - 📱 **Mobile Responsive**: Optimized for both desktop and mobile devices
+- 🔒 **Secure**: Server-side API key validation with clear configuration feedback
 
 ## Getting Started
 
@@ -33,15 +34,11 @@ A modern web application that automatically generates study flashcards from cour
    pnpm install
    ```
 
-3. Copy the example environment file and configure your settings:
-   ```bash
-   cp .env.example .env.local
-   ```
-   Then edit `.env.local` with your OpenAI API key and preferred settings:
+3. Configure your OpenAI API key:
+   - Create a `.env` file in the root directory
+   - Add your OpenAI API key:
    ```env
    OPENAI_API_KEY=your_api_key_here
-   OPENAI_MODEL=gpt-4o-mini
-   OPENAI_BASE_URL=https://api.openai.com/v1
    ```
 
 4. Start the development server:
@@ -53,15 +50,28 @@ A modern web application that automatically generates study flashcards from cour
 
 ### Configuration
 
-- Set your OpenAI API key and model in the `.env.local` file
-- Choose your preferred interface language (English/French)
-- Customize theme settings (light/dark mode)
+The application performs a server-side check for the OpenAI API key at startup:
+
+- If the API key is properly configured:
+  - The application will start normally
+  - Users can immediately begin uploading and processing transcripts
+
+- If the API key is missing:
+  - A clear configuration screen will be displayed
+  - Instructions for setting up the API key will be shown
+  - The application will not process any transcripts until configured
+
+To update the API key:
+1. Stop the application
+2. Edit the `.env` file with your new API key
+3. Restart the application
 
 ## Usage
 
 1. **Upload Transcript**
-   - Drag and drop your plain text file or use the file browser
-   - Maximum file size: 50 words
+   - Drag and drop your file or use the file browser
+   - Supported formats: TXT, DOCX, PDF
+   - File size: 500-50,000 words
    - Files are processed locally for privacy
 
 2. **Processing**
