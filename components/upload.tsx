@@ -19,6 +19,9 @@ async function verifyApiKey() {
   try {
     console.log('🔑 Verifying API key...');
     const response = await fetch('/api/verify-key');
+    if (!response.ok) {
+      throw new Error(`API key verification failed: ${response.status}`);
+    }
     const data = await response.json();
     console.log('🔑 API key verification result:', data.hasApiKey);
     return data.hasApiKey;
@@ -49,7 +52,7 @@ export function Upload() {
     console.log('🔄 Component mounted');
     setMounted(true)
     
-    // Check if API key is configured using the API endpoint
+    // Check if API key is configured using the secure API endpoint
     async function checkApiKey() {
       const hasKey = await verifyApiKey();
       console.log('🔑 Initial API key check:', hasKey);
@@ -259,8 +262,8 @@ export function Upload() {
     }
   }
 
-  // During SSR, render a minimal loading state
-  if (!mounted) {
+  // During SSR or initial load, render a minimal loading state
+  if (!mounted || hasApiKey === null) {
     return (
       <div className="w-full max-w-md mx-auto">
         <Card className="border-2">
