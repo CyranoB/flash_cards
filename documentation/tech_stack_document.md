@@ -6,9 +6,10 @@ This document explains the technology choices behind our modern flashcard websit
 
 Our choice of frontend technologies ensures a responsive, accessible, and visually engaging interface:
 
-*   **Next.js 14**
+*   **Next.js 15**
 
     *   Provides a modern React-based framework with server-side rendering, ensuring fast page loads and improved SEO.
+    *   Utilizes the App Router for more intuitive and performant routing.
 
 *   **TypeScript**
 
@@ -93,11 +94,11 @@ Collectively, implementing robust security practices and focused performance enh
 
 ## Conclusion and Overall Tech Stack Summary
 
-To summarize, our tech stack is carefully selected to match the project’s goals and user needs:
+To summarize, our tech stack is carefully selected to match the project's goals and user needs:
 
 *   **Frontend:**
 
-    *   Next.js 14
+    *   Next.js 15 (with App Router)
     *   TypeScript
     *   Tailwind CSS
     *   shadcn
@@ -105,7 +106,7 @@ To summarize, our tech stack is carefully selected to match the project’s goal
 *   **Backend:**
 
     *   Serverless functions for temporary data handling
-    *   OpenAI GPT-4o-Mini for AI-driven transcript analysis and flashcard generation
+    *   OpenAI compatible for AI-driven transcript analysis and flashcard generation
 
 *   **Infrastructure:**
 
@@ -113,11 +114,11 @@ To summarize, our tech stack is carefully selected to match the project’s goal
 
 *   **Third-Party Integrations:**
 
-    *   OpenAI GPT capabilities integrated with robust configuration settings
+    *   OpenAI (and compatible) capabilities integrated with robust configuration settings
 
 *   **Security and Performance:**
 
     *   Transient data management enhances security
     *   Performance is optimized through careful architecture choices and real-time visual feedback
 
-These choices align with the project’s requirement to provide an effective, accessible, and user-friendly flashcard website. The use of modern development tools and cloud services ensures that the platform is not only scalable and secure but also affable to non-technical users, making it a standout solution for university students seeking streamlined study aids.
+These choices align with the project's requirement to provide an effective, accessible, and user-friendly flashcard website. The use of modern development tools and cloud services ensures that the platform is not only scalable and secure but also affable to non-technical users, making it a standout solution for university students seeking streamlined study aids.

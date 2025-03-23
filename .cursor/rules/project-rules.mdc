@@ -6,7 +6,7 @@ alwaysApply: true
 ## Project Overview
 
 *   **Type:** cursor_project_rules
-*   **Description:** I am creating a modern flashcard website specifically designed for university students. The main feature of the website is the automatic generation of flashcards from uploaded course transcripts using OpenAI GPT-4o Mini. The site will streamline the study process by allowing students to easily upload course materials and generate study aids tailored to their needs.
+*   **Description:** I am creating a modern flashcard website specifically designed for university students. The main feature of the website is the automatic generation of flashcards from uploaded course transcripts using OpenAI compatible API (e.g, gpt-4o-mini model). The site will streamline the study process by allowing students to easily upload course materials and generate study aids tailored to their needs.
 *   **Primary Goal:** To help university students study more effectively by automatically analyzing course transcripts to generate course subjects, detailed outlines, and AI-powered flashcards, all within a modern, intuitive, and multilingual user interface.
 
 ## Project Structure
@@ -15,9 +15,9 @@ alwaysApply: true
 
 *   **Directory Rules:**
 
-    *   `next.js_14`: Enforce the App Router structure using the `app/` directory with nested route folders. For example:
+    *   `next.js_15`: Enforce the App Router structure using the `app/` directory with nested route folders. For example:
 
-        *   Example 1: "Next.js 14 (App Router)" → `app/[route]/page.tsx` conventions
+        *   Example 1: "Next.js 15 (App Router)" → `app/[route]/page.tsx` conventions
         *   Example 2: "Next.js (Pages Router)" → Should not be used in this project as it conflicts with App Router conventions
         *   Example 3: "React Router 6" → Not applicable in this project
 
@@ -25,9 +25,9 @@ alwaysApply: true
 
 *   **Versioned Structure:**
 
-    *   `app`: Contains the Next.js 14 App Router implementation including:
+    *   `app`: Contains the Next.js 15 App Router implementation including:
 
-        *   `app/api` → Next.js 14 API routes with Route Handlers for serverless backend operations
+        *   `app/api` → Next.js 15 API routes with Route Handlers for serverless backend operations
         *   `app/upload` → Home/Upload screen where students submit transcripts
         *   `app/analysis` → Handles AI transcript processing and visual feedback
         *   `app/flashcards` → Minimal flashcard interface for navigation through generated cards
@@ -45,7 +45,7 @@ alwaysApply: true
 
 *   **Version Enforcement:**
 
-    *   `next@14`: App Router required; no usage of `getInitialProps` or Pages Router patterns
+    *   `next@15`: App Router required; no usage of `getInitialProps` or Pages Router patterns
     *   `typescript@latest`: Enforce strict typing and modern TypeScript features
     *   `tailwind_css@latest`: Utilize Tailwind CSS with purge configurations and a centralized theme
     *   `shadcn`: Integrate shadcn components following recommended UI composition practices
@@ -66,11 +66,11 @@ alwaysApply: true
 
 *   **Stack-Aligned Flow:**
 
-    *   Example: "Next.js 14 Flashcard Flow" → The sequence starts at `app/upload/page.tsx`, moves to `app/analysis/page.tsx` for AI processing with real-time feedback, then proceeds to `app/flashcards/page.tsx` for interactive flashcard navigation, and finally uses `app/summary/page.tsx` to display a session summary before resetting.
+    *   Example: "Next.js 15 Flashcard Flow" → The sequence starts at `app/upload/page.tsx`, moves to `app/analysis/page.tsx` for AI processing with real-time feedback, then proceeds to `app/flashcards/page.tsx` for interactive flashcard navigation, and finally uses `app/summary/page.tsx` to display a session summary before resetting.
 
 ## Best Practices
 
-*   **next.js_14**
+*   **next.js_15**
 
     *   Use the App Router (`app/` directory) exclusively for routing.
     *   Leverage dynamic imports and server actions to improve performance.
@@ -109,7 +109,7 @@ alwaysApply: true
 ## Rules
 
 *   Derive folder/file patterns directly from tech_stack versions provided in the project context.
-*   If using Next.js 14 App Router: Enforce `app/` directory with nested route folders for all pages and components.
+*   If using Next.js 15 App Router: Enforce `app/` directory with nested route folders for all pages and components.
 *   If Pages Router were to be used (not applicable here): Use `pages/*.tsx` flat structure, but never mix version patterns.
 *   Mirror this logic for frameworks like React Router, SvelteKit, etc., while maintaining consistency with Next.js 14 conventions.
 *   Never mix version patterns (e.g., do not include `pages/` in a project that uses the App Router).

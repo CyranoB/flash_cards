@@ -1,31 +1,142 @@
-# App Flow Document for the Modern Flashcard Website
+# AI Flashcard Generator - Application Flow Document
 
-## Onboarding and Sign-In/Sign-Up
+## Overview
 
-When a new user first arrives on the website, they are greeted by a clean and inviting landing page that is designed to simplify the study process. As there is no requirement for creating an account or signing in, users can immediately engage with the application without the need to remember passwords or go through a lengthy sign-up process. The landing page clearly displays a language selection option allowing students to choose between English and French. The user is invited to proceed directly to the upload interface which is prominently featured on the home page.
+The AI Flashcard Generator is a Next.js application that uses OpenAI's API to analyze course transcripts and generate study flashcards. The application follows a clear linear flow from document upload to flashcard creation and review.
 
-## Main Dashboard or Home Page
+## System Initialization
 
-Once on the home page, the user sees a modern, uncluttered interface centered around a file upload area. The design places a drag-and-drop region alongside a clickable file selector. This page is not only visually appealing with modern styling but also functional, providing intuitive cues for uploading course transcripts. The page layout is simple, with a header that includes the language toggle and minimal navigation elements so that the focus remains on the upload task. From here the student is gently guided through the first step of their learning journey without distractions from unnecessary features.
+Before any user interaction, the application performs a server-side check for proper OpenAI API configuration:
 
-## Detailed Feature Flows and Page Transitions
+- **Component**: `ServerConfigCheck` in `/components/server-config-check.tsx`
+- If API key is missing or invalid, displays configuration instructions
+- If properly configured, renders the application content
 
-After the student uploads one or more plain text transcripts (each file limited to a maximum of 50 words in total), the application automatically transitions to the processing stage. In this stage, the AI component, OpenAI GPT-4o-Mini, takes over and reads through the full content of the transcript to generate a course subject and outline. As this analysis is performed, the interface provides real-time visual feedback including loading indicators and progress bars. This ensures that the student is informed about the process and is aware that the system is actively working on their input.
+## Application Flow
 
-Once the AI processing is complete, the application transitions to a dedicated display page where the student sees the automatically generated course subject and outline in a clear, well-formatted manner. There is no extra input required from the student at this point. The page features a prominent call-to-action button labeled "Ready!" which the student clicks when they wish to move on to the flashcard generation session.
+### 1. Home Page (Upload)
 
-Following the confirmation, the interface shifts to a minimalistic flashcard display where the student is presented with one flashcard at a time. Navigation is straightforward with two clearly marked controls: pressing "next" triggers the generation of a new flashcard, while selecting "stop" concludes the session. If the student clicks "stop", the system then generates and displays a summary of the session’s flashcards. The flashcard interface is intentionally minimal to maintain focus on the study material, providing a seamless interaction that takes the student step-by-step through the learning process.
+**Path**: `/app/page.tsx`  
+**Primary Component**: `Upload` from `/components/upload.tsx`
 
-After reading the summary, the system automatically resets, returning the user to the home/upload page. This cyclical navigation design ensures that the student can immediately begin a new session if desired, streamlining continuous learning and revision.
+**User Flow**:
+- User lands on the homepage
+- User can toggle language (English/French) and theme (Light/Dark)
+- User uploads a document (TXT, DOCX, or PDF format)
+- File is validated for format and size (500-50,000 words)
 
-## Settings and Account Management
+**Technical Implementation**:
+- Client-side file processing using `/lib/document-converter.ts`
+- Extracted text stored in `sessionStorage` as "transcript"
+- User is redirected to the processing page
 
-Since the flashcard website does not require user accounts or permanent data storage, the available settings are very straightforward and user friendly. The only configuration available to the end user is the language toggle, which is easily accessible from the header of the website. This allows students to switch between English and French at any point during their session. Administrative settings, such as configuring the OpenAI API key, selecting the model, and specifying the default URL, are maintained in a secure configuration file that is not visible to the student, ensuring that all back-end settings are managed separately from the front-end user experience. Once any changes in settings are made or language is switched, the student is seamlessly returned to their current step in the application without any disruption.
+### 2. Processing Page
 
-## Error States and Alternate Paths
+**Path**: `/app/processing/page.tsx`
 
-In cases where a user might upload a file that is not in plain text or exceeds the maximum of 50 words, the application promptly displays an error message that explains the issue in simple language. During the uploading process or while awaiting AI analysis, if the system encounters delays or network issues, clear visual cues such as error dialogs or alternative loading graphics are presented to keep the user informed. If a user attempts to navigate to a section that is not accessible, the application gracefully redirects them to the correct page with an explanation as to why the action was not possible. These error messages are designed to be helpful and will include steps or reminders on how to correct the input, ensuring that the normal flow of the application is quickly restored for an optimal user experience.
+**User Flow**:
+- User sees a loading indicator with progress bar
+- System analyzes the transcript content
+- Automatic redirection to results page when complete
 
-## Conclusion and Overall App Journey
+**Technical Implementation**:
+- Retrieves transcript from `sessionStorage`
+- Calls `analyzeTranscript()` from `/lib/ai.ts` to process text
+- Shows progress indicators (simulated incremental progress)
+- Stores analysis results in `sessionStorage` as "courseData"
+- Stores the content language in `sessionStorage` as "contentLanguage"
+- Redirects to `/results` when processing completes
 
-The overall journey through the flashcard website is designed to be straightforward and efficient. A student arrives at a beautifully designed landing page and is immediately able to upload course transcripts without any delay or need for account creation. Following the upload, the application seamlessly performs AI-driven analysis and presents a clear overview of the course subject and outline generated from the transcript. With minimal action required from the student, they confirm the processed data and transition to a flashcard interface where interactions are simple, using clearly labeled buttons to move through flashcards or end the session. When the user stops, they receive a session summary, ensuring that all generated study material is consolidated before being automatically reset to the beginning of the cycle. The entire flow relies on modern design principles, visual feedback at every step, and easy navigation. This clear and connected sequence of actions ensures that university students can focus on their studies without distractions, making the website a powerful tool in aiding their learning process.
+### 3. Results Page
+
+**Path**: `/app/results/page.tsx`
+
+**User Flow**:
+- User sees the analyzed course subject
+- User sees an outline of key points extracted from the document
+- User clicks "I'm Ready" to proceed to flashcards
+
+**Technical Implementation**:
+- Retrieves course data from `sessionStorage`
+- Displays subject and outline sections
+- "I'm Ready" button redirects to `/flashcards`
+
+### 4. Flashcards Page
+
+**Path**: `/app/flashcards/page.tsx`
+
+**User Flow**:
+- User views flashcards generated from the document
+- User can toggle between question and answer views
+- User navigates to the next flashcard
+- Additional flashcards are generated automatically as needed
+- User can stop the session to see a summary
+
+**Technical Implementation**:
+- Retrieves course data and transcript from `sessionStorage`
+- Uses `generateFlashcards()` to create batches of 10 flashcards
+- Handles question/answer toggling with state management
+- Automatically generates more cards when the user reaches the end of current set
+- Stores all studied flashcards in `sessionStorage` when stopped
+- Redirects to `/summary` when user stops the session
+
+### 5. Summary Page
+
+**Path**: `/app/summary/page.tsx`
+
+**User Flow**:
+- User sees a list of all flashcards studied in the session
+- User can review all questions and answers
+- User clicks "Finish" to end the session and return to homepage
+
+**Technical Implementation**:
+- Retrieves flashcards from `sessionStorage`
+- Displays all flashcards with questions and answers
+- "Finish" button clears `sessionStorage` and redirects to homepage
+
+## Data Management
+
+The application uses `sessionStorage` to maintain state between pages:
+
+1. **transcript**: Raw text extracted from the uploaded document
+2. **courseData**: JSON object with subject and outline generated by AI
+3. **contentLanguage**: Language used for content generation (en/fr)
+4. **flashcards**: Array of all studied flashcards
+
+## API Integration
+
+The application communicates with OpenAI through a single route handler:
+
+**Endpoint**: `POST /api/ai/route.ts`  
+**Operations**:
+- `analyze`: Processes transcript to extract subject and outline
+- `generate`: Creates a single flashcard based on course content
+- `generate-batch`: Creates multiple flashcards in one request (batch of 10)
+
+## Language Support
+
+The application implements dual language support:
+
+1. **UI Language**
+   - Managed by `LanguageProvider` from `/hooks/use-language.tsx`
+   - User can toggle between English and French
+   - UI elements use translations from `/lib/translations.ts`
+
+2. **Content Language**
+   - Initially matches UI language
+   - Used for generating AI content in the appropriate language
+   - Persists throughout the session for consistency
+
+## Error Handling
+
+Each page includes comprehensive error handling:
+- Checks for missing data in `sessionStorage` (redirects to home)
+- Handles AI processing failures with error toasts
+- Provides clear feedback for configuration issues
+
+## User Experience Enhancements
+
+- **Progress Indicators**: Visual feedback during AI processing
+- **Loading States**: Clear indication when system is generating content
+- **Toast Notifications**: Status updates and error messages
+- **Mobile Optimization**: Responsive design for all device sizes
