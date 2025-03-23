@@ -1,5 +1,12 @@
 # Backend Structure Document
 
+> **Key Points**
+> - Serverless architecture with Next.js API routes for scalability
+> - Stateless design with client-side session storage
+> - RESTful API approach with operation-based routing
+> - OpenAI integration for AI processing
+> - Comprehensive error handling and logging
+
 This document provides an overview of the backend structure for the AI Flashcard Generator, ensuring clarity in design for both technical and non-technical readers. It explains how the system processes course transcripts, interacts with AI, and manages temporary session data.
 
 ## Backend Architecture

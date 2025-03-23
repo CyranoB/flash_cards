@@ -1,5 +1,13 @@
 # Tech Stack Document
 
+> **Key Points**
+> - Next.js 15 with App Router for modern React-based frontend
+> - TypeScript for type safety and code reliability
+> - Tailwind CSS with shadcn components for consistent UI
+> - Serverless architecture for scalable, cost-effective processing
+> - OpenAI/Mistral API integration for AI-powered content generation
+> - Client-side session storage for temporary data management
+
 This document explains the technology choices behind our modern flashcard website for university students, detailing how each component works together to achieve an intuitive, efficient, and visually appealing study assistant. The design employs clear, modern styling and leverages advanced AI integration, all while keeping the user experience uncomplicated and fast.
 
 ## Frontend Technologies

@@ -1,5 +1,12 @@
 # Frontend Guideline Document
 
+> **Key Points**
+> - Next.js 15 with App Router architecture for modern, responsive UI
+> - Tailwind CSS with shadcn components for consistent, accessible styling
+> - Focus on usability, accessibility, and responsive design
+> - Modern, minimalistic aesthetic with high-contrast color schemes
+> - Performance optimizations for smooth user experience
+
 This document provides a clear overview of how the frontend of our flashcard website is built, the design principles behind it, and the technologies we use. It is intended to be easy to understand, even if you do not have a technical background.
 
 ## Frontend Architecture

@@ -1,5 +1,12 @@
 # API Architecture Documentation
 
+> **Key Points**
+> - Modular architecture with clear separation of concerns (route handlers, controllers, services)
+> - Robust middleware for request validation, IP verification, and rate limiting
+> - Centralized error handling and standardized logging
+> - Dedicated prompt templates separated from business logic
+> - Comprehensive response parsing with error recovery
+
 This document outlines the architecture of the AI API implementation in the Flash Cards application, focusing on the recent refactoring for improved maintainability.
 
 ## Overview

@@ -1,5 +1,12 @@
 # AI Flashcard Generator - Application Flow Document
 
+> **Key Points**
+> - User journey follows a linear path: Upload → Processing → Results → Study Mode → Summary
+> - Client-side storage (sessionStorage) maintains state between page transitions
+> - AI operations are handled through a modular API architecture with dedicated controllers
+> - Multi-language support for both UI elements and generated content
+> - Comprehensive error handling and visual feedback throughout the flow
+
 ## Overview
 
 The AI Flashcard Generator is a Next.js application that uses OpenAI's API to analyze course transcripts and generate study materials including flashcards and multiple choice questions. The application follows a clear linear flow from document upload to interactive study sessions.
@@ -167,14 +174,43 @@ The application uses `sessionStorage` to maintain state between pages:
 
 ## API Integration
 
-The application communicates with OpenAI through a single route handler:
+The application communicates with AI services through a modular API architecture:
 
-**Endpoint**: `POST /api/ai/route.ts`  
+**Main Endpoint**: `POST /api/ai/route.ts`
+
+**Architecture**:
+- **Route Handler**: Entry point that handles request validation, rate limiting, and routes to appropriate controllers
+- **Controllers**: Operation-specific handlers in `/lib/ai/controller.ts`
+- **Services**: Core AI functionality in `/lib/ai/service.ts`
+- **Prompts**: Templated prompts in `/lib/ai/prompts.ts`
+
 **Operations**:
 - `analyze`: Processes transcript to extract subject and outline
-- `generate`: Creates a single flashcard based on course content
+  - Controller: `handleAnalyze()`
+  - Service: `analyzeTranscript()`
+  
 - `generate-batch`: Creates multiple flashcards in one request (batch of 10)
-- `generate-mcqs`: Creates multiple choice questions with smart distractors
+  - Controller: `handleGenerateBatch()`
+  - Service: `generateFlashcards()`
+  
+- `generate-mcq-batch`: Creates multiple choice questions with smart distractors
+  - Controller: `handleGenerateMCQBatch()`
+  - Service: `generateMCQs()`
+
+**Security Features**:
+- IP validation and rate limiting via `/lib/middleware.ts`
+- Request body validation with size limits
+- Comprehensive error handling and logging
+- Response parsing with markdown cleaning for robust JSON handling
+
+**Data Flow**:
+1. Client sends request to `/api/ai` endpoint
+2. Route handler validates request and applies rate limiting
+3. Request is routed to the appropriate controller
+4. Controller extracts parameters and calls service function
+5. Service generates prompt using templates and makes AI request
+6. Response is cleaned, parsed, and returned to client
+7. Client receives JSON data for rendering
 
 ## Language Support
 
