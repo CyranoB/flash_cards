@@ -35,21 +35,58 @@ function getClientIP(headersList: Headers): string {
 }
 
 /**
- * Validate IPv4 address format
- * Simple regex check for basic IPv4 format
+ * Validate IP address format (IPv4 or IPv6)
  */
 function isValidIP(ip: string): boolean {
-  // IPv4 format check
-  if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
-    return false;
+  // Remove any surrounding brackets from IPv6 addresses
+  ip = ip.replace(/^\[|\]$/g, '');
+
+  // IPv4 validation
+  if (ip.includes('.')) {
+    if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+      return false;
+    }
+    
+    // Validate each octet is between 0 and 255
+    const octets = ip.split('.');
+    return octets.every(octet => {
+      const num = parseInt(octet, 10);
+      return num >= 0 && num <= 255;
+    });
   }
   
-  // Validate each octet is between 0 and 255
-  const octets = ip.split('.');
-  return octets.every(octet => {
-    const num = parseInt(octet, 10);
-    return num >= 0 && num <= 255;
-  });
+  // IPv6 validation
+  if (ip.includes(':')) {
+    // Check for compressed notation (::)
+    const hasCompressedZeros = ip.includes('::');
+    if (hasCompressedZeros && (ip.match(/::/g) || []).length > 1) {
+      return false; // Only one '::' allowed
+    }
+    
+    // Split into segments
+    const segments = ip.split(':');
+    
+    // Count actual segments (accounting for ::)
+    const actualSegments = hasCompressedZeros 
+      ? segments.filter(s => s !== '').length
+      : segments.length;
+    
+    // Check if we have the right number of segments
+    if (!hasCompressedZeros && actualSegments !== 8) {
+      return false;
+    }
+    if (hasCompressedZeros && actualSegments > 7) {
+      return false;
+    }
+    
+    // Validate each segment
+    return segments.every(segment => {
+      if (segment === '') return true; // Allow empty segments for ::
+      return /^[0-9A-Fa-f]{1,4}$/.test(segment);
+    });
+  }
+  
+  return false; // Neither IPv4 nor IPv6
 }
 
 // Validate request body
