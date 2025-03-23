@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { useLanguage } from "@/hooks/use-language"
 import { translations } from "@/lib/translations"
@@ -36,8 +36,8 @@ export default function ResultsPage() {
     setCourseData(JSON.parse(data))
   }, [router, toast, t])
 
-  const handleReady = () => {
-    router.push("/flashcards")
+  const handleModeSelection = (mode: "flashcards" | "mcq") => {
+    router.push(`/${mode}`)
   }
 
   if (!courseData) {
@@ -75,11 +75,29 @@ export default function ResultsPage() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-center">
-          <Button size="lg" onClick={handleReady}>
-            {t.readyButton}
-          </Button>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.studyModeTitle}</CardTitle>
+            <CardDescription>{t.studyModeDesc}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => handleModeSelection("flashcards")}>
+                <CardHeader>
+                  <CardTitle className="text-lg">{t.flashcardsMode}</CardTitle>
+                  <CardDescription>{t.flashcardsModeDesc}</CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => handleModeSelection("mcq")}>
+                <CardHeader>
+                  <CardTitle className="text-lg">{t.mcqMode}</CardTitle>
+                  <CardDescription>{t.mcqModeDesc}</CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

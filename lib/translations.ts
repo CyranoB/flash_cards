@@ -84,7 +84,35 @@ export const translations = {
     settingsDesc: "Customize your flashcard experience",
     languageSettings: "Language Settings",
     themeSettings: "Theme Settings",
-    configSettings: "Configuration Settings"
+    configSettings: "Configuration Settings",
+
+    // Study Mode Selection
+    studyModeTitle: "Choose Your Study Mode",
+    studyModeDesc: "Select how you want to study your material",
+    flashcardsMode: "Flashcards",
+    flashcardsModeDesc: "Traditional flashcard-based learning with questions and answers",
+    mcqMode: "Multiple Choice",
+    mcqModeDesc: "Test your knowledge with multiple choice questions",
+    
+    // MCQ Page
+    mcqTitle: "Multiple Choice Questions",
+    mcqDesc: "Test your knowledge",
+    submitAnswer: "Submit Answer",
+    nextQuestion: "Next Question",
+    correctAnswer: "Correct!",
+    incorrectAnswer: "Incorrect. The correct answer was: ",
+    mcqProgress: "Question {current} of {total}",
+    
+    // MCQ Summary
+    mcqSummaryTitle: "Quiz Results",
+    mcqSummaryDesc: "Review your quiz performance",
+    totalQuestions: "Total Questions",
+    correctAnswers: "Correct Answers",
+    incorrectAnswers: "Incorrect Answers",
+    scoreLabel: "Score",
+    reviewAnswers: "Review Answers",
+    yourAnswer: "Your Answer",
+    correctAnswerLabel: "Correct Answer"
   },
   fr: {
     // Upload page
@@ -171,7 +199,35 @@ export const translations = {
     settingsDesc: "Personnalisez votre expérience de cartes mémoire",
     languageSettings: "Paramètres de Langue",
     themeSettings: "Paramètres de Thème",
-    configSettings: "Paramètres de Configuration"
+    configSettings: "Paramètres de Configuration",
+
+    // Study Mode Selection
+    studyModeTitle: "Choisissez Votre Mode d'Étude",
+    studyModeDesc: "Sélectionnez comment vous voulez étudier votre matériel",
+    flashcardsMode: "Cartes Mémoire",
+    flashcardsModeDesc: "Apprentissage traditionnel avec des cartes questions-réponses",
+    mcqMode: "Questions à Choix Multiples",
+    mcqModeDesc: "Testez vos connaissances avec des questions à choix multiples",
+    
+    // MCQ Page
+    mcqTitle: "Questions à Choix Multiples",
+    mcqDesc: "Testez vos connaissances",
+    submitAnswer: "Soumettre la Réponse",
+    nextQuestion: "Question Suivante",
+    correctAnswer: "Correct !",
+    incorrectAnswer: "Incorrect. La bonne réponse était : ",
+    mcqProgress: "Question {current} sur {total}",
+    
+    // MCQ Summary
+    mcqSummaryTitle: "Résultats du Quiz",
+    mcqSummaryDesc: "Examinez votre performance au quiz",
+    totalQuestions: "Total des Questions",
+    correctAnswers: "Réponses Correctes",
+    incorrectAnswers: "Réponses Incorrectes",
+    scoreLabel: "Score",
+    reviewAnswers: "Revoir les Réponses",
+    yourAnswer: "Votre Réponse",
+    correctAnswerLabel: "Bonne Réponse"
   }
 } as const
 

@@ -1,5 +1,6 @@
 import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
+import { McqQuestion } from "@/types/mcq"
 
 // Function to get OpenAI configuration
 function getOpenAIConfig() {
@@ -98,6 +99,40 @@ export async function generateFlashcards(courseData: any, transcript: string, co
   } catch (error) {
     console.error("Error generating flashcards:", error);
     throw error;
+  }
+}
+
+export async function generateMcqs(
+  courseData: { subject: string; outline: string[] },
+  transcript: string,
+  language: "en" | "fr" = "en",
+  count: number = 10
+): Promise<McqQuestion[]> {
+  try {
+    const response = await fetch("/api/ai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        courseData,
+        transcript,
+        count,
+        language,
+        type: "generate-mcq-batch",
+      }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to generate multiple choice questions")
+    }
+
+    const data = await response.json()
+    return data.questions
+  } catch (error) {
+    console.error("Error generating MCQs:", error)
+    throw error
   }
 }
 

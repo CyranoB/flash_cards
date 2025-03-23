@@ -95,7 +95,7 @@ function validateRequestBody(body: any) {
     throw new ValidationError("Missing request body")
   }
   
-  if (!body.type || !["analyze", "generate-batch"].includes(body.type)) {
+  if (!body.type || !["analyze", "generate-batch", "generate-mcq-batch"].includes(body.type)) {
     throw new ValidationError("Invalid operation type")
   }
 
@@ -316,6 +316,138 @@ export async function POST(request: Request) {
           console.error("Raw AI Response:", text);
           console.error("Parse Error:", parseError);
           logApiRequest(type, validIP, 500, "Failed to parse AI response")
+          throw new Error("Failed to parse AI response");
+        }
+      } else if (type === "generate-mcq-batch") {
+        const { courseData, transcript, count = 10 } = body
+        const languageInstructions = language === "en" 
+          ? "Create the questions in English." 
+          : "Créez les questions en français."
+        
+        const prompt = `
+          You are an educational assistant helping university students study.
+          Based on the following course information and transcript, create ${count} multiple choice questions.
+          
+          Course Subject: ${courseData.subject}
+          Course Outline: ${courseData.outline.join(", ")}
+          
+          Original Transcript:
+          ${transcript}
+          
+          IMPORTANT INSTRUCTIONS:
+          1. Each question must have exactly 4 options (A, B, C, D)
+          2. Exactly one option must be correct
+          3. The other 3 options must be plausible but incorrect
+          4. Use actual content from the transcript
+          5. Vary question difficulty and cognitive levels
+          
+          ${languageInstructions}
+          
+          CRITICAL: Reply ONLY with a valid JSON object. No explanations, no markdown formatting, no code block markers.
+          
+          Use this simplified JSON format:
+          
+          {"questions": [
+            {
+              "question": "What is the primary function of mitochondria in a cell?",
+              "A": "Protein synthesis",
+              "B": "Energy production",
+              "C": "Cell division",
+              "D": "Waste elimination",
+              "correct": "B"
+            },
+            {
+              "question": "Which programming paradigm treats computation as the evaluation of mathematical functions?",
+              "A": "Procedural programming",
+              "B": "Object-oriented programming",
+              "C": "Functional programming",
+              "D": "Event-driven programming",
+              "correct": "C"
+            }
+          ]}
+          
+          Now create ${count} questions in this exact format based on the transcript provided.
+        `
+
+        const { text } = await generateText({
+          model: openai(model),
+          prompt,
+          temperature: 0.7,
+          maxTokens: 4096,
+        })
+
+        try {
+          // Advanced cleaning of the response
+          let cleanedResponse = text.trim();
+          
+          // Remove any markdown code block markers
+          if (cleanedResponse.startsWith("```")) {
+            // Find the first newline after the opening backticks
+            const jsonStartIndex = cleanedResponse.indexOf("\n") + 1;
+            
+            // Find the last occurrence of closing backticks
+            const jsonEndIndex = cleanedResponse.lastIndexOf("```");
+            
+            if (jsonEndIndex > jsonStartIndex) {
+              cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex).trim();
+            }
+          }
+          
+          // Remove "json" language marker if present
+          if (cleanedResponse.startsWith("json")) {
+            cleanedResponse = cleanedResponse.substring(4).trim();
+          }
+          
+          // Final cleanup to ensure valid JSON
+          // Replace any trailing commas before closing brackets (common JSON error)
+          cleanedResponse = cleanedResponse.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+          
+          // Try to repair and extract just the questions array if the structure is incomplete
+          if (!cleanedResponse.startsWith("{")) {
+            const questionsStart = cleanedResponse.indexOf('{"questions":');
+            if (questionsStart >= 0) {
+              cleanedResponse = cleanedResponse.substring(questionsStart);
+            }
+          }
+          
+          console.log("Cleaned response:", cleanedResponse);
+          
+          const result = JSON.parse(cleanedResponse);
+          logApiRequest(type, validIP, 200);
+          
+          // Validate the structure of the parsed result
+          if (!result.questions || !Array.isArray(result.questions)) {
+            throw new Error("Invalid response structure: missing questions array");
+          }
+          
+          return NextResponse.json({ questions: result.questions });
+        } catch (parseError) {
+          console.error("Parse Error Details:");
+          console.error("Request:", {
+            type,
+            language,
+            model,
+            baseURL,
+          });
+          console.error("Raw AI Response:", text);
+          console.error("Parse Error:", parseError);
+          
+          // Fallback approach - try to extract and fix the JSON if possible
+          try {
+            // Look for the questions array pattern and try to extract it
+            const match = text.match(/{\s*"questions"\s*:\s*\[.*?\]\s*}/);
+            if (match && match[0]) {
+              const extractedJson = match[0].replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+              console.log("Attempting to parse extracted JSON:", extractedJson);
+              const fallbackResult = JSON.parse(extractedJson);
+              logApiRequest(type, validIP, 200);
+              return NextResponse.json({ questions: fallbackResult.questions });
+            }
+          } catch (fallbackError) {
+            console.error("Fallback parsing also failed:", fallbackError);
+          }
+          
+          logApiRequest(type, validIP, 500, "Failed to parse AI response");
           throw new Error("Failed to parse AI response");
         }
       }

@@ -1,16 +1,18 @@
 # AI-Powered Flashcard Generator
 
-A modern web application designed to help university students study more effectively by automatically generating flashcards from course transcripts using AI.
+A modern web application designed to help university students study more effectively by automatically generating flashcards and multiple choice questions from course transcripts using AI.
 
 ## Features
 
 - **Transcript Upload**: Easily upload plain text transcript files
 - **AI Analysis**: Automatic extraction of course subject and detailed outline
 - **Flashcard Generation**: Create customizable sets of AI-generated flashcards
-- **Interactive Study Interface**: Navigate through flashcards with simple controls
+- **Multiple Choice Questions**: Generate and take AI-powered MCQ quizzes with enhanced visual feedback
+- **Interactive Study Interface**: Navigate through flashcards and MCQs with simple controls
 - **Multi-language Support**: Available in English and French
-- **Duplicate Prevention**: Smart detection and filtering of similar flashcards
-- **Study Session Summary**: Review all studied flashcards at the end of a session
+- **Duplicate Prevention**: Smart detection and filtering of similar flashcards and questions
+- **Study Session Summary**: Review all studied content with detailed performance metrics and visual feedback
+- **Accessibility**: High-contrast color schemes for improved readability in both light and dark modes
 - **Security Features**: Rate limiting, request validation, and comprehensive logging
 
 ## Tech Stack
@@ -69,17 +71,20 @@ A modern web application designed to help university students study more effecti
 
 1. **Upload**: Users upload a transcript file on the home page
 2. **Processing**: The AI analyzes the transcript to extract course subject and outline
-3. **Flashcard Selection**: Users select how many flashcards they want to generate
-4. **Flashcard Study**: Interactive flashcard interface with question/answer toggling
-5. **Summary**: Review of all studied flashcards before starting a new session
+3. **Study Mode Selection**: Users choose between flashcards or multiple choice questions
+4. **Interactive Study**: 
+   - **Flashcard Mode**: Interactive flashcard interface with question/answer toggling
+   - **MCQ Mode**: Multiple choice questions with immediate feedback and scoring
+5. **Summary**: Detailed review of study session with performance metrics and content review
 
 ## Key Components
 
 - **Upload Component**: Handles file validation and extraction
 - **Processing Page**: Shows real-time AI analysis progress
 - **Flashcard Generator**: Creates and manages flashcards with deduplication
+- **MCQ Generator**: Creates multiple choice questions with smart answer options and accessible color feedback
 - **Error Dialog**: Provides clear feedback for any issues
-- **Summary Page**: Displays session statistics and studied content
+- **Summary Pages**: Display session statistics, performance metrics, and studied content with enhanced visual feedback
 
 ## Advanced Features
 
@@ -125,7 +130,10 @@ Comprehensive error handling with detailed logging:
 ### Styling
 
 The application uses Tailwind CSS with shadcn UI components for consistent styling. You can customize the theme in:
-- `tailwind.config.js` - For color schemes and general styling
+- `tailwind.config.js` - For color schemes and general styling:
+  - Light mode colors (emerald-100/rose-100 for feedback)
+  - Dark mode colors (emerald-900/rose-900 for feedback)
+  - Border colors (emerald-500/rose-500 for emphasis)
 - `components/ui/*` - For individual component styling
 
 ### Language Support
