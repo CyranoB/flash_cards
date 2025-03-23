@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { analyzeTranscript } from "@/lib/ai"
 import { useLanguage } from "@/hooks/use-language"
 import { translations } from "@/lib/translations"
@@ -86,4 +86,3 @@ export default function ProcessingPage() {
     </div>
   )
 }
-

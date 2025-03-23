@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { generateFlashcards } from "@/lib/ai"
 import { useLanguage } from "@/hooks/use-language"
 import { translations } from "@/lib/translations"
@@ -178,4 +178,3 @@ export default function FlashcardsPage() {
     </div>
   )
 }
-

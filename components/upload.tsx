@@ -8,7 +8,7 @@ import { UploadIcon, FileText, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"; 
 import { translations } from "@/lib/translations"
 import { useLanguage } from "@/hooks/use-language"
 import { convertDocumentToText } from "@/lib/document-converter"
@@ -313,4 +313,3 @@ export function Upload() {
     </>
   )
 }
-
