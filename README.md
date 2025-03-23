@@ -86,6 +86,25 @@ A modern web application designed to help university students study more effecti
 - **Error Dialog**: Provides clear feedback for any issues
 - **Summary Pages**: Display session statistics, performance metrics, and studied content with enhanced visual feedback
 
+## Code Architecture
+
+The application follows a modular architecture for improved maintainability:
+
+### API Layer
+- **Route Handlers**: `/app/api/ai/route.ts` - Main entry point for AI operations with request validation and error handling
+- **Controllers**: `/lib/ai/controller.ts` - Separate controllers for each operation type (analyze, generate-batch, generate-mcq-batch)
+- **Services**: `/lib/ai/service.ts` - Core AI service logic with reusable functions for making AI requests and parsing responses
+
+### Middleware
+- **Request Validation**: `/lib/middleware.ts` - Validates incoming requests, IP addresses, and applies rate limiting
+- **Error Handling**: `/lib/errors.ts` - Custom error types for different scenarios
+- **Logging**: `/lib/logging.ts` - Centralized logging functions for consistent log formats
+
+### AI Integration
+- **Prompt Templates**: `/lib/ai/prompts.ts` - Separate file for all AI prompt templates
+- **Response Parsing**: Robust parsing of AI responses with markdown cleaning
+- **Error Recovery**: Detailed error logging for AI response parsing issues
+
 ## Advanced Features
 
 ### Flashcard Deduplication

@@ -4,7 +4,7 @@ This document provides a clear overview of how the frontend of our flashcard web
 
 ## Frontend Architecture
 
-Our website is built using Next.js (version 14) with TypeScript for strong type support and reliable development. We use Tailwind CSS for styling because it makes it easier to maintain consistent designs, and shadcn UI components to speed up development with pre-made, accessible UI pieces.
+Our website is built using Next.js (version 15) with TypeScript for strong type support and reliable development. We use Tailwind CSS for styling because it makes it easier to maintain consistent designs, and shadcn UI components to speed up development with pre-made, accessible UI components.
 
 This architecture is designed to be scalable: as the site grows, adding new features or changing how pages work is straightforward due to the component-based structure. It is built to be maintainable, so our code is organized into logical pieces that can be easily understood by new developers. We also focus on performance, using modern techniques like server-side rendering and static generation where appropriate.
 

@@ -12,13 +12,13 @@
     *   Open the project in VS Code and create the main directory structure.
     *   **Reference:** Frontend Guidelines Document
 
-3.  **Install Next.js 14 and TypeScript:**
+3.  **Install Next.js 15 and TypeScript:**
 
     *   In the terminal, run:
 
-    `npx create-next-app@14 flashcard-ai --typescript`
+    `npx create-next-app@15 flashcard-ai --typescript`
 
-    *   Note: Next.js 14 is explicitly required for compatibility with our AI coding tools and LLM models.
+    *   Note: Next.js 15 is explicitly required for compatibility with our AI coding tools and LLM models.
     *   **Reference:** Tech Stack Document
 
 4.  **Install Tailwind CSS and shadcn:**

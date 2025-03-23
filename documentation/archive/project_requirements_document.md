@@ -63,7 +63,7 @@ After processing, a display screen shows the detected course subject and outline
 
 *   **Frontend:**
 
-    *   Next.js 14 with TypeScript for a modern web interface.
+    *   Next.js 15 with TypeScript for a modern web interface.
     *   Tailwind CSS for styling with a contemporary aesthetic.
     *   shadcn component library for stylish UI components.
 
