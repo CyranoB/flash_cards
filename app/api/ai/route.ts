@@ -1,16 +1,109 @@
 import { NextResponse } from "next/server"
 import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
-import { getOpenAIConfig } from "@/lib/env"
+import { getOpenAIConfig, getRateLimitConfig } from "@/lib/env"
+import { rateLimit } from "@/lib/rate-limit"
+import { headers } from "next/headers"
+import { RateLimitError, ValidationError, ConfigurationError } from '@/lib/errors'
 
 // Increase function duration for AI operations
 export const maxDuration = 60;
 
+// Initialize rate limiter with configurable values
+const { interval, maxTrackedIPs, requestsPerMinute } = getRateLimitConfig();
+const limiter = rateLimit({
+  interval,
+  maxTrackedIPs
+})
+
+// Validate request body
+function validateRequestBody(body: any) {
+  if (!body) {
+    throw new ValidationError("Missing request body")
+  }
+  
+  if (!body.type || !["analyze", "generate-batch"].includes(body.type)) {
+    throw new ValidationError("Invalid operation type")
+  }
+
+  if (body.type === "analyze" && !body.transcript) {
+    throw new ValidationError("Missing transcript for analysis")
+  }
+
+  if (body.type === "generate-batch") {
+    if (!body.courseData) throw new ValidationError("Missing course data")
+    if (!body.transcript) throw new ValidationError("Missing transcript")
+    if (body.count && (isNaN(body.count) || body.count < 1 || body.count > 50)) {
+      throw new ValidationError("Invalid count (must be between 1 and 50)")
+    }
+  }
+
+  // Check content length
+  const contentLength = JSON.stringify(body).length
+  if (contentLength > 100000) { // 100KB limit
+    throw new ValidationError("Request body too large")
+  }
+}
+
+// Log API requests
+function logApiRequest(type: string, ip: string, status: number, error?: string) {
+  console.log(
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      type,
+      ip,
+      status,
+      error: error || null,
+    })
+  )
+}
+
 export async function POST(request: Request) {
   try {
-    // Read the request body once
+    // Get IP for rate limiting
+    const headersList = await headers()
+    const forwardedFor = headersList.get("x-forwarded-for")
+    const ip = forwardedFor ? forwardedFor.split(",")[0] : "127.0.0.1"
+
+    // Apply rate limiting with configurable requests per minute
+    try {
+      await limiter.check(requestsPerMinute, ip)
+    } catch (error) {
+      if (error instanceof RateLimitError) {
+        // Calculate retry-after time and rate limit headers
+        const retryAfterSeconds = Math.ceil(interval / 1000);
+        const resetTime = Date.now() + interval;
+
+        logApiRequest("rate_limit_exceeded", ip, 429, error.message);
+        return NextResponse.json(
+          { error: "Too many requests. Please try again later." },
+          { 
+            status: 429,
+            headers: {
+              'Retry-After': retryAfterSeconds.toString(),
+              'X-RateLimit-Limit': requestsPerMinute.toString(),
+              'X-RateLimit-Reset': resetTime.toString()
+            }
+          }
+        );
+      }
+      // Re-throw unexpected errors
+      throw error;
+    }
+
+    // Read and validate request body
     const body = await request.json()
-    const { type, language } = body
+    try {
+      validateRequestBody(body)
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        logApiRequest(body?.type || "unknown", ip, 400, error.message);
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+      throw error;
+    }
+
+    const { type, language = "en" } = body
     
     try {
       const { apiKey, model, baseURL } = getOpenAIConfig()
@@ -42,95 +135,26 @@ export async function POST(request: Request) {
         const { text } = await generateText({
           model: openai(model),
           prompt,
-          temperature: 0.7,
-          maxTokens: 1024,
-        })
-
-        try {
-          const result = JSON.parse(text.trim());
-          return NextResponse.json(result);
-        } catch (parseError) {
-          throw new Error("Failed to parse AI response");
-        }
-      } else if (type === "generate") {
-        const { courseData, transcript } = body
-        const languageInstructions = language === "en" ? "Create the flashcard in English." : "Créez la fiche en français."
-        const prompt = `
-          You are an educational assistant helping university students study.
-          Based on the following course information and transcript, create a single flashcard with a question and answer.
-          
-          Course Subject: ${courseData.subject}
-          Course Outline: ${courseData.outline.join(", ")}
-          
-          Original Transcript:
-          ${transcript}
-          
-          IMPORTANT INSTRUCTIONS:
-          1. Use the actual content from the transcript to create questions, not just the subject and outline
-          2. Vary the question types between:
-             - Definitions (What is...?)
-             - Comparisons (How does X compare to Y?)
-             - Applications (How would you use...?)
-             - Analysis (Why does...?)
-             - Cause and Effect (What happens when...?)
-             - Examples (Give an example of...)
-          
-          2. Use different question formats:
-             - Open-ended questions
-             - Fill-in-the-blank statements
-             - True/False with explanation
-             - "Identify the concept" questions
-             - Multiple choice questions
-          
-          3. Vary the cognitive depth:
-             - Basic recall (remembering facts)
-             - Understanding (explaining concepts)
-             - Application (using knowledge in new situations)
-             - Analysis (breaking down complex ideas)
-          
-          4. Make questions:
-             - Based on specific details from the transcript
-             - Challenging but clear
-             - Focused on key concepts
-             - Engaging and thought-provoking
-             - Different from previous questions in the session
-
-          5. Make answers:
-            - Concise while maintaining informativeness
-            - Begin with a direct answer before elaboration
-            - Include relevant formulas or frameworks when applicable
-            - Provide at least one concrete example for complex concepts
-            - Limit to 3-4 sentences maximum for readability
-
-          6. Avoid redundancy:
-            - Check for conceptual overlap with previous questions
-            - Focus on unique aspects when covering related topics
-            - Use different examples when discussing similar concepts
-
-          7. Structure for learning progression:
-            - Begin with foundational concepts before advanced applications
-            - Connect new concepts to previously established ones
-            - Include metacognitive elements ("This concept is often confused with...")
-
-          
-          ${languageInstructions}
-          
-          IMPORTANT: Respond ONLY with a valid JSON object and nothing else. No markdown formatting, no backticks, no explanation text.
-          The JSON must have this exact structure:
-          {"question": "The question for the flashcard", "answer": "The answer for the flashcard"}
-        `
-
-        const { text } = await generateText({
-          model: openai(model),
-          prompt,
-          temperature: 0.7,
+          temperature: 0.5,
           maxTokens: 2048,
         })
 
         try {
           const result = JSON.parse(text.trim());
+          logApiRequest(type, ip, 200)
           return NextResponse.json(result);
         } catch (parseError) {
+          console.error("Parse Error Details:");
+          console.error("Request:", {
+            type,
+            language,
+            model,
+            baseURL,
+            // Omit sensitive data like apiKey
+          });
+          console.error("Raw AI Response:", text);
+          console.error("Parse Error:", parseError);
+          logApiRequest(type, ip, 500, "Failed to parse AI response")
           throw new Error("Failed to parse AI response");
         }
       } else if (type === "generate-batch") {
@@ -191,13 +215,27 @@ export async function POST(request: Request) {
           model: openai(model),
           prompt,
           temperature: 0.9,
-          maxTokens: 2000,
+          maxTokens: 8192,
         })
 
         try {
           const result = JSON.parse(text.trim());
+          logApiRequest(type, ip, 200)
           return NextResponse.json(result);
         } catch (parseError) {
+          console.error("Parse Error Details:");
+          console.error("Request:", {
+            type,
+            language,
+            model,
+            baseURL,
+            courseData,
+            count,
+            // Omit transcript for brevity
+          });
+          console.error("Raw AI Response:", text);
+          console.error("Parse Error:", parseError);
+          logApiRequest(type, ip, 500, "Failed to parse AI response")
           throw new Error("Failed to parse AI response");
         }
       }
@@ -205,16 +243,27 @@ export async function POST(request: Request) {
       throw new Error("Invalid operation type")
     } catch (configError) {
       console.error("OpenAI Configuration Error:", configError);
-      return NextResponse.json(
-        { error: "API key configuration error. Please check your environment variables or .env file." },
-        { status: 401 }
-      )
+      throw new ConfigurationError("API key configuration error");
     }
   } catch (error) {
-    console.error("API Error:", error)
+    const headersList = await headers()
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1"
+    
+    // Handle different error types
+    if (error instanceof ConfigurationError) {
+      logApiRequest("config_error", ip, 500, error.message);
+      return NextResponse.json(
+        { error: "Server configuration error. Please check your environment variables or .env file." },
+        { status: 500 }
+      );
+    }
+    
+    // Generic error handling
+    const errorMessage = error instanceof Error ? error.message : "An error occurred";
+    logApiRequest("unknown", ip, 500, errorMessage);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "An error occurred" },
+      { error: errorMessage },
       { status: 500 }
-    )
+    );
   }
 } 

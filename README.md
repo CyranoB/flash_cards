@@ -11,6 +11,7 @@ A modern web application designed to help university students study more effecti
 - **Multi-language Support**: Available in English and French
 - **Duplicate Prevention**: Smart detection and filtering of similar flashcards
 - **Study Session Summary**: Review all studied flashcards at the end of a session
+- **Security Features**: Rate limiting, request validation, and comprehensive logging
 
 ## Tech Stack
 
@@ -19,6 +20,7 @@ A modern web application designed to help university students study more effecti
 - **Styling**: Tailwind CSS with shadcn UI components
 - **AI Integration**: OpenAI-compatible API with support for various models
 - **Deployment**: Serverless architecture
+- **Security**: LRU-based rate limiting and request validation
 
 ## Getting Started
 
@@ -42,9 +44,15 @@ A modern web application designed to help university students study more effecti
 
 3. Set up environment variables:
    ```
+   # OpenAI Configuration
    OPENAI_API_KEY=your_api_key
    OPENAI_MODEL=gpt-4o-mini # or any other compatible model
    OPENAI_BASE_URL=https://api.openai.com/v1 # or your custom endpoint
+
+   # Rate Limiting Configuration (optional)
+   RATE_LIMIT_REQUESTS_PER_MINUTE=10 # Default: 10
+   RATE_LIMIT_INTERVAL_MS=60000 # Default: 60000 (60 seconds)
+   RATE_LIMIT_MAX_TRACKED_IPS=500 # Default: 500 (maximum concurrent IPs to track)
    ```
 
 4. Run the development server:
@@ -83,6 +91,26 @@ The application uses Jaccard similarity to detect and filter similar questions, 
 - Automatically retries generation if too many duplicates are found
 - Maintains variety throughout the study session
 
+### Security Features
+
+The application implements several security measures:
+
+- **Rate Limiting**: Configurable rate limiting per IP:
+  - Requests per minute (default: 10)
+  - Time interval (default: 60 seconds)
+  - Maximum concurrent IPs tracked (default: 500)
+- **Request Validation**: 
+  - Content size limits (100KB max)
+  - Input validation for all parameters
+  - Type checking for API operations
+- **Error Handling**: Comprehensive error handling with detailed logging
+- **Logging**: Structured logging of all API requests with:
+  - Timestamp
+  - Request type
+  - IP address (anonymized)
+  - Status code
+  - Error details (when applicable)
+
 ### Error Handling
 
 Comprehensive error handling with detailed logging:
@@ -90,6 +118,7 @@ Comprehensive error handling with detailed logging:
 - API request/response logging for debugging
 - User-friendly error dialogs
 - Graceful fallbacks for network issues
+- Rate limit exceeded notifications
 
 ## Customization
 
@@ -102,6 +131,12 @@ The application uses Tailwind CSS with shadcn UI components for consistent styli
 ### Language Support
 
 To add or modify translations, edit the `lib/translations.ts` file.
+
+### Security Configuration
+
+You can customize security settings in:
+- `lib/rate-limit.ts` - Adjust rate limiting parameters
+- `app/api/ai/route.ts` - Modify request validation rules
 
 ## License
 

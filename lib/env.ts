@@ -80,4 +80,24 @@ export function getOpenAIConfig() {
   }
   
   return { apiKey, model, baseURL };
+}
+
+// Function to get rate limit configuration
+export function getRateLimitConfig() {
+  const requestsPerMinute = parseInt(getEnvVariable('RATE_LIMIT_REQUESTS_PER_MINUTE', '10'));
+  const interval = parseInt(getEnvVariable('RATE_LIMIT_INTERVAL_MS', '60000')); // 60 seconds in ms
+  const maxTrackedIPs = parseInt(getEnvVariable('RATE_LIMIT_MAX_TRACKED_IPS', '500'));
+  
+  // Log configuration status (without exposing values)
+  console.log('Rate Limit Config Status:', {
+    requestsPerMinute,
+    interval,
+    maxTrackedIPs,
+  });
+  
+  return { 
+    requestsPerMinute,
+    interval,
+    maxTrackedIPs
+  };
 } 
