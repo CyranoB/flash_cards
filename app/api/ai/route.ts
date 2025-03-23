@@ -16,6 +16,42 @@ const limiter = rateLimit({
   maxTrackedIPs
 })
 
+/**
+ * Extract client IP from request headers
+ * Checks x-forwarded-for and x-real-ip headers
+ */
+function getClientIP(headersList: Headers): string {
+  const forwardedFor = headersList.get("x-forwarded-for")
+  const realIP = headersList.get("x-real-ip")
+  
+  if (forwardedFor) {
+    // x-forwarded-for may contain multiple IPs, take the first one
+    return forwardedFor.split(',')[0].trim()
+  } else if (realIP) {
+    return realIP.trim()
+  }
+  
+  return "127.0.0.1" // fallback to localhost if no IP found
+}
+
+/**
+ * Validate IPv4 address format
+ * Simple regex check for basic IPv4 format
+ */
+function isValidIP(ip: string): boolean {
+  // IPv4 format check
+  if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+    return false;
+  }
+  
+  // Validate each octet is between 0 and 255
+  const octets = ip.split('.');
+  return octets.every(octet => {
+    const num = parseInt(octet, 10);
+    return num >= 0 && num <= 255;
+  });
+}
+
 // Validate request body
 function validateRequestBody(body: any) {
   if (!body) {
@@ -60,21 +96,28 @@ function logApiRequest(type: string, ip: string, status: number, error?: string)
 
 export async function POST(request: Request) {
   try {
-    // Get IP for rate limiting
+    // Extract and validate client IP from request headers
     const headersList = await headers()
-    const forwardedFor = headersList.get("x-forwarded-for")
-    const ip = forwardedFor ? forwardedFor.split(",")[0] : "127.0.0.1"
+    const ip = getClientIP(headersList)
+    
+    if (!isValidIP(ip)) {
+      console.warn(`Invalid IP detected: ${ip}, falling back to localhost`)
+      logApiRequest("invalid_ip", "127.0.0.1", 400, `Invalid IP format detected: ${ip}`)
+    }
+    
+    // Use the validated IP (or fallback) for rate limiting
+    const validIP = isValidIP(ip) ? ip : "127.0.0.1"
 
     // Apply rate limiting with configurable requests per minute
     try {
-      await limiter.check(requestsPerMinute, ip)
+      await limiter.check(requestsPerMinute, validIP)
     } catch (error) {
       if (error instanceof RateLimitError) {
         // Calculate retry-after time and rate limit headers
         const retryAfterSeconds = Math.ceil(interval / 1000);
         const resetTime = Date.now() + interval;
 
-        logApiRequest("rate_limit_exceeded", ip, 429, error.message);
+        logApiRequest("rate_limit_exceeded", validIP, 429, error.message);
         return NextResponse.json(
           { error: "Too many requests. Please try again later." },
           { 
@@ -97,7 +140,7 @@ export async function POST(request: Request) {
       validateRequestBody(body)
     } catch (error) {
       if (error instanceof ValidationError) {
-        logApiRequest(body?.type || "unknown", ip, 400, error.message);
+        logApiRequest(body?.type || "unknown", validIP, 400, error.message);
         return NextResponse.json({ error: error.message }, { status: 400 });
       }
       throw error;
@@ -141,7 +184,7 @@ export async function POST(request: Request) {
 
         try {
           const result = JSON.parse(text.trim());
-          logApiRequest(type, ip, 200)
+          logApiRequest(type, validIP, 200)
           return NextResponse.json(result);
         } catch (parseError) {
           console.error("Parse Error Details:");
@@ -154,7 +197,7 @@ export async function POST(request: Request) {
           });
           console.error("Raw AI Response:", text);
           console.error("Parse Error:", parseError);
-          logApiRequest(type, ip, 500, "Failed to parse AI response")
+          logApiRequest(type, validIP, 500, "Failed to parse AI response")
           throw new Error("Failed to parse AI response");
         }
       } else if (type === "generate-batch") {
@@ -220,7 +263,7 @@ export async function POST(request: Request) {
 
         try {
           const result = JSON.parse(text.trim());
-          logApiRequest(type, ip, 200)
+          logApiRequest(type, validIP, 200)
           return NextResponse.json(result);
         } catch (parseError) {
           console.error("Parse Error Details:");
@@ -235,7 +278,7 @@ export async function POST(request: Request) {
           });
           console.error("Raw AI Response:", text);
           console.error("Parse Error:", parseError);
-          logApiRequest(type, ip, 500, "Failed to parse AI response")
+          logApiRequest(type, validIP, 500, "Failed to parse AI response")
           throw new Error("Failed to parse AI response");
         }
       }
@@ -247,11 +290,12 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     const headersList = await headers()
-    const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1"
+    const ip = getClientIP(headersList)
+    const validIP = isValidIP(ip) ? ip : "127.0.0.1"
     
     // Handle different error types
     if (error instanceof ConfigurationError) {
-      logApiRequest("config_error", ip, 500, error.message);
+      logApiRequest("config_error", validIP, 500, error.message);
       return NextResponse.json(
         { error: "Server configuration error. Please check your environment variables or .env file." },
         { status: 500 }
@@ -260,7 +304,7 @@ export async function POST(request: Request) {
     
     // Generic error handling
     const errorMessage = error instanceof Error ? error.message : "An error occurred";
-    logApiRequest("unknown", ip, 500, errorMessage);
+    logApiRequest("unknown", validIP, 500, errorMessage);
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }
