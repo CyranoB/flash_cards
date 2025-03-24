@@ -248,7 +248,7 @@ export function Upload() {
         <Card className="border-2 border-dashed">
           <CardContent className="p-6">
             <div
-              className={`flex flex-col items-center justify-center p-6 rounded-lg transition-colors ${
+              className={`flex flex-col items-center justify-center p-4 md:p-6 rounded-lg transition-colors w-auto max-w-full mx-auto ${
                 isDragging ? "bg-primary/10" : "bg-background"
               }`}
               onDragOver={handleDragOver}

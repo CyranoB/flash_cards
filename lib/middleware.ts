@@ -122,7 +122,7 @@ export function validateRequestBody(body: any) {
 }
 
 // Apply rate limiting middleware
-export type RateLimitResult = {
+export interface RateLimitResult {
   success: boolean;
   status?: number;
   headers?: {
@@ -131,6 +131,7 @@ export type RateLimitResult = {
     'X-RateLimit-Reset': string;
   };
   error?: string;
+  retryAfter?: number; // Add retryAfter property for client-side handling
 }
 
 export async function applyRateLimit(ip: string): Promise<RateLimitResult> {
@@ -151,7 +152,8 @@ export async function applyRateLimit(ip: string): Promise<RateLimitResult> {
           'X-RateLimit-Limit': requestsPerMinute.toString(),
           'X-RateLimit-Reset': resetTime.toString()
         },
-        error: "Too many requests. Please try again later."
+        error: "Too many requests. Please try again later.",
+        retryAfter: retryAfterSeconds // Add retryAfter property
       }
     }
     // Re-throw unexpected errors

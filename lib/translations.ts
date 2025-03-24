@@ -49,7 +49,7 @@ export const translations = {
     aiError: "Error processing with AI. Please try again.",
 
     // Results page
-    resultsTitle: "Generated Flashcards",
+    resultsTitle: "Course Overview",
     resultsDesc: "Review your AI-generated flashcards",
     cardCount: "Cards",
     flashcardError: "Error generating flashcard",
@@ -164,7 +164,7 @@ export const translations = {
     aiError: "Erreur de traitement avec l'IA. Veuillez réessayer.",
 
     // Results page
-    resultsTitle: "Cartes Mémoire Générées",
+    resultsTitle: "Aperçu du Cours",
     resultsDesc: "Examinez vos cartes mémoire générées par l'IA",
     cardCount: "Cartes",
     flashcardError: "Erreur lors de la génération de la fiche",
@@ -230,4 +230,3 @@ export const translations = {
     correctAnswerLabel: "Bonne Réponse"
   }
 } as const
-
