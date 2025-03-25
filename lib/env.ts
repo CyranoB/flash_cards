@@ -68,11 +68,11 @@ export function getOpenAIConfig() {
   const model = getEnvVariable('OPENAI_MODEL', 'gpt-4o-mini');
   const baseURL = getEnvVariable('OPENAI_BASE_URL', 'https://api.openai.com/v1');
   
-  // Log configuration status (without exposing values)
+  // Log configuration status without any sensitive data
   console.log('OpenAI Config Status:', {
-    hasApiKey: !!apiKey,
+    isConfigured: !!apiKey,
     model,
-    baseURL,
+    isCustomEndpoint: baseURL !== 'https://api.openai.com/v1'
   });
   
   if (!apiKey) {

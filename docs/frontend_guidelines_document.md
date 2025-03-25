@@ -52,8 +52,27 @@ The frontend is built with a component-based approach. This means the interface 
 *   **File Upload Component:** Manages the drag-and-drop upload and file selection functions.
 *   **Flashcard Component:** Handles the display and navigation of flashcards.
 *   **Session Summary Component:** Shows a summary when a session ends.
+*   **Error Dialog Component:** Provides clear feedback when uploads exceed size limits or other validation errors occur.
 
 Organizing the code this way improves maintainability. If we need to update the flashcard style or add new behavior, we can modify the related component without affecting the rest of the website.
+
+## User Input Validation
+
+The frontend implements several validation mechanisms to ensure a smooth user experience:
+
+### File Upload Validation
+
+* **File Size Limits**: The upload component validates files against the configurable maximum file size (default: 100MB, configurable via `MAX_FILE_SIZE_MB` environment variable)
+* **File Type Validation**: Only accepts PDF, TXT, and DOCX file formats
+* **Visual Feedback**: Provides clear error messages when files exceed size limits or have unsupported formats
+
+### Transcript Validation
+
+* **Word Count Limits**: The system validates transcripts against minimum (default: 500) and maximum (default: 50,000) word count limits
+* **Feedback Mechanism**: Shows toast notifications with clear explanations when validation fails
+* **Progressive Disclosure**: Informs users about size limitations before they attempt uploads
+
+These validation mechanisms help prevent server errors and provide a better user experience by giving immediate feedback about potential issues.
 
 ## State Management
 

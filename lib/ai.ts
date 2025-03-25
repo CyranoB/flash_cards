@@ -2,6 +2,7 @@ import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
 import { McqQuestion } from "@/types/mcq"
 import { toast } from "@/components/ui/use-toast"
+import { config } from "@/lib/config"
 
 // Function to get OpenAI configuration
 function getOpenAIConfig() {
@@ -14,6 +15,28 @@ function getOpenAIConfig() {
   }
 
   return { apiKey, model, baseURL }
+}
+
+/**
+ * Extract a representative sample from a large transcript
+ * This preserves the beginning, middle, and end of the document
+ * to maintain context while reducing the overall size
+ * 
+ * @param text The full transcript text
+ * @param maxLength Maximum length of the sample (default: from config)
+ * @returns A representative sample of the text
+ */
+function extractSampleFromTranscript(text: string, maxLength: number = config.transcriptChunkThreshold): string {
+  if (text.length <= maxLength) return text;
+  
+  // Take portions from beginning, middle and end
+  const thirdSize = Math.floor(maxLength / 3);
+  const beginning = text.substring(0, thirdSize);
+  const middleStart = Math.floor(text.length / 2) - Math.floor(thirdSize / 2);
+  const middle = text.substring(middleStart, middleStart + thirdSize);
+  const end = text.substring(text.length - thirdSize);
+  
+  return `${beginning}\n\n[...]\n\n${middle}\n\n[...]\n\n${end}`;
 }
 
 /**
@@ -204,22 +227,49 @@ export async function fetchWithRetry(
 // Function to analyze transcript and generate course subject and outline
 export async function analyzeTranscript(transcript: string, language: "en" | "fr" = "en") {
   try {
-    const response = await fetchWithRetry("/api/ai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        transcript,
-        language,
-        type: "analyze",
-      }),
-    })
+    // Check if transcript is too large for a single request (using configurable threshold)
+    const isLargeTranscript = transcript.length > config.transcriptChunkThreshold;
     
-    return response
+    if (isLargeTranscript) {
+      console.log(`Large transcript detected (${transcript.length} chars). Using summarization approach.`);
+      
+      // Create a representative sample of the transcript
+      const sample = extractSampleFromTranscript(transcript);
+      
+      // Send the sample for analysis
+      const response = await fetchWithRetry("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transcript: sample,
+          language,
+          type: "analyze",
+          isPartialTranscript: true,
+        }),
+      });
+      
+      return response;
+    } else {
+      // For normal-sized transcripts, proceed with the regular approach
+      const response = await fetchWithRetry("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transcript,
+          language,
+          type: "analyze",
+        }),
+      });
+      
+      return response;
+    }
   } catch (error) {
-    console.error("Error analyzing transcript:", error)
-    throw error
+    console.error("Error analyzing transcript:", error);
+    throw error;
   }
 }
 
@@ -249,25 +299,66 @@ export async function generateFlashcard(courseData: any, transcript: string, lan
 // Function to generate multiple flashcards based on course data
 export async function generateFlashcards(courseData: any, transcript: string, count: number = 10, language: "en" | "fr" = "en") {
   try {
-    const response = await fetchWithRetry("/api/ai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        type: "generate-batch",
-        courseData,
-        transcript,
-        count,
-        language,
-      }),
-    })
+    // Check if transcript is too large for a single request (using configurable threshold)
+    const isLargeTranscript = transcript.length > config.transcriptChunkThreshold;
     
-    // Extract the flashcards array from the response
-    return response.flashcards || []
+    if (isLargeTranscript) {
+      console.log(`Large transcript detected (${transcript.length} chars). Using summarization approach for flashcards.`);
+      
+      // Create a representative sample of the transcript
+      const sample = extractSampleFromTranscript(transcript);
+      
+      const response = await fetchWithRetry("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseData,
+          transcript: sample,
+          count,
+          language,
+          type: "generate-batch",
+          isPartialTranscript: true,
+        }),
+      });
+      
+      // Extract the flashcards array from the response
+      if (response && response.flashcards && Array.isArray(response.flashcards)) {
+        return response.flashcards;
+      }
+      
+      // Return empty array if no flashcards found
+      console.warn("No flashcards found in response:", response);
+      return [];
+    } else {
+      // For normal-sized transcripts, proceed with the regular approach
+      const response = await fetchWithRetry("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseData,
+          transcript,
+          count,
+          language,
+          type: "generate-batch",
+        }),
+      });
+      
+      // Extract the flashcards array from the response
+      if (response && response.flashcards && Array.isArray(response.flashcards)) {
+        return response.flashcards;
+      }
+      
+      // Return empty array if no flashcards found
+      console.warn("No flashcards found in response:", response);
+      return [];
+    }
   } catch (error) {
-    console.error("Error generating flashcards:", error)
-    throw error
+    console.error("Error generating flashcards:", error);
+    throw error;
   }
 }
 
@@ -278,24 +369,63 @@ export async function generateMcqs(
   count: number = 10
 ): Promise<McqQuestion[]> {
   try {
-    const response = await fetchWithRetry("/api/ai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        type: "generate-mcq-batch",
-        courseData,
-        transcript,
-        count,
-        language,
-      }),
-    })
+    // Check if transcript is too large for a single request (using configurable threshold)
+    const isLargeTranscript = transcript.length > config.transcriptChunkThreshold;
     
-    // Extract the questions array from the response
-    return response.questions || []
+    if (isLargeTranscript) {
+      console.log(`Large transcript detected (${transcript.length} chars). Using summarization approach for MCQs.`);
+      
+      // Create a representative sample of the transcript
+      const sample = extractSampleFromTranscript(transcript);
+      
+      const response = await fetchWithRetry("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseData,
+          transcript: sample,
+          count,
+          language,
+          type: "generate-mcq-batch",
+          isPartialTranscript: true,
+        }),
+      });
+      
+      // Check if the response has questions property (from API) and convert to mcqs format
+      if (response.questions && Array.isArray(response.questions)) {
+        return response.questions;
+      }
+      
+      // If mcqs property exists, return it directly
+      return response.mcqs || [];
+    } else {
+      // For normal-sized transcripts, proceed with the regular approach
+      const response = await fetchWithRetry("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseData,
+          transcript,
+          count,
+          language,
+          type: "generate-mcq-batch",
+        }),
+      });
+      
+      // Check if the response has questions property (from API) and convert to mcqs format
+      if (response.questions && Array.isArray(response.questions)) {
+        return response.questions;
+      }
+      
+      // If mcqs property exists, return it directly
+      return response.mcqs || [];
+    }
   } catch (error) {
-    console.error("Error generating multiple choice questions:", error)
-    throw error
+    console.error("Error generating MCQs:", error);
+    throw error;
   }
 }

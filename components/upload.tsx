@@ -14,6 +14,7 @@ import { useLanguage } from "@/hooks/use-language"
 import { convertDocumentToText } from "@/lib/document-converter"
 import { usePdfText } from "@/hooks/usePdfText"
 import { ErrorDialog } from "@/components/error-dialog"
+import { config } from "@/lib/config"
 
 export function Upload() {
   const [file, setFile] = useState<File | null>(null)
@@ -145,6 +146,14 @@ export function Upload() {
       showError(t.errorTitle, t.errorFileType);
       return
     }
+    
+    // Check file size using configurable limit
+    const maxFileSize = config.maxFileSizeBytes; // Get from config
+    if (file.size > maxFileSize) {
+      console.warn('⚠️ [UPLOAD] File too large:', (file.size / 1024 / 1024).toFixed(2), 'MB (limit:', config.maxFileSizeMB, 'MB)');
+      showError(t.errorTitle, t.errorFileSize || `File size exceeds the ${config.maxFileSizeMB}MB limit.`);
+      return;
+    }
 
     // Set the file first to show the progress indicator
     if (isPdfFile) {
@@ -157,10 +166,21 @@ export function Upload() {
       
       if (isPdfFile) {
         console.log('📑 [UPLOAD] Starting PDF text extraction process...');
-        toast({
-          title: t.processingPdf,
-          description: t.processingPdfDesc,
-        });
+        
+        // Show different toast for large PDFs
+        const isLargePdf = file.size > 10 * 1024 * 1024; // 10MB
+        if (isLargePdf) {
+          toast({
+            title: t.processingLargePdf || 'Processing large PDF',
+            description: t.processingLargePdfDesc || 'This may take a while for large documents. Please be patient.',
+            duration: 6000,
+          });
+        } else {
+          toast({
+            title: t.processingPdf,
+            description: t.processingPdfDesc,
+          });
+        }
         
         // Set a timeout to show a second toast for long-running extractions
         const longExtractionTimer = setTimeout(() => {

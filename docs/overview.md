@@ -10,6 +10,7 @@
 | AI Integration | OpenAI/Mistral API | Transcript analysis and content generation |
 | Data Storage | Client-side sessionStorage | Temporary session data without server persistence |
 | Architecture | Serverless | Scalable, cost-effective processing on demand |
+| Configuration | Environment Variables | Configurable limits for file size and word counts |
 
 ## User Journey Map
 
@@ -31,7 +32,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Client Browser                        │
+│                        Client Browser                       │
 │                                                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │ React UI    │  │ Session     │  │ User Interactions   │  │
@@ -45,7 +46,7 @@
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                      Next.js API Routes                      │
+│                      Next.js API Routes                     │
 │                                                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │ Middleware  │  │ Controllers │  │ Service Layer       │  │
@@ -56,13 +57,26 @@
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                      External AI Service                     │
+│                      External AI Service                    │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │ OpenAI/Mistral API (GPT-4o-Mini or similar model)   │    │
 │  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+## Configuration System
+
+The application uses a centralized configuration system that allows for easy adjustment of important parameters:
+
+### File and Transcript Size Limits
+
+- **Maximum File Size**: Configurable via `MAX_FILE_SIZE_MB` environment variable (default: 100MB)
+- **Maximum Word Count**: Configurable via `MAX_WORD_COUNT` environment variable (default: 50,000 words)
+- **Minimum Word Count**: Configurable via `MIN_WORD_COUNT` environment variable (default: 500 words)
+- **Transcript Chunk Threshold**: Configurable via `TRANSCRIPT_CHUNK_THRESHOLD` environment variable (default: 30,000 characters)
+
+These limits ensure optimal performance and prevent resource exhaustion while allowing flexibility for different deployment environments.
 
 ## Key Workflows
 
