@@ -14,7 +14,7 @@ import {
   Sparkles,
   Globe,
 } from "lucide-react"
-
+import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs';
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/hooks/use-language"
 import { translations } from "@/lib/translations"
@@ -26,12 +26,16 @@ export default function HomePage() {
   const t = translations[language]
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isClerkEnabled, setIsClerkEnabled] = useState(false)
 
   const handleStart = () => {
     router.push("/start")
   }
 
-  // Example flashcards for the landing page
+  useEffect(() => {
+    setIsClerkEnabled(!!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)
+  }, [])
+
   const flashcardExamples = [
     "What is the difference between mitosis and meiosis?",
     "Define the concept of supply and demand in economics.",
@@ -47,7 +51,6 @@ export default function HomePage() {
     "What are the main components of a neural network?",
   ]
 
-  // Auto-scroll through questions
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true)
@@ -60,7 +63,6 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [flashcardExamples.length])
 
-  // Progress bars for each question (randomized but consistent)
   const progressValues = [50, 75, 25, 60, 40, 80, 35, 65, 45, 70, 30, 55]
 
   return (
@@ -104,13 +106,37 @@ export default function HomePage() {
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">{t.appDescription}</p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button
-                    size="lg"
-                    onClick={handleStart}
-                    className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
-                  >
-                    {t.startButton} <ArrowRight className="h-4 w-4" />
-                  </Button>
+                  {isClerkEnabled ? (
+                    <>
+                      <SignedIn>
+                        <Button
+                          size="lg"
+                          onClick={handleStart}
+                          className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                        >
+                          {t.startButton} <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </SignedIn>
+                      <SignedOut>
+                        <SignInButton mode="modal" forceRedirectUrl="/start">
+                          <Button
+                            size="lg"
+                            className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                          >
+                            {t.startButton} <ArrowRight className="h-4 w-4" />
+                          </Button>
+                        </SignInButton>
+                      </SignedOut>
+                    </>
+                  ) : (
+                    <Button
+                      size="lg"
+                      onClick={handleStart}
+                      className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                    >
+                      {t.startButton} <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-center">
@@ -304,13 +330,37 @@ export default function HomePage() {
                 {t.joinThousands}
               </p>
               <div className="mt-8">
-                <Button
-                  size="lg"
-                  onClick={handleStart}
-                  className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
-                >
-                  {t.startButton} <ArrowRight className="h-4 w-4" />
-                </Button>
+                {isClerkEnabled ? (
+                  <>
+                    <SignedIn>
+                      <Button
+                        size="lg"
+                        onClick={handleStart}
+                        className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                      >
+                        {t.startButton} <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </SignedIn>
+                    <SignedOut>
+                      <SignInButton mode="modal" forceRedirectUrl="/start">
+                        <Button
+                          size="lg"
+                          className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                        >
+                          {t.startButton} <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </SignInButton>
+                    </SignedOut>
+                  </>
+                ) : (
+                  <Button
+                    size="lg"
+                    onClick={handleStart}
+                    className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                  >
+                    {t.startButton} <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>
