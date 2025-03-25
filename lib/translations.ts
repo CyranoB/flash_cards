@@ -1,5 +1,25 @@
 export const translations = {
   en: {
+    // Homepage
+    appTitle: "AI-Powered Study Companion for Students",
+    appDescription: "Generate flashcards from your course transcripts using AI",
+    startButton: "Start",
+    aiGenerated: "AI-Powered Study Companion for Students",
+    aiPoweredLearning: "AI-Powered Learning",
+    readyToTransform: "Ready to Transform Your Study Habits?",
+    joinThousands: "Join thousands of students who are studying smarter, not harder, with SmartDeck.",
+    howItWorks: "How It Works",
+    testimonials: "Testimonials",
+    features: "Features",
+    keyFeatures: "Key Features",
+    smartDeckUses: "SmartDeck uses advanced AI to transform your course materials into effective study tools.",
+    smartDeckMakes: "SmartDeck makes studying more efficient with a simple, intuitive process.",
+    whatStudentsAreSaying: "What Students Are Saying",
+    smartDeckIsHelping: "SmartDeck is helping students around the world transform their study habits.",
+    privacyPolicy: "Privacy Policy",
+    termsOfService: "Terms of Service",
+    contact: "Contact",
+    
     // Upload page
     uploadTitle: "Upload Your Course Transcript",
     uploadDesc: "Drag and drop your transcript file here or click to browse",
@@ -125,6 +145,26 @@ export const translations = {
     correctAnswerLabel: "Correct Answer"
   },
   fr: {
+    // Homepage
+    appTitle: "Assistant d'Étude Alimenté par l'IA pour Étudiants",
+    appDescription: "Générez des cartes mémoire à partir de vos transcriptions de cours en utilisant l'IA",
+    startButton: "Commencer",
+    aiGenerated: "Assistant d'Étude Alimenté par l'IA pour Étudiants",
+    aiPoweredLearning: "Apprentissage par IA",
+    readyToTransform: "Prêt à Transformer Vos Habitudes d'Étude?",
+    joinThousands: "Rejoignez des milliers d'étudiants qui étudient plus intelligemment, pas plus difficilement, avec SmartDeck.",
+    howItWorks: "Comment Ça Marche",
+    testimonials: "Témoignages",
+    features: "Fonctionnalités",
+    keyFeatures: "Fonctionnalités Clés",
+    smartDeckUses: "SmartDeck utilise l'IA avancée pour transformer vos supports de cours en outils d'étude efficaces.",
+    smartDeckMakes: "SmartDeck rend l'étude plus efficace grâce à un processus simple et intuitif.",
+    whatStudentsAreSaying: "Ce Que Disent les Étudiants",
+    smartDeckIsHelping: "SmartDeck aide les étudiants du monde entier à transformer leurs habitudes d'étude.",
+    privacyPolicy: "Politique de Confidentialité",
+    termsOfService: "Conditions d'Utilisation",
+    contact: "Contact",
+    
     // Upload page
     uploadTitle: "Téléchargez Votre Transcription de Cours",
     uploadDesc: "Glissez-déposez votre fichier de transcription ici ou cliquez pour parcourir",

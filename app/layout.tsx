@@ -1,12 +1,13 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
+import { frFR } from "@clerk/localizations"
 import { ThemeProvider } from "@/components/theme-provider"
 import { LanguageProvider } from "@/hooks/use-language"
 import { Toaster } from "@/components/ui/toaster"
 import ServerConfigCheck from "@/components/server-config-check"
+import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -40,7 +41,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         {clerkEnabled ? (
-          <ClerkProvider
+          <ClerkProvider localization={frFR}
             appearance={{
               elements: {
                 formButtonPrimary: 'bg-primary hover:bg-primary/90 text-primary-foreground',
