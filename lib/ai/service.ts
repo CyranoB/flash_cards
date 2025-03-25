@@ -73,7 +73,7 @@ export async function analyzeTranscript(params: AnalyzeParams) {
 
 export async function generateFlashcards(params: GenerateBatchParams) {
   const prompt = prompts.generateBatch(params.courseData, params.transcript, params.count, params.language);
-  return makeAIRequest<{ flashcards: { question: string, answer: string }[] }>(prompt, 0.9, 8192);
+  return makeAIRequest<{ flashcards: { question: string, answer: string }[] }>(prompt, 0.9, 4096);
 }
 
 export async function generateMCQs(params: GenerateMCQBatchParams) {

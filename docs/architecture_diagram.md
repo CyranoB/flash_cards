@@ -10,6 +10,7 @@ graph TD
         UI[React UI Components]
         Storage[Session Storage]
         Interactions[User Interactions]
+        PDFWorker[PDF Web Worker]
     end
 
     subgraph "Next.js API Routes"
@@ -25,6 +26,8 @@ graph TD
     end
 
     UI --> |Upload/Interact| Route
+    UI --> |PDF Upload| PDFWorker
+    PDFWorker --> |Extracted Text| UI
     Route --> |Validate| Middleware
     Middleware --> |Route Request| Controllers
     Controllers --> |Process| Services
@@ -149,12 +152,20 @@ classDiagram
         +logApiRequest(type, ip, status, error)
     }
     
+    class PdfProcessor {
+        +extractText(file)
+        +handleTimeout()
+        +trackProgress()
+        +handleErrors()
+    }
+    
     RouteHandler --> Middleware : uses
     RouteHandler --> Controllers : routes to
     Controllers --> Services : calls
     Services --> Prompts : uses templates
     RouteHandler --> Logging : logs requests
     Controllers --> Logging : logs operations
+    PdfProcessor --> Logging : logs extraction
 ```
 
 ## Note on Viewing Mermaid Diagrams

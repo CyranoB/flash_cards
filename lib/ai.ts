@@ -87,10 +87,22 @@ async function handleApiResponse(response: Response) {
   throw new Error(errorMessage);
 }
 
+// Create a request cache outside the function to persist between calls
+const requestCache = new Map<string, any>();
+
+// Debugging function to see what's being cached
+function getDebugCacheInfo() {
+  return {
+    cacheSize: requestCache.size,
+    cacheKeys: Array.from(requestCache.keys())
+  };
+}
+
 /**
  * Fetch with automatic retry for rate limits and transient errors
  * 
  * Features:
+ * - Request deduplication to prevent duplicate API calls
  * - Automatic retry for 429 rate limits
  * - Automatic retry for 5xx server errors
  * - Exponential backoff with 2x multiplier
@@ -107,6 +119,32 @@ export async function fetchWithRetry(
   options: RequestInit, 
   maxRetries = 3
 ) {
+  // Parse the body to create a more reliable cache key
+  let bodyObj = {};
+  try {
+    if (options.body && typeof options.body === 'string') {
+      bodyObj = JSON.parse(options.body);
+    }
+  } catch (e) {
+    console.error("Could not parse request body for cache key:", e);
+  }
+  
+  // Create a more robust cache key including explicit language info
+  const language = bodyObj && (bodyObj as any).language ? (bodyObj as any).language : 'unknown';
+  const type = bodyObj && (bodyObj as any).type ? (bodyObj as any).type : 'unknown';
+  const cacheKey = `${url}-${type}-${language}-${options.body}`;
+  
+  console.log("Cache key:", cacheKey);
+  console.log("Cache info:", getDebugCacheInfo());
+  
+  // Check if we have a cached response for this exact request
+  if (requestCache.has(cacheKey)) {
+    console.log("CACHE HIT! Using cached response for", url, "with language", language, "and type", type);
+    return requestCache.get(cacheKey);
+  } else {
+    console.log("CACHE MISS! No cached response for", url, "with language", language, "and type", type);
+  }
+
   let retries = 0;
   const MAX_DELAY = 30000; // Maximum delay of 30 seconds
   const startTime = Date.now();
@@ -132,6 +170,10 @@ export async function fetchWithRetry(
         retries++;
         continue;
       }
+      
+      // Cache the successful response before returning
+      console.log("Caching response for key:", cacheKey);
+      requestCache.set(cacheKey, result);
       
       // Otherwise return the result
       return result;

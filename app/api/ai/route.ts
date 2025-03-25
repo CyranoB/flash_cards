@@ -14,6 +14,57 @@ const BASE_DELAY = 1000; // 1 second
 const MAX_DELAY = 30000; // Maximum delay of 30 seconds
 const RETRY_STATUS_CODES = [429, 500, 502, 503, 504]; // Rate limit and server errors
 
+// Request deduplication cache - stores recent request results to prevent duplicate processing
+// This cache persists across requests but will be reset when the server restarts
+// Keys are hash of request body, values are response data with timestamp
+interface CacheEntry {
+  timestamp: number;
+  response: any;
+}
+
+const requestCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 60000; // Cache entries expire after 1 minute
+
+// Clean expired cache entries periodically
+function cleanExpiredCache() {
+  const now = Date.now();
+  let expiredCount = 0;
+  
+  for (const [key, entry] of requestCache.entries()) {
+    if (now - entry.timestamp > CACHE_TTL) {
+      requestCache.delete(key);
+      expiredCount++;
+    }
+  }
+  
+  if (expiredCount > 0) {
+    console.log(`Cleaned ${expiredCount} expired cache entries. Current cache size: ${requestCache.size}`);
+  }
+}
+
+// Clean cache every minute
+setInterval(cleanExpiredCache, 60000);
+
+// Generate a cache key from request body
+function generateCacheKey(body: any): string {
+  // Create a stable representation of the request body
+  const stableBody = JSON.stringify({
+    type: body.type,
+    language: body.language,
+    transcript: body.transcript,
+    count: body.count
+  });
+  
+  // Simple hash function for string
+  let hash = 0;
+  for (let i = 0; i < stableBody.length; i++) {
+    const char = stableBody.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return `${body.type}-${body.language}-${hash}`;
+}
+
 /**
  * Fetches from OpenAI API with exponential backoff for rate limits and transient errors
  * 
@@ -160,24 +211,55 @@ export async function POST(request: Request) {
       }
       throw error;
     }
+    
+    // Check if we have this exact request in our cache
+    const cacheKey = generateCacheKey(body);
+    const cachedEntry = requestCache.get(cacheKey);
+    
+    if (cachedEntry && (Date.now() - cachedEntry.timestamp < CACHE_TTL)) {
+      console.log(`Cache HIT for ${body.type} request in ${body.language}. Returning cached response.`);
+      logApiRequest(`${body.type}_cached`, validIP, 200, "Served from cache");
+      return NextResponse.json(cachedEntry.response);
+    } else {
+      console.log(`Cache MISS for ${body.type} request in ${body.language}. Processing...`);
+    }
 
     // Route to appropriate handler based on operation type
     const { type } = body
     
     try {
+      let response;
+      
       switch (type) {
         case "analyze":
-          return await handleAnalyze(body, validIP)
+          response = await handleAnalyze(body, validIP);
+          break;
         
         case "generate-batch":
-          return await handleGenerateBatch(body, validIP)
+          response = await handleGenerateBatch(body, validIP);
+          break;
         
         case "generate-mcq-batch":
-          return await handleGenerateMCQBatch(body, validIP)
+          response = await handleGenerateMCQBatch(body, validIP);
+          break;
         
         default:
-          throw new ValidationError("Invalid operation type")
+          throw new ValidationError("Invalid operation type");
       }
+      
+      // Extract the response data from the NextResponse
+      const responseData = await response.json();
+      
+      // Store in cache before returning
+      requestCache.set(cacheKey, {
+        timestamp: Date.now(),
+        response: responseData
+      });
+      
+      console.log(`Cached response for ${body.type} request in ${body.language}. Cache size: ${requestCache.size}`);
+      
+      // Return the original response
+      return NextResponse.json(responseData);
     } catch (error) {
       if (error instanceof ConfigurationError) {
         logApiRequest("config_error", validIP, 500, error.message);

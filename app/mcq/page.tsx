@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,71 +20,94 @@ export default function McqPage() {
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false)
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
   const { language } = useLanguage()
   const t = translations[language]
 
-  useEffect(() => {
-    const initializeSession = async () => {
-      const courseData = sessionStorage.getItem("courseData")
-      const transcript = sessionStorage.getItem("transcript")
+  // Memorize the MCQ generation function to prevent recreation on each render
+  const initializeSession = useCallback(async () => {
+    // Skip if already generating to avoid duplicate calls
+    if (isGenerating) return
 
-      if (!courseData || !transcript) {
-        toast({
-          title: t.errorTitle,
-          description: t.noResults,
-          variant: "destructive",
-        })
-        router.push("/")
-        return
-      }
+    const courseData = sessionStorage.getItem("courseData")
+    const transcript = sessionStorage.getItem("transcript")
 
-      try {
-        // Simulate progress for better UX
-        const progressInterval = setInterval(() => {
-          setProgress((prev) => {
-            if (prev >= 90) {
-              clearInterval(progressInterval)
-              return prev
-            }
-            return prev + 10
-          })
-        }, 500)
-
-        setStatus(t.generating)
-
-        const questions = await generateMcqs(JSON.parse(courseData), transcript, language)
-
-        // Complete the progress
-        clearInterval(progressInterval)
-        setProgress(100)
-        setStatus(t.complete)
-
-        // Initialize session after a short delay
-        setTimeout(() => {
-          setSessionData({
-            questions,
-            currentIndex: 0,
-            score: 0,
-            totalQuestions: questions.length,
-            isComplete: false,
-            startTime: Date.now(),
-          })
-        }, 1000)
-      } catch (error) {
-        console.error("Error generating MCQs:", error)
-        toast({
-          title: t.errorTitle,
-          description: t.flashcardError,
-          variant: "destructive",
-        })
-        router.push("/results")
-      }
+    if (!courseData || !transcript) {
+      toast({
+        title: t.errorTitle,
+        description: t.noResults,
+        variant: "destructive",
+      })
+      router.push("/")
+      return
     }
 
-    initializeSession()
-  }, [router, toast, t, language])
+    // Set generating flag to prevent duplicate calls
+    setIsGenerating(true)
+
+    try {
+      // Simulate progress for better UX
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return prev
+          }
+          return prev + 10
+        })
+      }, 500)
+
+      setStatus(t.generating)
+      console.log(`Generating MCQs in ${language} (single call pattern)`)
+
+      const questions = await generateMcqs(JSON.parse(courseData), transcript, language)
+
+      // Complete the progress
+      clearInterval(progressInterval)
+      setProgress(100)
+      setStatus(t.complete)
+
+      // Initialize session after a short delay
+      setTimeout(() => {
+        setSessionData({
+          questions,
+          currentIndex: 0,
+          score: 0,
+          totalQuestions: questions.length,
+          isComplete: false,
+          startTime: Date.now(),
+        })
+      }, 1000)
+    } catch (error) {
+      console.error("Error generating MCQs:", error)
+      toast({
+        title: t.errorTitle,
+        description: t.flashcardError,
+        variant: "destructive",
+      })
+      router.push("/results")
+    } finally {
+      // Clear the generating flag when done (or on error)
+      setIsGenerating(false)
+    }
+  }, [language, router, toast, t])
+
+  // Check for course data and initialize on mount
+  useEffect(() => {
+    if (!isInitialized) {
+      setIsInitialized(true)
+    }
+  }, [])
+
+  // Start generating MCQs only when initialized and not already generating
+  useEffect(() => {
+    if (isInitialized && !isGenerating && !sessionData) {
+      initializeSession()
+    }
+  }, [isInitialized, initializeSession, isGenerating, sessionData])
 
   const handleAnswerSubmit = () => {
     if (!sessionData || !selectedAnswer) return

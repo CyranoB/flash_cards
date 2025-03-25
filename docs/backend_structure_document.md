@@ -4,6 +4,7 @@
 > - Serverless architecture with Next.js API routes for scalability
 > - Stateless design with client-side session storage
 > - RESTful API approach with operation-based routing
+> - Web Worker-based PDF processing for non-blocking text extraction
 > - OpenAI integration for AI processing
 > - Comprehensive error handling and logging
 
@@ -17,6 +18,7 @@ The backend is built using serverless functions that operate in a stateless mann
 - **Serverless Functions:** The API routes are deployed as serverless functions, promoting a decoupled architecture that scales on demand.
 - **Configuration Management:** A centralized configuration file (`/lib/env.ts`) holds sensitive API keys (such as the OpenAI key), model configurations, and default URLs.
 - **Stateless Sessions:** Session state for flashcard sequences and transcript processing is managed client-side using `sessionStorage`, ensuring no server-side state is maintained between requests.
+- **Web Worker Processing:** PDF text extraction is handled by Web Workers in a separate thread to prevent UI blocking, with timeout handling and progress tracking.
 
 ## Data Management
 
@@ -24,6 +26,7 @@ The project does not use a traditional persistent database. Instead, it focuses 
 
 - **Client-Side Storage:** `sessionStorage` is used to store temporary session data such as uploaded transcripts, course data, and generated flashcards.
 - **Server-Side Processing:** Data is processed on-demand within serverless functions, with results sent back to the client for storage and display.
+- **PDF Processing:** PDF documents are processed client-side using Web Workers to extract text without blocking the UI thread, with progress tracking and timeout handling.
 
 ## API Design and Endpoints
 
@@ -71,6 +74,9 @@ The API implements comprehensive error handling:
 Several measures are in place to optimize performance:
 
 - **Serverless Architecture:** Enables automatic scaling based on demand.
+- **Web Worker-based PDF Processing:** Handles resource-intensive PDF text extraction in a separate thread to keep the UI responsive.
+- **Timeout Handling:** Prevents PDF extraction processes from hanging indefinitely.
+- **Progress Tracking:** Provides visual feedback during PDF extraction to improve user experience.
 - **Efficient Data Processing:** The AI processing is optimized to handle requests quickly, with progress indicators on the client side to provide feedback during longer operations.
 - **Batched Flashcard Generation:** Implements a "generate-batch" operation to create multiple flashcards in a single API call, reducing the number of requests for better performance.
 

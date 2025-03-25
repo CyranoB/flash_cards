@@ -6,6 +6,7 @@
 |-----------|------------|---------|
 | Frontend | Next.js 15 (App Router) | Modern, responsive UI with server-side rendering |
 | Styling | Tailwind CSS + shadcn | Clean, accessible design with utility-first approach |
+| PDF Processing | Web Workers | Non-blocking PDF text extraction with progress tracking |
 | AI Integration | OpenAI/Mistral API | Transcript analysis and content generation |
 | Data Storage | Client-side sessionStorage | Temporary session data without server persistence |
 | Architecture | Serverless | Scalable, cost-effective processing on demand |
@@ -36,6 +37,10 @@
 │  │ React UI    │  │ Session     │  │ User Interactions   │  │
 │  │ Components  │  │ Storage     │  │ (Next, Prev, Toggle)│  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │ PDF Web Worker (Non-blocking text extraction)       │    │
+│  └─────────────────────────────────────────────────────┘    │
 └───────────────────────────┬─────────────────────────────────┘
                             │
                             ▼
@@ -64,12 +69,13 @@
 ### 1. Transcript Analysis
 
 1. User uploads transcript file
-2. Client extracts text and stores in sessionStorage
-3. Request sent to `/api/ai` with `type: "analyze"`
-4. Middleware validates request and applies rate limiting
-5. Controller routes to appropriate handler
-6. AI service generates subject and outline
-7. Response returned to client and displayed on Results page
+2. For PDF files, Web Worker extracts text with progress tracking
+3. Client extracts text and stores in sessionStorage
+4. Request sent to `/api/ai` with `type: "analyze"`
+5. Middleware validates request and applies rate limiting
+6. Controller routes to appropriate handler
+7. AI service generates subject and outline
+8. Response returned to client and displayed on Results page
 
 ### 2. Flashcard Generation
 

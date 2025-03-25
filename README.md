@@ -5,6 +5,7 @@ A modern web application designed to help university students study more effecti
 ## Features
 
 - **Transcript Upload**: Easily upload plain text transcript files
+- **PDF Processing**: Robust PDF text extraction with timeout handling and progress feedback
 - **AI Analysis**: Automatic extraction of course subject and detailed outline
 - **Flashcard Generation**: Create customizable sets of AI-generated flashcards
 - **Multiple Choice Questions**: Generate and take AI-powered MCQ quizzes with enhanced visual feedback
@@ -79,7 +80,8 @@ A modern web application designed to help university students study more effecti
 
 ## Key Components
 
-- **Upload Component**: Handles file validation and extraction
+- **Upload Component**: Handles file validation and extraction with enhanced PDF processing
+- **PDF Processing**: Non-blocking PDF text extraction with timeout handling and visual progress feedback
 - **Processing Page**: Shows real-time AI analysis progress
 - **Flashcard Generator**: Creates and manages flashcards with deduplication
 - **MCQ Generator**: Creates multiple choice questions with smart answer options and accessible color feedback
@@ -114,6 +116,16 @@ The application uses Jaccard similarity to detect and filter similar questions, 
 - Detects semantic similarity between questions
 - Automatically retries generation if too many duplicates are found
 - Maintains variety throughout the study session
+
+### PDF Processing
+
+The application implements robust PDF text extraction:
+
+- **Non-blocking Processing**: Extracts text without freezing the UI
+- **Timeout Handling**: Automatically cancels extractions that take too long
+- **Visual Feedback**: Shows real-time progress indicators during extraction
+- **Error Recovery**: Graceful handling of extraction failures with clear user feedback
+- **Authentication Compatibility**: Works seamlessly with authentication flows
 
 ### Security Features
 

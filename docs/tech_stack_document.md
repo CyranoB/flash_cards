@@ -4,6 +4,7 @@
 > - Next.js 15 with App Router for modern React-based frontend
 > - TypeScript for type safety and code reliability
 > - Tailwind CSS with shadcn components for consistent UI
+> - Web Workers for non-blocking PDF text extraction
 > - Serverless architecture for scalable, cost-effective processing
 > - OpenAI/Mistral API integration for AI-powered content generation
 > - Client-side session storage for temporary data management
@@ -30,6 +31,13 @@ Our choice of frontend technologies ensures a responsive, accessible, and visual
 *   **shadcn Component Library**
 
     *   Offers a set of pre-built, customizable UI components which help speed up development while maintaining design consistency and accessibility.
+
+*   **Web Workers**
+
+    *   Enables non-blocking PDF text extraction that runs in a separate thread
+    *   Provides progress tracking and timeout handling for improved user experience
+    *   Ensures the UI remains responsive during resource-intensive PDF processing
+    *   Works seamlessly with authentication flows
 
 These technologies work together to deliver a seamless user experience with a fast, intuitive interface that guides students through uploading transcripts and navigating their flashcard study sessions.
 
@@ -94,6 +102,9 @@ Security and performance are paramount in delivering a reliable and user-friendl
 
 *   **Performance Optimizations:**
 
+    *   Web Workers handle PDF text extraction in a separate thread, preventing UI freezing during processing
+    *   Timeout mechanisms prevent hanging during PDF extraction of complex documents
+    *   Visual progress indicators provide real-time feedback during PDF processing
     *   The serverless architecture ensures that AI processes only run on-demand, improving response times and minimizing idle resource usage.
     *   The use of Next.js server-side rendering boosts initial load times and general responsiveness.
     *   Visual feedback components like loading indicators and progress bars keep the user informed during processing delays, maintaining a smooth overall experience.
@@ -110,6 +121,7 @@ To summarize, our tech stack is carefully selected to match the project's goals 
     *   TypeScript
     *   Tailwind CSS
     *   shadcn
+    *   Web Workers for PDF processing
 
 *   **Backend:**
 

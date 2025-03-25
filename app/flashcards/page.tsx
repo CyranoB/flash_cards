@@ -10,6 +10,7 @@ import { useLanguage } from "@/hooks/use-language"
 import { translations } from "@/lib/translations"
 import { Progress } from "@/components/ui/progress"
 import { Loader2 } from "lucide-react"
+import { AuthHeader } from "@/components/auth-header"
 
 interface Flashcard {
   question: string
@@ -127,53 +128,56 @@ export default function FlashcardsPage() {
     : null
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        <h1 className="text-3xl font-bold text-center">{t.flashcardsTitle}</h1>
+    <div className="flex min-h-screen flex-col">
+      <AuthHeader />
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-8">
+          <h1 className="text-3xl font-bold text-center">{t.flashcardsTitle}</h1>
 
-        {isLoading ? (
-          <Card className="w-full min-h-[16rem]">
-            <CardHeader>
-              <CardTitle className="text-center">{t.generating}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center min-h-[8rem] px-6 space-y-6">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <Progress className="w-full" indeterminate /> 
-              <p className="text-sm text-muted-foreground">
-                {t.generating}
-              </p>
-            </CardContent>
-          </Card>
-        ) : currentFlashcard ? (
-          <Card className="w-full min-h-[16rem]">
-            <CardHeader>
-              <CardTitle className="text-center">{showAnswer ? t.answerLabel : t.questionLabel}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center justify-center min-h-[8rem] px-6">
-              <p className="text-lg text-center">{showAnswer ? currentFlashcard.answer : currentFlashcard.question}</p>
-            </CardContent>
-            <CardFooter className="flex justify-center">
-              <Button onClick={() => setShowAnswer(!showAnswer)}>{showAnswer ? t.showQuestion : t.showAnswer}</Button>
-            </CardFooter>
-          </Card>
-        ) : (
-          <Card className="w-full min-h-[16rem] flex items-center justify-center">
-            <p>{t.loading}</p>
-          </Card>
-        )}
+          {isLoading ? (
+            <Card className="w-full min-h-[16rem]">
+              <CardHeader>
+                <CardTitle className="text-center">{t.generating}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center justify-center min-h-[8rem] px-6 space-y-6">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <Progress className="w-full" indeterminate /> 
+                <p className="text-sm text-muted-foreground">
+                  {t.generating}
+                </p>
+              </CardContent>
+            </Card>
+          ) : currentFlashcard ? (
+            <Card className="w-full min-h-[16rem]">
+              <CardHeader>
+                <CardTitle className="text-center">{showAnswer ? t.answerLabel : t.questionLabel}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center min-h-[8rem] px-6">
+                <p className="text-lg text-center">{showAnswer ? currentFlashcard.answer : currentFlashcard.question}</p>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button onClick={() => setShowAnswer(!showAnswer)}>{showAnswer ? t.showQuestion : t.showAnswer}</Button>
+              </CardFooter>
+            </Card>
+          ) : (
+            <Card className="w-full min-h-[16rem] flex items-center justify-center">
+              <p>{t.loading}</p>
+            </Card>
+          )}
 
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={handleStop}>
-            {t.stopButton}
-          </Button>
-          <Button onClick={goToNextFlashcard} disabled={isLoading}>
-            {isLoading ? t.generating : t.nextButton}
-          </Button>
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={handleStop}>
+              {t.stopButton}
+            </Button>
+            <Button onClick={goToNextFlashcard} disabled={isLoading}>
+              {isLoading ? t.generating : t.nextButton}
+            </Button>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground">
+            {t.cardCount}: {currentIndex}
+          </p>
         </div>
-
-        <p className="text-center text-sm text-muted-foreground">
-          {t.cardCount}: {currentIndex}
-        </p>
       </div>
     </div>
   )

@@ -31,9 +31,16 @@ Before any user interaction, the application performs a server-side check for pr
 - User can toggle language (English/French) and theme (Light/Dark)
 - User uploads a document (TXT, DOCX, or PDF format)
 - File is validated for format and size (500-50,000 words)
+- For PDF files, a visual progress indicator shows extraction status
 
 **Technical Implementation**:
 - Client-side file processing using `/lib/document-converter.ts`
+- PDF processing via `usePdfText` hook with non-blocking extraction:
+  - Uses web workers to prevent UI freezing
+  - Implements timeout handling to prevent hanging
+  - Provides visual progress feedback during extraction
+  - Handles extraction errors with clear user feedback
+  - Works seamlessly with authentication flows
 - Extracted text stored in `sessionStorage` as "transcript"
 - User is redirected to the processing page
 
