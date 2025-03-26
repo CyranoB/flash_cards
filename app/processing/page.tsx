@@ -67,9 +67,9 @@ export default function ProcessingPage() {
       setProgress(100)
       setStatus(t.complete)
 
-      // Navigate to results page
+      // Navigate to course overview page
       setTimeout(() => {
-        router.push("/results")
+        router.push("/course-overview")
       }, 1000)
     } catch (error) {
       console.error("Processing error:", error)

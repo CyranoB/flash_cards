@@ -88,7 +88,7 @@ export default function McqPage() {
         description: t.flashcardError,
         variant: "destructive",
       })
-      router.push("/results")
+      router.push("/course-overview")
     } finally {
       // Clear the generating flag when done (or on error)
       setIsGenerating(false)

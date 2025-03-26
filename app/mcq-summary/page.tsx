@@ -26,7 +26,7 @@ export default function McqSummaryPage() {
         description: t.noResults,
         variant: "destructive",
       })
-      router.push("/")
+      router.push("/start")
       return
     }
 
@@ -36,7 +36,7 @@ export default function McqSummaryPage() {
   const handleStartNew = () => {
     // Clear session data
     sessionStorage.removeItem("mcqSessionData")
-    router.push("/")
+    router.push("/course-overview")
   }
 
   if (!sessionData) {
