@@ -123,6 +123,7 @@ export const translations = {
     flashcardsModeDesc: "Traditional flashcard-based learning with questions and answers",
     mcqMode: "Multiple Choice",
     mcqModeDesc: "Test your knowledge with multiple choice questions",
+    chooseAnotherTranscript: "Choose another transcript",
     
     // MCQ Page
     mcqTitle: "Multiple Choice Questions",
@@ -264,10 +265,11 @@ export const translations = {
     // Study Mode Selection
     studyModeTitle: "Choisissez Votre Mode d'Étude",
     studyModeDesc: "Sélectionnez comment vous voulez étudier votre matériel",
-    flashcardsMode: "Cartes Mémoire",
-    flashcardsModeDesc: "Apprentissage traditionnel avec des cartes questions-réponses",
-    mcqMode: "Questions à Choix Multiples",
+    flashcardsMode: "Cartes mémoire",
+    flashcardsModeDesc: "Apprentissage traditionnel basé sur des cartes mémoire avec questions et réponses",
+    mcqMode: "Choix multiple",
     mcqModeDesc: "Testez vos connaissances avec des questions à choix multiples",
+    chooseAnotherTranscript: "Choisir une autre transcription",
     
     // MCQ Page
     mcqTitle: "Questions à Choix Multiples",
