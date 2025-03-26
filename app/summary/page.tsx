@@ -37,8 +37,6 @@ export default function SummaryPage() {
   }, [router, toast, t])
 
   const handleFinish = () => {
-    // Clear session storage
-    sessionStorage.clear()
     router.push("/course-overview")
   }
 
