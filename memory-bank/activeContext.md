@@ -1,34 +1,36 @@
-# Active Context: AI Study Companion (As of 2025-03-26 ~9:20 PM ET)
+# Active Context - Flashcard Generator App
 
-## 1. Current Focus
+## Current Focus
 
--   Resolving issues related to PDF document upload and text extraction.
--   Implementing a frontend file size limit to prevent errors with large files.
+Refactoring and improving the PDF upload and text extraction process. The main goal was to move PDF extraction to a background job handled by the backend API, add robust validation, and improve frontend state management.
 
-## 2. Recent Changes
+## Recent Changes (This Session)
 
--   **PDF Extraction Library:**
-    -   Attempted to use `pdf-parse` but encountered runtime errors (`ENOENT` related to internal test files). Library is old (v1.1.1 is latest). Removed dependency.
-    -   Attempted to use `pdfjs-dist` (already a dependency) but faced persistent issues with worker loading/path resolution in the Next.js server environment (errors like `Invalid workerSrc type`, `Setting up fake worker failed`, `Cannot find module pdf.worker.mjs`). Tried various configurations (`workerSrc = null`, `workerSrc = ''`, relative path, `require.resolve`, legacy build, pre-importing worker) without success.
-    -   **Switched to `pdf-text-extract`:** This library requires writing the PDF to a temporary file server-side but avoids the worker/bundling issues.
-        -   Installed `pdf-text-extract`.
-        -   Updated `/api/pdf-extract/route.ts` to save the file temporarily, call `extract`, and clean up the temp file.
-        -   Resolved import issues by using `require` instead of `import`.
-        -   Created a custom type declaration file (`types/pdf-text-extract.d.ts`) as official types are unavailable.
--   **File Size Limit:**
-    -   Encountered Redis request size limit errors when processing large PDFs (due to storing the full extracted text in the job status).
-    -   Implemented a frontend file size check in `components/upload.tsx` using a configurable limit.
-    -   Updated `lib/config.ts` to use `NEXT_PUBLIC_MAX_FILE_SIZE_MB` (defaulting to 25MB) so the limit is available client-side.
-    -   Corrected hardcoded "100MB" limit in the error message translation string (`lib/translations.ts`) by using a `{limit}` placeholder and updating `components/upload.tsx` to replace it dynamically.
+- **Refactored PDF Extraction:**
+    - Moved `pdf-text-extract` logic from the frontend (`usePdfText.ts` hook - now removed) to a new backend API route (`app/api/pdf-extract/route.ts`).
+    - Implemented a background job pattern using Redis to track progress (`processing`, `completed`, `failed`).
+    - Created a status API route (`app/api/pdf-extract/status/[jobId]/route.ts`) for the frontend to poll.
+- **Improved Validation:**
+    - Added backend validation (file type, size) in `app/api/pdf-extract/route.ts`.
+    - Added frontend checks for file type, size, and word count (min/max) in `components/upload.tsx`. Word count for PDFs is checked *after* successful extraction.
+- **Enhanced Frontend (`components/upload.tsx`):**
+    - Removed the `usePdfText` hook dependency.
+    - Added state (`jobId`, `isProcessing`, `extractionProgress`) to manage the background PDF extraction process.
+    - Implemented polling logic using `useEffect` to check the job status API.
+    - Added `validatedText` state to store extracted text from TXT/DOCX files during initial validation, preventing redundant extraction later.
+    - Updated UI to show progress for PDF extraction.
+    - Improved state reset logic when changing files or encountering errors.
+    - Refined the logic for enabling the 'Upload' (Proceed) button based on file type and processing status.
+- **Configuration Improvements (`lib/config.ts`):**
+    - Refactored to use a `safeParseInt` helper function for robustness against invalid environment variables.
+    - Made the code DRYer by reading env vars once where appropriate.
+- **Code Cleanup:**
+    - Removed the unused `usePdfText.ts` hook and its worker file (`public/workers/pdf.worker.js`).
+    - Removed unused imports and console logs.
+    - Fixed various TypeScript errors introduced during refactoring.
 
-## 3. Next Steps (Immediate)
+## Next Steps
 
--   Create `progress.md` to complete Memory Bank initialization.
--   Update project documentation (`docs/`) if necessary to reflect the PDF library change and file size limit.
--   Consider alternative storage for large extracted text if the 25MB limit proves too restrictive for valid use cases (e.g., Vercel Blob, S3).
-
-## 4. Active Decisions & Considerations
-
--   Using `pdf-text-extract` adds the overhead of temporary file I/O on the server.
--   The 25MB frontend limit prevents the Redis error but might block users with legitimately large (but valid) documents. The underlying issue of storing large text in Redis remains.
--   Peer dependency warnings in `pnpm install` logs might need investigation later.
+- Thoroughly test the updated PDF upload flow with various file types (PDF, TXT, DOCX), sizes (including edge cases around limits), and potential error conditions.
+- Consider adding more granular progress updates for PDF extraction if feasible (e.g., based on pages processed), although the current implementation (start, mid, end) is functional.
+- Review overall error handling and user feedback for clarity.

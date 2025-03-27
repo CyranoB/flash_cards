@@ -1,7 +1,8 @@
-import { redis } from '@/lib/redis' // Keep only one import
+import { redis } from '@/lib/redis'
 import { NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
-import fs from 'fs/promises' // Use promises API for async file operations
+import fs from 'fs/promises'
+import { config } from '@/lib/config' // Import config
 import os from 'os'
 import path from 'path'
 // Use require and assume it might be the default export
@@ -10,13 +11,29 @@ const extract = require('pdf-text-extract')
 // Route Segment Config export is not used for body size limit in App Router
 
 export async function POST(request: Request) {
-  // console.log('API Route /api/pdf-extract/trigger reached!'); // Remove test logging
+  const formData = await request.formData()
+  const file = formData.get('file')
+
+  // --- Backend Validation ---
+  if (!file || !(file instanceof File)) {
+    return NextResponse.json({ error: 'No file uploaded.' }, { status: 400 });
+  }
+
+  if (file.type !== 'application/pdf') {
+    return NextResponse.json({ error: 'Invalid file type. Only PDF is allowed.' }, { status: 400 });
+  }
+
+  if (file.size > config.maxFileSizeBytes) {
+    return NextResponse.json(
+      { error: `File exceeds maximum size limit of ${config.maxFileSizeMB}MB.` },
+      { status: 413 } // Payload Too Large
+    );
+  }
+  // --- End Validation ---
 
   const jobId = uuidv4()
-  const formData = await request.formData()
-  const file = formData.get('file') as File
 
-  // Store initial job status
+  // Store initial job status *after* validation passes
   await redis.set(`pdf-job:${jobId}`, {
     status: 'processing',
     progress: 0,
