@@ -1,16 +1,27 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
 const isPublicRoute = createRouteMatcher([
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/'
+  '/', // Root page
+  '/sign-in(.*)', // Sign-in routes
+  '/sign-up(.*)', // Sign-up routes
+  '/api/pdf-extract', // Corrected API endpoint path
 ])
 
+// --- RESTORED CLERK MIDDLEWARE ---
 export default clerkMiddleware(async (auth, req) => {
+  // If the route is NOT public, protect it
   if (!isPublicRoute(req)) {
     await auth.protect()
   }
+  // If the route IS public, do nothing (allow access)
 })
+// --- END RESTORED MIDDLEWARE ---
+
+// Minimal pass-through middleware for testing (Remove this)
+// export default function middleware() {
+//   console.log('Minimal middleware running - PASSING THROUGH');
+// }
+// Removed extra brace
 
 export const config = {
   matcher: [

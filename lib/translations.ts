@@ -43,7 +43,7 @@ export const translations = {
     processingPdfLongDesc: "PDF extraction is taking longer than expected. Please be patient as we work on your file.",
     processingLargePdf: "Processing Large PDF",
     processingLargePdfDesc: "This may take a while for large documents. Please be patient while we extract the text.",
-    errorFileSize: "File size exceeds the 100MB limit. Please upload a smaller file or split your content.",
+    errorFileSize: "File size exceeds the {limit}MB limit. Please upload a smaller file or split your content.", // Added {limit} placeholder
     processingComplete: "PDF Processed",
     processingCompleteDesc: "The text has been successfully extracted from your PDF.",
     noApiKey: "Please configure your OpenAI API key first",
@@ -189,7 +189,7 @@ export const translations = {
     processingPdfLongDesc: "L'extraction du PDF prend plus de temps que prévu. Veuillez patienter pendant que nous traitons votre fichier.",
     processingLargePdf: "Traitement d'un Grand PDF",
     processingLargePdfDesc: "Cela peut prendre un certain temps pour les documents volumineux. Veuillez patienter pendant que nous extrayons le texte.",
-    errorFileSize: "La taille du fichier dépasse la limite de 100 Mo. Veuillez télécharger un fichier plus petit ou diviser votre contenu.",
+    errorFileSize: "La taille du fichier dépasse la limite de {limit} Mo. Veuillez télécharger un fichier plus petit ou diviser votre contenu.", // Added {limit} placeholder
     processingComplete: "PDF Traité",
     processingCompleteDesc: "Le texte a été extrait avec succès de votre PDF.",
     noApiKey: "Veuillez d'abord configurer votre clé API OpenAI",

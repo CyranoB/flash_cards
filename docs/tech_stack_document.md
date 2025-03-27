@@ -4,10 +4,11 @@
 > - Next.js 15 with App Router for modern React-based frontend
 > - TypeScript for type safety and code reliability
 > - Tailwind CSS with shadcn components for consistent UI
-> - Web Workers for non-blocking PDF text extraction
+> - Server-side PDF text extraction using `pdf-text-extract` with background job status tracking via Redis
 > - Serverless architecture for scalable, cost-effective processing
-> - OpenAI/Mistral API integration for AI-powered content generation
+> - OpenAI API integration for AI-powered content generation
 > - Client-side session storage for temporary data management
+> - Clerk for authentication
 
 This document explains the technology choices behind our modern flashcard website for university students, detailing how each component works together to achieve an intuitive, efficient, and visually appealing study assistant. The design employs clear, modern styling and leverages advanced AI integration, all while keeping the user experience uncomplicated and fast.
 
@@ -32,32 +33,36 @@ Our choice of frontend technologies ensures a responsive, accessible, and visual
 
     *   Offers a set of pre-built, customizable UI components which help speed up development while maintaining design consistency and accessibility.
 
-*   **Web Workers**
+*   **Frontend File Size Limit**
+    *   Prevents users from uploading files exceeding a configurable limit (default 25MB, via `NEXT_PUBLIC_MAX_FILE_SIZE_MB`), providing immediate feedback and avoiding backend errors with large files.
 
-    *   Enables non-blocking PDF text extraction that runs in a separate thread
-    *   Provides progress tracking and timeout handling for improved user experience
-    *   Ensures the UI remains responsive during resource-intensive PDF processing
-    *   Works seamlessly with authentication flows
-
-These technologies work together to deliver a seamless user experience with a fast, intuitive interface that guides students through uploading transcripts and navigating their flashcard study sessions.
+These technologies work together to deliver a seamless user experience with a fast, intuitive interface that guides students through uploading transcripts and navigating their study sessions, while handling potentially long processing times gracefully.
 
 ## Backend Technologies
 
-Even though our backend is relatively straightforward—with no user authentication or long-term data storage requirements—we have chosen a serverless approach to handle dynamic, on-the-fly processing:
+The backend leverages Next.js API routes deployed as serverless functions to handle dynamic processing and interactions:
 
 *   **Serverless Architecture**
 
     *   Allows us to spin up computing resources only as needed, making it a cost-effective and scalable option. This is perfect for handling the temporary data while the AI processes the uploaded transcripts.
 
-*   **Temporary Data Handling**
+*   **PDF Text Extraction API (`/api/pdf-extract`)**
+    *   Receives PDF file uploads.
+    *   Saves the file temporarily to the server's file system.
+    *   Uses the `pdf-text-extract` library to extract text from the temporary file. This library was chosen after encountering bundling/runtime issues with `pdfjs-dist` and `pdf-parse`.
+    *   Initiates this extraction as a background process (non-blocking response to the client).
+    *   Cleans up the temporary file after processing.
+*   **Background Job Status Tracking (Redis)**
+    *   Uses Redis (specifically Upstash) to store the status (`processing`, `completed`, `failed`), progress percentage, and final result (extracted text) or error message for PDF extraction jobs, keyed by a unique job ID.
+    *   An API route (`/api/pdf-extract/status/[jobId]`) allows the client to poll for the job status.
+*   **AI Integration API (`/api/ai`)**
 
-    *   Since no permanent data storage is required, transient session data is managed effectively within stateless serverless functions. This ensures privacy and minimizes maintenance overhead.
+    *   Receives extracted text (from session storage).
+    *   Responsible for analyzing transcript content using OpenAI models (e.g., GPT-4o-Mini) to generate the course subject, outline, and study materials (flashcards, MCQs).
+*   **Authentication (Clerk)**
+    *   Integrates with Clerk for user authentication, although the extent of its use in protecting routes or managing user-specific data needs further clarification.
 
-*   **AI Integration with OpenAI GPT-4o-Mini**
-
-    *   Responsible for analyzing transcript content to generate the course subject, outline, and flashcards. The integration is streamlined to process text inputs quickly while providing real-time feedback to users.
-
-The backend provides the critical support necessary for the dynamic generation of study aids while ensuring that each session remains independent and data privacy is maintained.
+The backend provides the critical support necessary for document processing and the dynamic generation of study aids, using Redis for managing the state of asynchronous PDF jobs.
 
 ## Infrastructure and Deployment
 
@@ -79,13 +84,19 @@ These infrastructure decisions help maintain a robust environment that scales on
 
 ## Third-Party Integrations
 
-To enhance functionality and streamline processes, the project incorporates several third-party services:
+To enhance functionality and streamline processes, the project incorporates several third-party services and libraries:
 
-*   **OpenAI GPT-4o-Mini**
-
-    *   The central AI component analyzes transcripts, generating course subjects, outlines, and flashcards. Its real-time processing capability is crucial for responsive study aid creation.
-
-*   **Configurable Admin Settings**
+*   **OpenAI API**
+    *   The central AI component analyzes transcripts, generating course subjects, outlines, and study materials. Configurable via environment variables.
+*   **Clerk**
+    *   Provides user authentication services.
+*   **Upstash Redis**
+    *   Used as a managed Redis instance for tracking the status of background PDF extraction jobs.
+*   **`pdf-text-extract`**
+    *   Node.js library used for server-side PDF text extraction.
+*   **`mammoth`**
+    *   Library used for converting `.docx` files to text.
+*   **Configurable Settings**
 
     *   A configuration file allows administrators to set the OpenAI API key, select the model, and specify the default API URL. This flexibility ensures that the backend can be easily adapted to changes without affecting the frontend user experience.
 
@@ -96,18 +107,19 @@ These integrations allow us to deliver advanced features such as natural languag
 Security and performance are paramount in delivering a reliable and user-friendly experience:
 
 *   **Security Measures:**
-
-    *   Data is managed transiently, with no long-term storage of user information, reducing risks associated with data breaches.
-    *   Sensitive configuration settings, such as the OpenAI API key, are stored securely in a config file rather than within the visible frontend code.
-
+    *   Authentication is handled by Clerk.
+    *   Cross-tenant access prevention needs careful consideration if user-specific data storage is added later.
+    *   Sensitive configuration settings (API keys, Redis URL) are managed via environment variables.
 *   **Performance Optimizations:**
-
-    *   Web Workers handle PDF text extraction in a separate thread, preventing UI freezing during processing
-    *   Timeout mechanisms prevent hanging during PDF extraction of complex documents
-    *   Visual progress indicators provide real-time feedback during PDF processing
-    *   The serverless architecture ensures that AI processes only run on-demand, improving response times and minimizing idle resource usage.
-    *   The use of Next.js server-side rendering boosts initial load times and general responsiveness.
-    *   Visual feedback components like loading indicators and progress bars keep the user informed during processing delays, maintaining a smooth overall experience.
+    *   Server-side PDF extraction runs asynchronously, preventing blocking of the main API response. The client polls for status.
+    *   Frontend file size limits prevent unnecessary processing of overly large files.
+    *   Redis provides fast access to job status.
+    *   The serverless architecture ensures processing resources scale on demand.
+    *   Visual feedback (progress bars, loading indicators) keeps the user informed during potentially long operations (PDF extraction, AI processing).
+    *   Caching mechanisms (observed in logs for AI responses) help reduce redundant processing.
+*   **Potential Bottlenecks/Considerations:**
+    *   Storing large extracted text in Redis can hit size limits (currently mitigated by frontend file size limit). Alternative storage (Vercel Blob, S3) might be needed.
+    *   Temporary file I/O for `pdf-text-extract` adds minor overhead on the server.
 
 Collectively, implementing robust security practices and focused performance enhancements guarantees that users enjoy a secure, fast, and efficient study session.
 
@@ -116,29 +128,25 @@ Collectively, implementing robust security practices and focused performance enh
 To summarize, our tech stack is carefully selected to match the project's goals and user needs:
 
 *   **Frontend:**
-
     *   Next.js 15 (with App Router)
-    *   TypeScript
-    *   Tailwind CSS
-    *   shadcn
-    *   Web Workers for PDF processing
-
+    *   React 19, TypeScript
+    *   Tailwind CSS, shadcn/ui
+    *   Client-side validation (file type, size)
 *   **Backend:**
-
-    *   Serverless functions for temporary data handling
-    *   OpenAI compatible for AI-driven transcript analysis and flashcard generation
+    *   Next.js API Routes (Serverless Functions)
+    *   `pdf-text-extract` for PDF processing (server-side, async via Redis)
+    *   `mammoth` for DOCX processing
+    *   Redis (Upstash) for job status tracking
+    *   OpenAI API for AI analysis/generation
+    *   Clerk for authentication
 
 *   **Infrastructure:**
 
     *   Deployed on Vercel with CI/CD pipelines and version control via Git
 
 *   **Third-Party Integrations:**
-
-    *   OpenAI (and compatible) capabilities integrated with robust configuration settings
-
+    *   OpenAI, Clerk, Upstash
 *   **Security and Performance:**
-
-    *   Transient data management enhances security
-    *   Performance is optimized through careful architecture choices and real-time visual feedback
+    *   Frontend size limits, async processing, Redis status tracking, Clerk auth. Potential need for alternative large text storage.
 
 These choices align with the project's requirement to provide an effective, accessible, and user-friendly flashcard website. The use of modern development tools and cloud services ensures that the platform is not only scalable and secure but also affable to non-technical users, making it a standout solution for university students seeking streamlined study aids.

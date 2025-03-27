@@ -11,7 +11,9 @@ This document outlines the architecture of the AI API implementation in the Flas
 
 ## Overview
 
-The AI API is built using Next.js 14 App Router with Route Handlers, providing a serverless architecture for AI operations. The codebase has been refactored to follow a modular design with clear separation of concerns.
+The AI API (`/api/ai`) is built using Next.js App Router with Route Handlers, providing a serverless architecture for AI operations like analyzing transcripts and generating study materials. The codebase follows a modular design with clear separation of concerns.
+
+**Note:** This API receives pre-processed text as input. Document upload and text extraction (including asynchronous PDF processing via `/api/pdf-extract` and Redis) are handled by separate components and API routes, as detailed in the Backend Structure Document.
 
 ## Directory Structure
 

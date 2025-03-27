@@ -7,9 +7,9 @@
 
 // File and transcript size limits
 export const config = {
-  // File size limits
-  maxFileSizeMB: parseInt(process.env.MAX_FILE_SIZE_MB || '100', 10),
-  maxFileSizeBytes: parseInt(process.env.MAX_FILE_SIZE_MB || '100', 10) * 1024 * 1024,
+  // File size limits - Use NEXT_PUBLIC_ prefix for client-side access
+  maxFileSizeMB: parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE_MB || '25', 10), // Default to 25MB
+  maxFileSizeBytes: parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE_MB || '25', 10) * 1024 * 1024, // Default to 25MB
   
   // Word count limits
   maxWordCount: parseInt(process.env.MAX_WORD_COUNT || '50000', 10),
