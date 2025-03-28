@@ -51,17 +51,19 @@ export default function HomePage() {
     "What are the main components of a neural network?",
   ]
 
+  const updateQuestionAfterTransition = () => {
+    setCurrentQuestionIndex((prevIndex) => (prevIndex + 1) % flashcardExamples.length);
+    setIsTransitioning(false);
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsTransitioning(true)
-      setTimeout(() => {
-        setCurrentQuestionIndex((prevIndex) => (prevIndex + 1) % flashcardExamples.length)
-        setIsTransitioning(false)
-      }, 500) // Wait for fade-out animation before changing question
-    }, 4000) // Change question every 4 seconds
+      setIsTransitioning(true);
+      setTimeout(updateQuestionAfterTransition, 500);
+    }, 4000);
 
-    return () => clearInterval(interval)
-  }, [flashcardExamples.length])
+    return () => clearInterval(interval);
+  }, [flashcardExamples.length, updateQuestionAfterTransition])
 
   const progressValues = [50, 75, 25, 60, 40, 80, 35, 65, 45, 70, 30, 55]
 
