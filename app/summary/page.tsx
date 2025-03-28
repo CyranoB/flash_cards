@@ -15,6 +15,7 @@ interface Flashcard {
 
 export default function SummaryPage() {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([])
+  const [lastCompletedIndex, setLastCompletedIndex] = useState(0)
   const router = useRouter()
   const { toast } = useToast()
   const { language } = useLanguage()
@@ -22,6 +23,7 @@ export default function SummaryPage() {
 
   useEffect(() => {
     const flashcardsData = sessionStorage.getItem("flashcards")
+    const lastIndex = sessionStorage.getItem("lastCompletedIndex")
 
     if (!flashcardsData) {
       toast({
@@ -33,11 +35,25 @@ export default function SummaryPage() {
       return
     }
 
-    setFlashcards(JSON.parse(flashcardsData))
+    const allFlashcards = JSON.parse(flashcardsData)
+    const lastIndexNum = lastIndex ? parseInt(lastIndex) : allFlashcards.length
+    
+    // Show only the last 10 flashcards studied
+    const startIndex = Math.max(0, lastIndexNum - 10)
+    const recentFlashcards = allFlashcards.slice(startIndex, lastIndexNum)
+    
+    setFlashcards(recentFlashcards)
+    setLastCompletedIndex(lastIndexNum)
   }, [router, toast, t])
 
   const handleFinish = () => {
     router.push("/course-overview")
+  }
+
+  const handleMoreFlashcards = () => {
+    // Set flag to continue with next batch
+    sessionStorage.setItem('startNextFlashcardBatch', 'true')
+    router.push("/flashcards")
   }
 
   return (
@@ -46,7 +62,7 @@ export default function SummaryPage() {
         <h1 className="text-3xl font-bold text-center">{t.summaryTitle}</h1>
 
         <p className="text-center text-muted-foreground">
-          {t.studiedCards}: {flashcards.length}
+          {t.studiedCards}: {lastCompletedIndex}
         </p>
 
         <div className="space-y-4">
@@ -71,7 +87,10 @@ export default function SummaryPage() {
           ))}
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-4">
+          <Button variant="outline" size="lg" onClick={handleMoreFlashcards}>
+            {t.do10MoreButton || "Do 10 More"}
+          </Button>
           <Button size="lg" onClick={handleFinish}>
             {t.finishButton}
           </Button>

@@ -19,23 +19,31 @@
     -   Client polls status endpoint (`/api/pdf-extract/status/[jobId]`) and updates progress UI. The route handler was updated to correctly `await params` for Next.js 15 compatibility.
 -   **Error Handling:** Basic error dialog (`components/error-dialog.tsx`) displays errors encountered during validation or processing.
 -   **Build Process:** The `pdf-parse` library was patched using `pnpm patch` to remove debug code, resolving build failures.
+-   **Flashcard Study Flow:**
+    -   Basic flashcard viewer (`app/flashcards/page.tsx`) displays question/answer.
+    -   AI generates flashcards in batches of 10 (`lib/ai.ts`).
+    -   Navigation between cards and batches works.
+    -   Summary page (`app/summary/page.tsx`) shows the last 10 cards and provides options to finish or continue.
+    -   Skeleton loading state implemented for card generation.
+    -   Card counter resets for each batch.
 
 ## 2. What's Left to Build / Verify
 
--   **AI Integration:** Verify the flow where extracted text (from session storage) is sent to the AI API (`/api/ai`) for analysis/generation.
--   **Study Interfaces:** Implement the flashcard viewer and MCQ quiz interfaces.
+-   **AI Integration:** Verify the *MCQ* generation flow (flashcard generation works).
+-   **Study Interfaces:** Implement the *MCQ quiz* interface. Flashcard viewer is mostly functional.
 -   **Results Display:** Implement the page showing the generated course overview/outline.
--   **Session Management:** Implement study session tracking and summary display.
+-   **Session Management:** Further refinement of study session tracking if needed beyond the current flashcard/summary flow.
 -   **Authentication Flow:** Integrate Clerk authentication more deeply if needed beyond basic setup.
--   **Deployment:** Configure and test deployment (e.g., on Vercel) - The switch to `pdf-parse` should resolve the previous blocker.
--   **Robustness/Edge Cases:** Further testing with different file types, sizes, potential PDF complexities (`pdf-parse` limitations?), and error conditions.
--   **Alternative Storage for Large Text:** Investigate and potentially implement alternative storage (Vercel Blob, S3) for extracted text if the 25MB limit + Redis storage proves problematic.
+-   **Deployment:** Configure and test deployment (e.g., on Vercel).
+-   **Robustness/Edge Cases:** Further testing of PDF extraction, AI generation, and the study flows with various inputs and potential errors.
+-   **Alternative Storage for Large Text:** Monitor need for alternative storage (Vercel Blob, S3) for extracted text if Redis limits become an issue.
 
 ## 3. Current Status
 
--   The core file upload and text extraction pipeline is functional for .txt, .docx, and .pdf files, using `pdf-parse` for PDFs in a Vercel-compatible way.
--   Background processing for PDFs remains functional.
--   Frontend validation prevents excessively large files (default > 25MB) from being processed, mitigating Redis size limit errors for now.
+-   Core file upload and text extraction pipeline is functional for .txt, .docx, and .pdf files.
+-   Background processing for PDFs with status polling works.
+-   Frontend validation (size, type, word count) is in place.
+-   Basic flashcard generation and study flow (including batching, summary, loading states, counter) is functional.
 
 ## 4. Known Issues / Blockers
 

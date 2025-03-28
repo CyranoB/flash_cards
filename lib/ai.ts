@@ -4,6 +4,20 @@ import { McqQuestion } from "@/types/mcq"
 import { toast } from "@/components/ui/use-toast"
 import { config } from "@/lib/config"
 
+interface Flashcard {
+  question: string;
+  answer: string;
+  id: string;
+}
+
+interface GenerateBatchParams {
+  courseData: string;
+  transcript?: string;
+  count: number;
+  language: string;
+  existingQuestions?: Flashcard[];
+}
+
 // Function to get OpenAI configuration
 function getOpenAIConfig() {
   const apiKey = process.env.OPENAI_API_KEY
@@ -152,10 +166,25 @@ export async function fetchWithRetry(
     console.error("Could not parse request body for cache key:", e);
   }
   
-  // Create a more robust cache key including explicit language info
+  // Get request type and language
   const language = bodyObj && (bodyObj as any).language ? (bodyObj as any).language : 'unknown';
   const type = bodyObj && (bodyObj as any).type ? (bodyObj as any).type : 'unknown';
-  const cacheKey = `${url}-${type}-${language}-${options.body}`;
+  
+  // Skip caching for generate-batch requests as we always want fresh flashcards
+  if (type === 'generate-batch') {
+    console.log('Skipping cache for generate-batch request to ensure fresh flashcards');
+    const response = await fetch(url, options);
+    return await handleApiResponse(response);
+  }
+  
+  // For other requests, create cache key excluding verbose data
+  const cacheKeyData = {
+    type,
+    language,
+    count: (bodyObj as any).count
+  };
+  
+  const cacheKey = `${url}-${JSON.stringify(cacheKeyData)}`;
   
   console.log("Cache key:", cacheKey);
   console.log("Cache info:", getDebugCacheInfo());
@@ -297,7 +326,13 @@ export async function generateFlashcard(courseData: any, transcript: string, lan
 }
 
 // Function to generate multiple flashcards based on course data
-export async function generateFlashcards(courseData: any, transcript: string, count: number = 10, language: "en" | "fr" = "en") {
+export async function generateFlashcards(
+  courseData: any, 
+  transcript: string, 
+  count: number = 10, 
+  language: "en" | "fr" = "en",
+  existingQuestions: Flashcard[] = []
+) {
   try {
     // Check if transcript is too large for a single request (using configurable threshold)
     const isLargeTranscript = transcript.length > config.transcriptChunkThreshold;
@@ -320,6 +355,7 @@ export async function generateFlashcards(courseData: any, transcript: string, co
           language,
           type: "generate-batch",
           isPartialTranscript: true,
+          existingQuestions,
         }),
       });
       
@@ -344,6 +380,7 @@ export async function generateFlashcards(courseData: any, transcript: string, co
           count,
           language,
           type: "generate-batch",
+          existingQuestions,
         }),
       });
       

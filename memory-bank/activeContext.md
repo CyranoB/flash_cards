@@ -30,9 +30,15 @@ Refactoring and improving the PDF upload and text extraction process. The main g
     - Fixed various TypeScript errors introduced during refactoring.
     - **Patched `pdf-parse`:** Applied a patch using `pnpm patch` to remove problematic debug code in `pdf-parse` that was causing build failures.
     - **Fixed Status Route:** Updated `app/api/pdf-extract/status/[jobId]/route.ts` to correctly `await params` as required by Next.js 15, and updated the TypeScript type definition for `params` to `Promise<{ jobId: string }>` to resolve linter warnings.
+- **Flashcard Flow Updates (`app/flashcards/page.tsx`, `app/summary/page.tsx`):**
+    - **Batch Limit:** At the 10th card of a batch, only a "Finish" button is shown, directing the user to the summary page.
+    - **Summary Options:** The summary page now provides "Do 10 More" (starts next batch) and "Finish" (goes to course overview) buttons.
+    - **Skeleton Loader:** Implemented a `Skeleton` component loading state for flashcards. Fixed logic to ensure it displays correctly when generating initial *and* subsequent batches.
+    - **Button Layout:** Restored the original layout with "Stop" on the left and "Next" on the right for cards 1-9.
+    - **Card Counter:** Updated the counter to reset and show 1-10 for each batch.
 
 ## Next Steps
 
-- Thoroughly test the updated PDF upload flow with various file types (PDF, TXT, DOCX), sizes (including edge cases around limits), and potential error conditions, especially on Vercel.
-- Consider adding more granular progress updates for PDF extraction if feasible (e.g., based on pages processed), although the current implementation (start, mid, end) is functional.
-- Review overall error handling and user feedback for clarity.
+- Thoroughly test the updated PDF upload flow and the flashcard study flow (including batch continuation, counter, and loading states).
+- Consider adding more granular progress updates for PDF extraction if feasible.
+- Review overall error handling and user feedback for clarity across all implemented features.

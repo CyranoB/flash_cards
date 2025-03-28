@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getClientIP, applyRateLimit, validateRequestBody, validateAIRequestBody } from "@/lib/middleware"
+import { getClientIP, applyRateLimit, validateRequestBody } from "@/lib/middleware"
 import { analyzeTranscript, generateFlashcards, generateMCQs } from "@/lib/ai/service"
 import { config } from "@/lib/config"
 
@@ -10,6 +10,27 @@ import { config } from "@/lib/config"
  */
 function countWords(text: string): number {
   return text.trim().split(/\s+/).length;
+}
+
+/**
+ * Validate AI request body
+ */
+function validateAIRequestBody(body: any) {
+  if (!body.type) {
+    throw new Error("Missing required field: type");
+  }
+  
+  if (body.type === "analyze" && !body.transcript) {
+    throw new Error("Missing required field: transcript for analysis");
+  }
+  
+  if ((body.type === "generate-batch" || body.type === "generate-mcq-batch") && !body.courseData) {
+    throw new Error("Missing required field: courseData for generation");
+  }
+
+  if (body.existingQuestions && !Array.isArray(body.existingQuestions)) {
+    throw new Error("existingQuestions must be an array if provided");
+  }
 }
 
 /**
@@ -93,7 +114,8 @@ export async function POST(req: NextRequest) {
           courseData: body.courseData,
           transcript: body.transcript,
           count: body.count || 10,
-          language: body.language || "en"
+          language: body.language || "en",
+          existingQuestions: body.existingQuestions || []
         });
         return NextResponse.json(flashcardsResult);
         

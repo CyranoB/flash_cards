@@ -107,6 +107,8 @@ export const translations = {
     startNew: "Start New Session",
     studiedCards: "Cards Studied",
     finishButton: "Finish & Start New Session",
+    moreFlashcardsButton: "Do 10 More Flashcards",
+    do10MoreButton: "Do 10 More",
     noFlashcards: "No flashcards found. Please start a new session.",
 
     // Settings
@@ -253,6 +255,8 @@ export const translations = {
     startNew: "Nouvelle Session",
     studiedCards: "Cartes Étudiées",
     finishButton: "Terminer et Commencer une Nouvelle Session",
+    moreFlashcardsButton: "Faire 10 Cartes Supplémentaires",
+    do10MoreButton: "Faire 10 de Plus",
     noFlashcards: "Aucune carte trouvée. Veuillez commencer une nouvelle session.",
 
     // Settings
