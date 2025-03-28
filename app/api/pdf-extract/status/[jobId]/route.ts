@@ -2,7 +2,10 @@ import { redis } from '@/lib/redis'
 import { NextResponse } from 'next/server'
 
 // Use the params argument for type-safe access
-export async function GET(request: Request, { params }: { params: { jobId: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ jobId: string }> }
+) {
   // Properly await params in Next.js 15
   const { jobId } = await params;
 

@@ -29,7 +29,7 @@ Refactoring and improving the PDF upload and text extraction process. The main g
     - Removed unused imports and console logs.
     - Fixed various TypeScript errors introduced during refactoring.
     - **Patched `pdf-parse`:** Applied a patch using `pnpm patch` to remove problematic debug code in `pdf-parse` that was causing build failures.
-    - **Fixed Status Route:** Updated `app/api/pdf-extract/status/[jobId]/route.ts` to correctly `await params` as required by Next.js 15.
+    - **Fixed Status Route:** Updated `app/api/pdf-extract/status/[jobId]/route.ts` to correctly `await params` as required by Next.js 15, and updated the TypeScript type definition for `params` to `Promise<{ jobId: string }>` to resolve linter warnings.
 
 ## Next Steps
 
