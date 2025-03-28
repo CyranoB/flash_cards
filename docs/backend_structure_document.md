@@ -2,12 +2,12 @@
 
 > **Key Points**
 > - Serverless architecture with Next.js API routes for scalability
-> - Stateless design with client-side session storage
+> - Stateless design with client-side session storage for transcript text
 > - RESTful API approach with operation-based routing
-> - Web Worker-based PDF processing for non-blocking text extraction
+> - Server-side asynchronous PDF processing using `pdf-text-extract` and Redis for status tracking
 > - OpenAI integration for AI processing
 > - Comprehensive error handling and logging
-> - Configurable file size and word count limits via environment variables
+> - Configurable file size (client-side enforced) and word count limits via environment variables
 
 This document provides an overview of the backend structure for the AI Flashcard Generator, ensuring clarity in design for both technical and non-technical readers. It explains how the system processes course transcripts, interacts with AI, and manages temporary session data.
 
@@ -18,26 +18,35 @@ The backend is built using serverless functions that operate in a stateless mann
 - **Next.js API Routes:** Core business logic (upload processing, AI analysis, flashcard generation, session management) is implemented as API routes within the Next.js framework, leveraging its built-in routing system.
 - **Serverless Functions:** The API routes are deployed as serverless functions, promoting a decoupled architecture that scales on demand.
 - **Configuration Management:** A centralized configuration system (`/lib/config.ts`) manages environment variables for file size limits, word counts, API keys, and other configurable parameters.
-- **Stateless Sessions:** Session state for flashcard sequences and transcript processing is managed client-side using `sessionStorage`, ensuring no server-side state is maintained between requests.
-- **Web Worker Processing:** PDF text extraction is handled by Web Workers in a separate thread to prevent UI blocking, with timeout handling and progress tracking.
+- **Stateless Sessions:** Session state for the final transcript text is managed client-side using `sessionStorage`.
+- **Server-Side PDF Processing:** PDF text extraction is handled asynchronously by a dedicated API route (`/api/pdf-extract`). It uses the `pdf-text-extract` library, requires temporary file storage on the server, and tracks job status using Redis. This avoids blocking the client UI and handles potentially long-running extractions.
 
 ## Data Management
 
 The project does not use a traditional persistent database. Instead, it focuses on transient data storage and efficient data processing during each session:
 
-- **Client-Side Storage:** `sessionStorage` is used to store temporary session data such as uploaded transcripts, course data, and generated flashcards.
-- **Server-Side Processing:** Data is processed on-demand within serverless functions, with results sent back to the client for storage and display.
-- **PDF Processing:** PDF documents are processed client-side using Web Workers to extract text without blocking the UI thread, with progress tracking and timeout handling.
+- **Client-Side Storage:** `sessionStorage` is used to store the final extracted transcript text before sending it for AI processing.
+- **Server-Side Processing:** Data (like PDFs) is processed on-demand within serverless functions. AI processing also happens server-side.
+- **PDF Processing State (Redis):** Redis (Upstash) is used server-side to store the state (`status`, `progress`, `result`, `error`) of asynchronous PDF extraction jobs, identified by a unique job ID. This allows the client to poll for updates without maintaining server-side session state.
 
 ## API Design and Endpoints
 
 The API is designed with a RESTful approach, implemented as Next.js API routes:
 
-- **AI Processing Endpoint (POST /api/ai/route.ts):**
-  - Handles multiple operations: transcript analysis, flashcard generation, and batch flashcard generation.
-  - Accepts different `type` parameters to determine the operation: "analyze", "generate", or "generate-batch".
-  - Interacts with OpenAI's API to process text and generate content.
-  - Implements validation for request body size and word count limits.
+- **PDF Extraction Trigger Endpoint (POST /api/pdf-extract):**
+  - Accepts a PDF file upload (via FormData).
+  - Saves the file temporarily.
+  - Initiates the background text extraction process using `pdf-text-extract`.
+  - Stores the initial job status in Redis.
+  - Returns a unique `jobId` to the client immediately.
+- **PDF Extraction Status Endpoint (GET /api/pdf-extract/status/[jobId]):**
+  - Accepts a `jobId` as a path parameter.
+  - Retrieves the current status, progress, result (text), or error for the specified job from Redis.
+  - Allows the client to poll for updates on the background extraction process.
+- **AI Processing Endpoint (POST /api/ai):**
+  - Handles multiple operations: transcript analysis, flashcard generation, etc. (as previously described).
+  - Accepts extracted text (retrieved from client-side `sessionStorage`).
+  - Interacts with OpenAI's API.
 
 ## OpenAI Integration
 
@@ -53,8 +62,8 @@ The application integrates with OpenAI's API for natural language processing tas
 The application uses a centralized configuration system (`/lib/config.ts`) that provides:
 
 - **File Size Limits:**
-  - `MAX_FILE_SIZE_MB`: Maximum allowed file size in megabytes (default: 100MB)
-  - `maxFileSizeBytes`: Calculated value in bytes for internal validation
+  - `NEXT_PUBLIC_MAX_FILE_SIZE_MB`: Maximum allowed file size in megabytes (default: 25MB). Prefix `NEXT_PUBLIC_` is required for client-side access where the check is enforced.
+  - `maxFileSizeBytes`: Calculated value in bytes used in the configuration.
 
 - **Word Count Limits:**
   - `MAX_WORD_COUNT`: Maximum allowed word count in a transcript (default: 50,000)
@@ -102,10 +111,13 @@ The API implements comprehensive error handling:
 Several measures are in place to optimize performance:
 
 - **Serverless Architecture:** Enables automatic scaling based on demand.
-- **Web Worker-based PDF Processing:** Handles resource-intensive PDF text extraction in a separate thread to keep the UI responsive.
-- **Timeout Handling:** Prevents PDF extraction from running indefinitely.
-- **Transcript Chunking:** Large transcripts are automatically sampled to optimize API usage and response times.
-- **Configurable Limits:** File size and word count limits can be adjusted based on deployment environment and resource constraints.
+- **Asynchronous PDF Processing:** Server-side extraction runs in the background, preventing API timeouts and keeping the client responsive. The client polls Redis via a status endpoint.
+- **Frontend File Size Limit:** Prevents processing of excessively large files, mitigating potential errors (like Redis size limits) and providing faster user feedback.
+- **Redis for State:** Provides fast access to job status for polling clients.
+- **Temporary File I/O:** `pdf-text-extract` requires writing files temporarily, adding minor disk I/O overhead on the server.
+- **Transcript Chunking:** Large transcripts (post-extraction) are sampled before sending to AI to optimize API usage.
+- **Configurable Limits:** File size (frontend) and word count limits can be adjusted.
+- **Redis Size Limit Mitigation:** The frontend file size limit currently prevents storing excessively large extracted text blobs in Redis status, but this remains a potential area for improvement (e.g., using alternative storage like Vercel Blob/S3 for results).
 
 ## Monitoring and Maintenance
 

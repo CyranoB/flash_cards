@@ -42,4 +42,4 @@ export async function convertDocumentToText(file: File): Promise<string> {
     default:
       throw new Error('Unsupported file type');
   }
-} 
+}

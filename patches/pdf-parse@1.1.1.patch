@@ -1,0 +1,32 @@
+diff --git a/index.js b/index.js
+index e9fc367a00904fca3385a05b2b435fed23d14d77..e4a71a659a58fbdfac3e82ec9da4e5e8b7c5a53b 100644
+--- a/index.js
++++ b/index.js
+@@ -3,24 +3,6 @@ const Pdf = require('./lib/pdf-parse.js');
+ 
+ module.exports = Pdf;
+ 
+-let isDebugMode = !module.parent; 
+-
+-//process.env.AUTO_KENT_DEBUG
+-
+-
+-//for testing purpose
+-if (isDebugMode) {
+-
+-    let PDF_FILE = './test/data/05-versions-space.pdf';
+-    let dataBuffer = Fs.readFileSync(PDF_FILE);
+-    Pdf(dataBuffer).then(function(data) {
+-        Fs.writeFileSync(`${PDF_FILE}.txt`, data.text, {
+-            encoding: 'utf8',
+-            flag: 'w'
+-        });
+-        debugger;
+-    }).catch(function(err) {
+-        debugger;
+-    });
+-
+-}
++// Removed debug block that caused build issues
++// let isDebugMode = !module.parent; 
++// if (isDebugMode) { ... }

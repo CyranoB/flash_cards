@@ -12,7 +12,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { translations } from "@/lib/translations"
 import { useLanguage } from "@/hooks/use-language"
 import { convertDocumentToText } from "@/lib/document-converter"
-import { usePdfText } from "@/hooks/usePdfText"
 import { ErrorDialog } from "@/components/error-dialog"
 import { config } from "@/lib/config"
 
@@ -22,6 +21,7 @@ export function Upload() {
   const [isUploading, setIsUploading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [extractionProgress, setExtractionProgress] = useState(0)
+  const [validatedText, setValidatedText] = useState<string | null>(null) // State for validated non-PDF text
   const [errorDialog, setErrorDialog] = useState({
     isOpen: false,
     title: "",
@@ -31,53 +31,60 @@ export function Upload() {
   const { toast } = useToast()
   const { language } = useLanguage()
   const t = translations[language]
-  const { text: pdfText, error: pdfError, isExtracting, extractText, status } = usePdfText()
+  const [jobId, setJobId] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
 
-  // Effect to handle PDF extraction status
-  useEffect(() => {
-    console.log(`🔄 [UPLOAD] PDF extraction status changed to: ${status}`);
-    
-    if (status === 'error' && pdfError) {
-      console.error('❌ [UPLOAD] PDF extraction error detected:', pdfError);
-      showError(t.errorTitle, t.errorPdfProcessing);
-      setFile(null);
-    }
-    
-    // Reset progress when extraction is not happening
-    if (!isExtracting) {
-      setExtractionProgress(0);
-    }
-  }, [status, pdfError, isExtracting, t]);
+  const showError = (title: string, message: string) => {
+    console.log('🚨 Showing error dialog:', title, message);
+    setErrorDialog({
+      isOpen: true,
+      title,
+      message
+    })
+  }
 
-  // Effect to simulate progress for UI feedback during extraction
+  // Effect to poll job status
   useEffect(() => {
-    let progressInterval: NodeJS.Timeout | null = null;
-    
-    if (isExtracting) {
-      console.log('🔄 [UPLOAD] Starting progress simulation for extraction');
-      // Simulate progress for better UX - actual extraction doesn't report progress
-      progressInterval = setInterval(() => {
-        setExtractionProgress(prev => {
-          // Cap at 90% as we don't know actual completion
-          const newProgress = Math.min(prev + 1, 90);
-          return newProgress;
-        });
-      }, 300);
-    } else if (progressInterval) {
-      clearInterval(progressInterval);
-      
-      if (status === 'success') {
-        // When complete, jump to 100%
-        setExtractionProgress(100);
+    if (!jobId) return
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/pdf-extract/status/${jobId}`)
+        const data = await response.json()
+        
+        if (data.status === 'completed') {
+          clearInterval(pollInterval)
+          setIsProcessing(false)
+          setExtractionProgress(100)
+          toast({
+            title: t.processingComplete,
+            description: t.processingCompleteDesc,
+          })
+        } else if (data.status === 'failed') {
+          clearInterval(pollInterval)
+          setIsProcessing(false)
+          // Reset file state if PDF processing fails
+          setFile(null); 
+          setJobId(null);
+          setExtractionProgress(0);
+          showError(t.errorTitle, data.error || t.errorPdfProcessing)
+        } else if (data.progress) {
+          setExtractionProgress(data.progress)
+        }
+      } catch (error) {
+        clearInterval(pollInterval)
+        setIsProcessing(false)
+        // Reset file state on fetch error
+        setFile(null);
+        setJobId(null);
+        setExtractionProgress(0);
+        showError(t.errorTitle, t.errorPdfProcessing)
       }
-    }
-    
-    return () => {
-      if (progressInterval) {
-        clearInterval(progressInterval);
-      }
-    };
-  }, [isExtracting, status]);
+    }, 1000)
+
+    return () => clearInterval(pollInterval)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobId, t]) // Removed showError from dependency array as it's stable due to definition location
 
   useEffect(() => {
     console.log('🔄 [UPLOAD] Component mounted');
@@ -113,228 +120,188 @@ export function Upload() {
     }
   }
 
-  const showError = (title: string, message: string) => {
-    console.log('🚨 Showing error dialog:', title, message);
-    setErrorDialog({
-      isOpen: true,
-      title,
-      message
-    })
-  }
+  // showError is defined above useEffect now
 
   const closeErrorDialog = () => {
     console.log('🔄 Closing error dialog');
     setErrorDialog(prev => ({ ...prev, isOpen: false }))
   }
 
-  const validateAndSetFile = async (file: File) => {
-    console.log('🔍 [UPLOAD] Validating file:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-    // Check if file type is supported
-    const isTextFile = file.type === "text/plain"
-    const isDocxFile = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    const isPdfFile = file.type === "application/pdf"
+  // Combined file validation and processing initiation logic
+  const validateAndSetFile = async (selectedFile: File) => {
+    // Reset states for new file validation
+    setFile(null);
+    setValidatedText(null);
+    setJobId(null);
+    setExtractionProgress(0);
+    setIsProcessing(false);
+    setIsUploading(false);
 
-    console.log('📋 [UPLOAD] File type checks:', {
-      isTextFile,
-      isDocxFile,
-      isPdfFile,
-      actualType: file.type
-    });
+    console.log('🔍 [UPLOAD] Validating file:', selectedFile.name, 'Size:', (selectedFile.size / 1024 / 1024).toFixed(2), 'MB');
+
+    // Check if file type is supported
+    const isTextFile = selectedFile.type === "text/plain";
+    const isDocxFile = selectedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    const isPdfFile = selectedFile.type === "application/pdf";
+
+    console.log('📋 [UPLOAD] File type checks:', { isTextFile, isDocxFile, isPdfFile, actualType: selectedFile.type });
 
     if (!isTextFile && !isDocxFile && !isPdfFile) {
-      console.warn('⚠️ [UPLOAD] Unsupported file type:', file.type);
+      console.warn('⚠️ [UPLOAD] Unsupported file type:', selectedFile.type);
       showError(t.errorTitle, t.errorFileType);
-      return
+      return;
     }
     
     // Check file size using configurable limit
-    const maxFileSize = config.maxFileSizeBytes; // Get from config
-    if (file.size > maxFileSize) {
-      console.warn('⚠️ [UPLOAD] File too large:', (file.size / 1024 / 1024).toFixed(2), 'MB (limit:', config.maxFileSizeMB, 'MB)');
-      showError(t.errorTitle, t.errorFileSize || `File size exceeds the ${config.maxFileSizeMB}MB limit.`);
+    const maxFileSize = config.maxFileSizeBytes;
+    if (selectedFile.size > maxFileSize) {
+      console.warn('⚠️ [UPLOAD] File too large:', (selectedFile.size / 1024 / 1024).toFixed(2), 'MB (limit:', config.maxFileSizeMB, 'MB)');
+      const errorMessage = t.errorFileSize.replace('{limit}', config.maxFileSizeMB.toString());
+      showError(t.errorTitle, errorMessage);
       return;
     }
 
-    // Set the file first to show the progress indicator
-    if (isPdfFile) {
-      console.log('📑 [UPLOAD] Setting PDF file to state to show progress indicator');
-      setFile(file);
-    }
+    setFile(selectedFile); // Set file state immediately for UI feedback
 
     try {
-      let text: string;
-      
       if (isPdfFile) {
+        // --- Start PDF Async Processing ---
         console.log('📑 [UPLOAD] Starting PDF text extraction process...');
+        setIsProcessing(true);
         
-        // Show different toast for large PDFs
-        const isLargePdf = file.size > 10 * 1024 * 1024; // 10MB
-        if (isLargePdf) {
-          toast({
-            title: t.processingLargePdf || 'Processing large PDF',
-            description: t.processingLargePdfDesc || 'This may take a while for large documents. Please be patient.',
-            duration: 6000,
-          });
-        } else {
-          toast({
-            title: t.processingPdf,
-            description: t.processingPdfDesc,
-          });
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+          
+        const response = await fetch('/api/pdf-extract', { 
+          method: 'POST',
+          body: formData
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Failed to start PDF processing: ${response.statusText}`);
         }
-        
-        // Set a timeout to show a second toast for long-running extractions
-        const longExtractionTimer = setTimeout(() => {
-          console.log('⏱️ [UPLOAD] PDF extraction taking longer than expected');
-          toast({
-            title: t.processingPdfLong,
-            description: t.processingPdfLongDesc,
-            duration: 5000,
-          });
-        }, 10000); // Show after 10 seconds
-        
-        try {
-          console.log('🧩 [UPLOAD] Calling extractText function...');
-          text = await extractText(file);
-          clearTimeout(longExtractionTimer);
+
+        const { jobId: receivedJobId } = await response.json();
+        setJobId(receivedJobId);
           
-          // Verify extracted text
-          if (!text || text.trim().length === 0) {
-            console.error('❌ [UPLOAD] PDF extraction returned empty text');
-            throw new Error('PDF extraction returned empty text');
-          }
-          
-          console.log('✅ [UPLOAD] PDF text extracted successfully, length:', text.length);
-          toast({
-            title: t.processingComplete,
-            description: t.processingCompleteDesc,
-          });
-        } catch (pdfError) {
-          clearTimeout(longExtractionTimer);
-          console.error('❌ [UPLOAD] PDF extraction error:', pdfError);
-          // Reset file state
-          setFile(null);
-          showError(t.errorTitle, t.errorPdfProcessing);
+        toast({
+          title: t.processingPdf,
+          description: t.processingPdfDesc,
+        });
+      } else {
+        // --- Process Non-PDF Immediately ---
+        console.log('📄 [UPLOAD] Processing non-PDF file...');
+        const text = await convertDocumentToText(selectedFile);
+        console.log('✅ [UPLOAD] Document text extracted, length:', text.length);
+
+        const wordCount = text.trim().split(/\s+/).length;
+        console.log('📝 [UPLOAD] Word count:', wordCount);
+
+        if (wordCount < config.minWordCount) {
+          console.warn('⚠️ [UPLOAD] File below minimum word count:', wordCount);
+          const errorMessage = t.errorWordCountMin.replace('{count}', wordCount.toLocaleString());
+          showError(t.errorTitle, errorMessage);
+          setFile(null); // Reset file if validation fails
           return;
         }
-      } else {
-        console.log('📄 [UPLOAD] Processing non-PDF file...');
-        text = await convertDocumentToText(file);
-        console.log('✅ [UPLOAD] Document text extracted, length:', text.length);
-      }
 
-      // Check word count
-      const wordCount = text.trim().split(/\s+/).length
-      console.log('📝 [UPLOAD] Word count:', wordCount);
-
-      // Check minimum word count
-      if (wordCount < 500) {
-        console.warn('⚠️ [UPLOAD] File below minimum word count:', wordCount);
-        
-        // Create error message with word count
-        const errorMessage = t.errorWordCountMin.replace('{count}', wordCount.toLocaleString());
-        console.log('🚨 [UPLOAD] Showing error dialog for minimum word count:', errorMessage);
-        
-        // Reset file immediately for PDF files
-        if (isPdfFile) {
-          setFile(null);
+        if (wordCount > config.maxWordCount) {
+          console.warn('⚠️ [UPLOAD] File exceeds word limit:', wordCount);
+          const errorMessage = t.errorWordCount.replace('{count}', wordCount.toLocaleString());
+          showError(t.errorTitle, errorMessage);
+          setFile(null); // Reset file if validation fails
+          return;
         }
         
-        // Show error dialog
-        showError(t.errorTitle, errorMessage);
-        return;
+        setValidatedText(text); // Store validated text
+        console.log('✅ [UPLOAD] Non-PDF file validated and text stored');
+        toast({
+          title: t.fileReadyTitle,
+          description: t.fileReadyDesc,
+        });
       }
-
-      // Check maximum word count
-      if (wordCount > 50000) {
-        console.warn('⚠️ [UPLOAD] File exceeds word limit:', wordCount);
-        
-        // Create error message with word count
-        const errorMessage = t.errorWordCount.replace('{count}', wordCount.toLocaleString());
-        console.log('🚨 [UPLOAD] Showing error dialog for word count:', errorMessage);
-        
-        // Reset file immediately for PDF files
-        if (isPdfFile) {
-          setFile(null);
-        }
-        
-        // Show error dialog
-        showError(t.errorTitle, errorMessage);
-        return;
-      }
-
-      // For non-PDF files, set the file after validation
-      if (!isPdfFile) {
-        setFile(file);
-      }
-      
-      console.log('✅ [UPLOAD] File validated and set successfully');
-      toast({
-        title: t.fileReadyTitle,
-        description: t.fileReadyDesc,
-      })
     } catch (error) {
       console.error('❌ [UPLOAD] Error processing file:', error);
-      
-      // Reset file for PDF files
-      if (isPdfFile) {
-        setFile(null);
-      }
-      
-      // Show error dialog
-      showError(t.errorTitle, t.errorProcessing);
+      setFile(null); // Reset file state on error
+      setIsProcessing(false); // Ensure processing indicator stops
+      showError(t.errorTitle, error instanceof Error ? error.message : t.errorProcessing);
     }
   }
 
+
+  // Handle the final step of proceeding to the processing page
   const handleUpload = async () => {
     if (!file) {
       console.warn('⚠️ [UPLOAD] Attempted upload without file');
       return;
     }
+    
+    // Prevent proceeding if PDF is still processing
+    if (isProcessing) {
+       console.warn('⚠️ [UPLOAD] Attempted upload while PDF still processing');
+       return; 
+    }
 
-    console.log('📤 [UPLOAD] Starting upload process for:', file.name);
+    console.log('📤 [UPLOAD] Starting final processing step for:', file.name);
     setIsUploading(true);
     
     try {
-      // Get text content based on file type
       let text: string;
       const isPdfFile = file.type === "application/pdf";
-      console.log('📄 [UPLOAD] Processing file for upload. Is PDF?', isPdfFile);
       
       if (isPdfFile) {
-        if (!pdfText) {
-          console.log('📑 [UPLOAD] PDF text not in cache, re-extracting...');
-          try {
-            text = await extractText(file);
-            if (!text || text.trim().length === 0) {
-              throw new Error('PDF re-extraction returned empty text');
-            }
-          } catch (error) {
-            console.error('❌ [UPLOAD] Error re-extracting PDF text:', error);
-            throw new Error('Failed to extract text from PDF');
-          }
-        } else {
-          console.log('📑 [UPLOAD] Using cached PDF text, length:', pdfText.length);
-          text = pdfText;
+        // PDF processing should be complete if !isProcessing and file is set
+        // Fetch the final status one last time to get the text result
+        if (!jobId) {
+            throw new Error("Missing Job ID for completed PDF processing.");
         }
+        const response = await fetch(`/api/pdf-extract/status/${jobId}`);
+        const data = await response.json();
+        
+        if (data.status !== 'completed' || !data.result) {
+          console.error("❌ [UPLOAD] PDF processing not completed or result missing:", data);
+          throw new Error('PDF processing not completed or result missing.');
+        }
+        text = data.result;
+        
+        // Re-validate PDF word count *after* extraction just before proceeding
+        const wordCount = text.trim().split(/\s+/).length;
+        console.log('📝 [UPLOAD] PDF Word count check before proceeding:', wordCount);
+        if (wordCount < config.minWordCount) {
+          const errorMessage = t.errorWordCountMin.replace('{count}', wordCount.toLocaleString());
+          showError(t.errorTitle, errorMessage);
+          setIsUploading(false); // Ensure button is re-enabled
+          return; 
+        }
+        if (wordCount > config.maxWordCount) {
+          const errorMessage = t.errorWordCount.replace('{count}', wordCount.toLocaleString());
+          showError(t.errorTitle, errorMessage);
+          setIsUploading(false); // Ensure button is re-enabled
+          return;
+        }
+        
       } else {
-        console.log('📄 [UPLOAD] Converting document to text...');
-        text = await convertDocumentToText(file);
+        // Use the validated text stored in state for non-PDFs
+        if (!validatedText) {
+           console.error('❌ [UPLOAD] Validated text not found for non-PDF file.');
+           throw new Error('Validated text missing for non-PDF file.'); 
+        }
+        text = validatedText;
+        console.log('📄 [UPLOAD] Using stored validated text for non-PDF upload.');
       }
 
       console.log('💾 [UPLOAD] Storing transcript in session storage, length:', text.length);
-      // Store the transcript in session storage for processing
-      sessionStorage.setItem("transcript", text)
-
-      console.log('🔄 [UPLOAD] Navigating to processing page...');
-      // Navigate to processing page
-      router.push("/processing")
+      sessionStorage.setItem("transcript", text);
+      router.push("/processing");
     } catch (error) {
-      console.error('❌ [UPLOAD] Upload error:', error);
-      showError(t.errorTitle, t.errorProcessing);
+      console.error('❌ [UPLOAD] Proceeding error:', error);
+      showError(t.errorTitle, error instanceof Error ? error.message : t.errorProcessing);
       setIsUploading(false);
     } finally {
-      setIsUploading(false)
-      console.log('🏁 [UPLOAD] Upload process completed');
+      // Keep setIsUploading(false) here if needed, but navigation usually makes it irrelevant
+      // setIsUploading(false); 
+      console.log('🏁 [UPLOAD] Final processing step completed');
     }
   }
 
@@ -355,6 +322,13 @@ export function Upload() {
     )
   }
 
+  // Determine if the proceed button should be enabled
+  // Enabled if:
+  // - A file is selected
+  // - It's NOT a PDF currently being processed (isProcessing is false)
+  // - EITHER it's a non-PDF with validated text OR it's a PDF with a completed job (jobId exists and not processing)
+  const canProceed = file && !isProcessing && (validatedText !== null || (file.type === 'application/pdf' && jobId !== null));
+
   return (
     <>
       <div className="w-full max-w-md mx-auto">
@@ -372,7 +346,7 @@ export function Upload() {
                 <div className="flex flex-col items-center space-y-4 w-full">
                   <FileText className="h-10 w-10 text-primary" />
                   <p className="text-sm font-medium">{file.name}</p>
-                  {isExtracting ? (
+                  {isProcessing ? ( // Show progress only when PDF is actively processing
                     <div className="w-full space-y-4">
                       <div className="flex items-center justify-center space-x-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -381,25 +355,31 @@ export function Upload() {
                       <Progress value={extractionProgress} className="w-full" />
                       <p className="text-xs text-center text-muted-foreground">{t.extractingPdfWait}</p>
                     </div>
-                  ) : (
+                  ) : ( // Show buttons when not processing PDF
                     <div className="flex space-x-2">
                       <Button variant="outline" onClick={() => {
                         console.log('🔄 [UPLOAD] File change requested, resetting state');
+                        // Reset state directly instead of calling validateAndSetFile(null)
                         setFile(null);
+                        setJobId(null);
+                        setValidatedText(null); 
+                        setExtractionProgress(0); 
+                        setIsProcessing(false); 
+                        setIsUploading(false);
                       }}>
                         {t.change}
                       </Button>
                       <Button 
                         onClick={handleUpload} 
-                        disabled={isUploading || isExtracting}
-                        className={isUploading || isExtracting ? "opacity-50 cursor-not-allowed" : ""}
+                        disabled={!canProceed || isUploading} // Use canProceed state
+                        className={(!canProceed || isUploading) ? "opacity-50 cursor-not-allowed" : ""}
                       >
                         {isUploading ? (
                           <div className="flex items-center gap-2">
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>{t.uploading}</span>
+                            <span>{t.uploading}</span> 
                           </div>
-                        ) : t.upload}
+                        ) : t.upload} 
                       </Button>
                     </div>
                   )}
