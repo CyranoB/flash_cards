@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --background: 40 40% 95%;        /* Light Beige */
+    --foreground: 35 20% 25%;        /* Dark Brownish-Grey */
+    --card: 40 50% 97%;              /* Lighter Beige */
+    --card-foreground: 35 20% 25%;   /* Dark Brownish-Grey */
+    --popover: 40 50% 97%;           /* Lighter Beige */
+    --popover-foreground: 35 20% 25%;/* Dark Brownish-Grey */
+    --primary: 85 30% 45%;           /* Muted Earthy Green */
+    --primary-foreground: 0 0% 100%; /* White (for contrast on green) */
+    --secondary: 40 50% 92%;         /* Light Beige Variant */
+    --secondary-foreground: 35 20% 25%;/* Dark Brownish-Grey */
+    --muted: 40 40% 92%;             /* Lighter Beige Variant */
+    --muted-foreground: 35 15% 50%;  /* Medium Brownish-Grey */
+    --accent: 40 40% 90%;            /* Slightly Darker Beige (hover/accent) */
+    --accent-foreground: 35 20% 25%; /* Dark Brownish-Grey */
+    --destructive: 0 70% 55%;        /* Muted Red */
+    --destructive-foreground: 0 0% 100%;/* White */
+    --border: 38 25% 88%;            /* Subtle Beige/Brown Border */
+    --input: 38 25% 88%;             /* Subtle Beige/Brown Border */
+    --ring: 35 20% 25%;              /* Dark Brownish-Grey (focus) */
+    --radius: 0.75rem;               /* Increased border radius */
   }
 
   .dark {
@@ -81,4 +81,3 @@
     transparent 100%
   );
 }
-
