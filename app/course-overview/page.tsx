@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { useLanguage } from "@/hooks/use-language"
@@ -74,8 +73,8 @@ export default function CourseOverviewPage() {
             </CardHeader>
             <CardContent>
               <ul className="list-disc pl-5 space-y-2">
-                {courseData.outline.map((item, index) => (
-                  <li key={index}>{item}</li>
+                {courseData.outline.map((item) => (
+                  <li key={item}>{item}</li>
                 ))}
               </ul>
             </CardContent>
