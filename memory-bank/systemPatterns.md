@@ -10,10 +10,10 @@
 ## 2. Key Technical Decisions & Patterns
 
 -   **Configuration Management:** Centralized configuration loaded from environment variables (`lib/config.ts`), with specific variables exposed to the client using the `NEXT_PUBLIC_` prefix.
--   **Document Conversion:** Uses dedicated libraries for each format (`mammoth` for docx, `pdf-text-extract` for pdf) via a utility function (`lib/document-converter.ts`).
+-   **Document Conversion:** Uses dedicated libraries for each format (`mammoth` for docx, `pdf-parse` for pdf). The utility function `lib/document-converter.ts` might need adjustment or is no longer used for PDFs if conversion is solely in the API route.
 -   **PDF Processing:**
-    -   Uses `pdf-text-extract` server-side due to complexities with `pdfjs-dist` and `pdf-parse` in the Next.js server/bundling environment.
-    -   Requires writing the PDF to a temporary file on the server for `pdf-text-extract` to process.
+    -   Uses `pdf-parse` server-side within the API route (`/api/pdf-extract`). Switched from `pdf-text-extract` to ensure compatibility with Vercel's serverless environment (no external binaries needed).
+    -   Processes the file buffer directly, eliminating the need for temporary file storage.
     -   Asynchronous processing initiated via API, status tracked in Redis (`pdf-job:{jobId}`).
     -   Client polls a status endpoint (`/api/pdf-extract/status/[jobId]`) to get progress and results.
 -   **Error Handling:** Uses a custom `ErrorDialog` component triggered by a state variable in the `Upload` component. Specific error messages are sourced from translations (`lib/translations.ts`).
@@ -45,16 +45,16 @@ graph TD
     end
 
     subgraph Server (API Routes)
-        APIPdfExtract[/api/pdf-extract POST] -- Receives File --> SaveTempFile{Save Temp File}
-        SaveTempFile --> SetInitialRedis[Set Initial Job Status in Redis]
+        APIPdfExtract[/api/pdf-extract POST] -- Receives File --> ReadBuffer{Read File Buffer}
+        ReadBuffer --> SetInitialRedis[Set Initial Job Status in Redis]
         SetInitialRedis --> StartAsyncProcess[processPdf (async)]
         StartAsyncProcess --> UpdateRedisProgress1[Update Redis Progress (30%)]
-        StartAsyncProcess --> ExtractText[pdf-text-extract]
+        StartAsyncProcess --> ExtractText[pdf-parse]
         ExtractText --> UpdateRedisProgress2[Update Redis Progress (70%)]
         ExtractText --> SetCompletedRedis[Set Completed Status & Text in Redis]
         ExtractText -- Error --> SetFailedRedis[Set Failed Status in Redis]
-        StartAsyncProcess --> DeleteTempFile{Delete Temp File (finally)}
         APIPdfExtract --> ReturnJobId[Return Job ID]
+        %% No Temp File Handling Needed %%
 
         APIPdfStatus[/api/pdf-extract/status/:jobId GET] -- Reads Job ID --> GetRedisStatus[Get Job Status from Redis]
         GetRedisStatus --> ReturnStatus[Return Status/Progress/Result]

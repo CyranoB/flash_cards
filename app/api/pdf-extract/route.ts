@@ -1,12 +1,8 @@
 import { redis } from '@/lib/redis'
 import { NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
-import fs from 'fs/promises'
 import { config } from '@/lib/config' // Import config
-import os from 'os'
-import path from 'path'
-// Use require and assume it might be the default export
-const extract = require('pdf-text-extract')
+import pdf from 'pdf-parse' // Import pdf-parse
 
 // Route Segment Config export is not used for body size limit in App Router
 
@@ -47,16 +43,12 @@ export async function POST(request: Request) {
 }
 
 async function processPdf(jobId: string, file: File) {
-  const tempDir = os.tmpdir()
-  // Create a unique temporary file path
-  const tempFilePath = path.join(tempDir, `${jobId}-${file.name}`) 
   let text = ''
 
   try {
-    // 1. Save the uploaded file temporarily
+    // 1. Read the file buffer
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
-    await fs.writeFile(tempFilePath, buffer)
 
     // Update progress before extraction
     await redis.set(`pdf-job:${jobId}`, {
@@ -65,23 +57,10 @@ async function processPdf(jobId: string, file: File) {
       updatedAt: new Date().toISOString()
     })
 
-    // 2. Extract text using pdf-text-extract
-    // Add types to the callback parameters
-    const extractedPages: string[] = await new Promise((resolve, reject) => {
-      extract(tempFilePath, (err: Error | null, pages: string[] | undefined) => {
-        if (err) {
-          console.error('❌ [pdf-text-extract] Error:', err)
-          return reject(err)
-        }
-        if (!pages) {
-          // Handle case where pages might be undefined on success (though unlikely based on usage)
-          return reject(new Error('PDF text extraction returned undefined pages.'))
-        }
-        console.log(`✅ [pdf-text-extract] Extracted ${pages.length} pages.`)
-        resolve(pages)
-      })
-    })
-    
+    // 2. Extract text using pdf-parse
+    const data = await pdf(buffer)
+    console.log(`✅ [pdf-parse] Extracted text from ${data.numpages} pages. Info:`, data.info) // Log info for debugging
+
     // Update progress after extraction
     await redis.set(`pdf-job:${jobId}`, {
       status: 'processing',
@@ -89,8 +68,8 @@ async function processPdf(jobId: string, file: File) {
       updatedAt: new Date().toISOString()
     })
 
-    // 3. Join extracted pages
-    text = extractedPages.join('\n\n').trim()
+    // 3. Get extracted text
+    text = data.text.trim() // pdf-parse returns a single string
 
     // 4. Mark job as completed in Redis
     await redis.set(`pdf-job:${jobId}`, {
@@ -105,14 +84,6 @@ async function processPdf(jobId: string, file: File) {
       error: error instanceof Error ? error.message : 'PDF extraction failed',
       failedAt: new Date().toISOString()
     })
-  } finally {
-    // 5. Clean up: Delete the temporary file regardless of success/failure
-    try {
-      await fs.unlink(tempFilePath)
-      console.log(`🧹 Cleaned up temporary file: ${tempFilePath}`)
-    } catch (cleanupError) {
-      console.error(`⚠️ Failed to clean up temporary file ${tempFilePath}:`, cleanupError)
-      // Log the error but don't throw, as the main operation might have succeeded
-    }
+    // No temporary file cleanup needed
   }
 }

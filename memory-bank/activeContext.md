@@ -28,9 +28,11 @@ Refactoring and improving the PDF upload and text extraction process. The main g
     - Removed the unused `usePdfText.ts` hook and its worker file (`public/workers/pdf.worker.js`).
     - Removed unused imports and console logs.
     - Fixed various TypeScript errors introduced during refactoring.
+    - **Patched `pdf-parse`:** Applied a patch using `pnpm patch` to remove problematic debug code in `pdf-parse` that was causing build failures.
+    - **Fixed Status Route:** Updated `app/api/pdf-extract/status/[jobId]/route.ts` to correctly `await params` as required by Next.js 15.
 
 ## Next Steps
 
-- Thoroughly test the updated PDF upload flow with various file types (PDF, TXT, DOCX), sizes (including edge cases around limits), and potential error conditions.
+- Thoroughly test the updated PDF upload flow with various file types (PDF, TXT, DOCX), sizes (including edge cases around limits), and potential error conditions, especially on Vercel.
 - Consider adding more granular progress updates for PDF extraction if feasible (e.g., based on pages processed), although the current implementation (start, mid, end) is functional.
 - Review overall error handling and user feedback for clarity.

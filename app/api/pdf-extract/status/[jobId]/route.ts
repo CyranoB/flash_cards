@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server'
 
 // Use the params argument for type-safe access
 export async function GET(request: Request, { params }: { params: { jobId: string } }) {
-  const { jobId } = params; // Access jobId directly
+  // Properly await params in Next.js 15
+  const { jobId } = await params;
 
   const jobData = await redis.get(`pdf-job:${jobId}`)
 
