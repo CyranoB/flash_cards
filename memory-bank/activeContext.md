@@ -44,10 +44,21 @@ Reviewing the recent theme update applied to the landing page (`app/page.tsx`).
     - **Strategic Theme Application (`app/page.tsx`):**
         - *Previous Step:* Applied theme colors strategically to landing page sections (using `bg-secondary`, `bg-background`, `bg-card`) and standardized inner card styles. *(This may need visual verification against the new warm theme).*
         - Changed the "AI-Powered Learning" badge background color from primary (green) to the new `bg-accent-orange`.
+    - **Dark Theme Update:**
+        - Updated the `.dark` CSS variables in `app/globals.css` to use dark grey backgrounds (`hsl(240, 5%, 10%)` / `hsl(240, 5%, 15%)`), light grey text (`hsl(240, 5%, 85%)`) as the primary color, and orange (`hsl(var(--accent-orange))`) for focus rings, inspired by a user-provided screenshot.
+        - Modified the main call-to-action buttons in `app/page.tsx` to use the standard `bg-primary` (green) in light mode but `dark:bg-accent-orange` in dark mode for better visibility.
+        - **Landing Page Styling Simplification & Refactoring:**
+            - Replaced hardcoded `dark:bg-black/20` for inner card backgrounds (sample questions, features, how-it-works, testimonials) in `app/page.tsx` with `dark:bg-card/20` for better theme consistency.
+            - Removed unused `stepGradients` and `testimonialStyles` arrays from `app/page.tsx`.
+            - **Refactored Sample Questions Panel Background:**
+                - Introduced a new CSS variable `--sample-questions-background` in `app/globals.css`. It's set to `var(--card)` in `:root` (light) and `30 12% 12%` in `.dark`.
+                - Removed the old `--hero-dark-background` variable from `app/globals.css`.
+                - Updated `tailwind.config.ts` to remove the `hero-dark` color and add `sample-questions` linked to the new CSS variable.
+                - Changed the sample questions panel div in `app/page.tsx` to use the single class `bg-sample-questions` instead of separate light/dark classes (`bg-card dark:bg-hero-dark`).
 
 ## Next Steps
 
-- Visually verify the application's appearance in light mode (especially the landing page `app/page.tsx`) to ensure the new warm beige/cream theme colors and the orange badge are applied correctly and look as intended.
+- Visually verify the application's appearance in **both light and dark modes** (especially the landing page `app/page.tsx`) to ensure the new themes and recent styling changes are applied correctly and look as intended.
 - Thoroughly test the updated PDF upload flow and the flashcard study flow (including batch continuation, counter, and loading states).
 - Consider adding more granular progress updates for PDF extraction if feasible.
 - Review overall error handling and user feedback for clarity across all implemented features.

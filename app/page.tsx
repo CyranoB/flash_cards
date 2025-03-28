@@ -91,7 +91,7 @@ export default function HomePage() {
       </header>
       <main className="flex-1">
         <section className="relative py-20 md:py-28 overflow-hidden">
-          {/* Decorative elements */}
+          {/* Decorative elements restored */}
           <div className="absolute top-0 left-0 w-72 h-72 bg-primary/10 dark:bg-primary/20 rounded-full filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-72 h-72 bg-secondary/10 dark:bg-secondary/20 rounded-full filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
 
@@ -114,7 +114,7 @@ export default function HomePage() {
                         <Button
                           size="lg"
                           onClick={handleStart}
-                          className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                          className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                         >
                           {t.startButton} <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -123,7 +123,7 @@ export default function HomePage() {
                         <SignInButton mode="modal" forceRedirectUrl="/start">
                           <Button
                             size="lg"
-                            className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                            className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                           >
                             {t.startButton} <ArrowRight className="h-4 w-4" />
                           </Button>
@@ -134,7 +134,7 @@ export default function HomePage() {
                     <Button
                       size="lg"
                       onClick={handleStart}
-                      className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                      className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                     >
                       {t.startButton} <ArrowRight className="h-4 w-4" />
                     </Button>
@@ -142,7 +142,8 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <div className="relative h-[350px] w-full max-w-[400px] overflow-hidden rounded-2xl border shadow-xl bg-gradient-to-br from-background to-card dark:from-purple-950/50 dark:to-indigo-950/50">
+                {/* Using unified background class for sample questions panel */}
+                <div className="relative h-[350px] w-full max-w-[400px] overflow-hidden rounded-2xl border shadow-xl bg-sample-questions"> {/* Updated class */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 dark:bg-primary/20 rounded-full filter blur-2xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/10 dark:bg-secondary/20 rounded-full filter blur-2xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
 
@@ -154,7 +155,7 @@ export default function HomePage() {
                     <div className="space-y-4 h-[220px] overflow-hidden">
                       {/* Current question with fade transition */}
                       <div
-                        className={`rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm transition-all duration-500 ${isTransitioning ? "opacity-0 transform -translate-y-4" : "opacity-100 transform translate-y-0"}`}
+                        className={`rounded-xl border bg-card/80 dark:bg-card/20 backdrop-blur-sm p-4 shadow-sm transition-all duration-500 ${isTransitioning ? "opacity-0 transform -translate-y-4" : "opacity-100 transform translate-y-0"}`}
                       >
                         <p className="font-medium">{flashcardExamples[currentQuestionIndex]}</p>
                         <div className="mt-2 h-1 w-full rounded-full bg-muted overflow-hidden">
@@ -166,12 +167,12 @@ export default function HomePage() {
                       </div>
 
                       {/* Preview of next questions (static) */}
-                      <div className="rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm">
+                      <div className="rounded-xl border bg-card/80 dark:bg-card/20 backdrop-blur-sm p-4 shadow-sm">
                         <p className="font-medium text-sm text-muted-foreground">
                           {flashcardExamples[(currentQuestionIndex + 1) % flashcardExamples.length]}
                         </p>
                       </div>
-                      <div className="rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm">
+                      <div className="rounded-xl border bg-card/80 dark:bg-card/20 backdrop-blur-sm p-4 shadow-sm">
                         <p className="font-medium text-sm text-muted-foreground">
                           {flashcardExamples[(currentQuestionIndex + 2) % flashcardExamples.length]}
                         </p>
@@ -217,7 +218,7 @@ export default function HomePage() {
               {featureCards.map((feature, index) => (
                 <div
                   key={index}
-                  className="flex flex-col items-center space-y-2 rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                  className="flex flex-col items-center space-y-2 rounded-xl border bg-card/80 dark:bg-card/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
                 >
                   <div className={`rounded-full p-3 bg-primary/10`}>{featureIcons[index].icon}</div>
                   <h3 className="text-xl font-bold">{feature.title}</h3>
@@ -243,7 +244,7 @@ export default function HomePage() {
               {howItWorksSteps.map((step, index) => (
                 <div
                   key={index}
-                  className="flex flex-col items-center space-y-2 rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                  className="flex flex-col items-center space-y-2 rounded-xl border bg-card/80 dark:bg-card/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
                 >
                   <div
                     className={`flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold text-primary-foreground bg-primary`}
@@ -280,7 +281,7 @@ export default function HomePage() {
               {testimonials.map((testimonial, index) => (
                 <div
                   key={index}
-                  className="flex flex-col rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                  className="flex flex-col rounded-xl border bg-card/80 dark:bg-card/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
                 >
                   <div
                     className={`mb-4 text-primary dark:text-primary`}
@@ -336,19 +337,19 @@ export default function HomePage() {
                 {isClerkEnabled ? (
                   <>
                     <SignedIn>
-                      <Button
-                        size="lg"
-                        onClick={handleStart}
-                        className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
-                      >
-                        {t.startButton} <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </SignedIn>
-                    <SignedOut>
-                      <SignInButton mode="modal" forceRedirectUrl="/start">
                         <Button
                           size="lg"
-                          className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                          onClick={handleStart}
+                          className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                        >
+                          {t.startButton} <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </SignedIn>
+                      <SignedOut>
+                        <SignInButton mode="modal" forceRedirectUrl="/start">
+                          <Button
+                            size="lg"
+                            className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                         >
                           {t.startButton} <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -356,13 +357,13 @@ export default function HomePage() {
                     </SignedOut>
                   </>
                 ) : (
-                  <Button
-                    size="lg"
-                    onClick={handleStart}
-                    className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
-                  >
-                    {t.startButton} <ArrowRight className="h-4 w-4" />
-                  </Button>
+                    <Button
+                      size="lg"
+                      onClick={handleStart}
+                      className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                    >
+                      {t.startButton} <ArrowRight className="h-4 w-4" />
+                    </Button>
                 )}
               </div>
             </div>
@@ -467,13 +468,6 @@ const howItWorksSteps = [
   },
 ]
 
-// Step gradients (Removed - Use bg-primary instead)
-const stepGradients = [
-  "bg-primary",
-  "bg-primary",
-  "bg-primary",
-]
-
 // Testimonials
 const testimonials = [
   {
@@ -517,33 +511,5 @@ const testimonials = [
     name: "Alexandre Dubois",
     role: "Engineering Student, ETH Zurich",
     initials: "AD",
-  },
-]
-
-// Testimonial styles (Removed - Use bg-primary for gradient and text-primary for accentColor)
-const testimonialStyles = [
-  {
-    accentColor: "primary",
-    gradient: "bg-primary",
-  },
-  {
-    accentColor: "primary",
-    gradient: "bg-primary",
-  },
-  {
-    accentColor: "primary",
-    gradient: "bg-primary",
-  },
-  {
-    accentColor: "primary",
-    gradient: "bg-primary",
-  },
-  {
-    accentColor: "primary",
-    gradient: "bg-primary",
-  },
-  {
-    accentColor: "primary",
-    gradient: "bg-primary",
   },
 ]

@@ -51,6 +51,8 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "sample-questions": "hsl(var(--sample-questions-background))", /* New variable */
+        /* Removed hero-dark */
         "accent-orange": { // Added orange accent
           DEFAULT: "hsl(var(--accent-orange))",
           foreground: "hsl(var(--accent-orange-foreground))",
