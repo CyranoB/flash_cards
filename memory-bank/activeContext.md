@@ -55,10 +55,11 @@ Reviewing the recent theme update applied to the landing page (`app/page.tsx`).
                 - Removed the old `--hero-dark-background` variable from `app/globals.css`.
                 - Updated `tailwind.config.ts` to remove the `hero-dark` color and add `sample-questions` linked to the new CSS variable.
                 - Changed the sample questions panel div in `app/page.tsx` to use the single class `bg-sample-questions` instead of separate light/dark classes (`bg-card dark:bg-hero-dark`).
+    - **Updated Start Buttons (`app/page.tsx`):** Changed the main call-to-action "Start" buttons to use `bg-accent-orange` in both light and dark modes (previously `bg-primary` in light, `dark:bg-accent-orange` in dark).
 
 ## Next Steps
 
-- Visually verify the application's appearance in **both light and dark modes** (especially the landing page `app/page.tsx`) to ensure the new themes and recent styling changes are applied correctly and look as intended.
+- Visually verify the application's appearance in **both light and dark modes** (especially the landing page `app/page.tsx`) to ensure the new themes and recent styling changes (including the Start buttons) are applied correctly and look as intended.
 - Thoroughly test the updated PDF upload flow and the flashcard study flow (including batch continuation, counter, and loading states).
 - Consider adding more granular progress updates for PDF extraction if feasible.
 - Review overall error handling and user feedback for clarity across all implemented features.

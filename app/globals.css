@@ -4,55 +4,55 @@
 
 @layer base {
   :root { /* New Warm Beige/Cream Theme */
-    --background: 50 25% 97%;        /* Light Warm Beige */
+    --background: 53 29% 95%;        /* Light Warm Beige */
     --foreground: 40 15% 25%;        /* Dark Warm Grey/Brown */
-    --card: 50 25% 97%;              /* Light Warm Beige (Matches Background) */
-    --card-foreground: 40 15% 25%;   /* Dark Warm Grey/Brown */
-    --popover: 50 25% 97%;           /* Light Warm Beige (Matches Background) */
-    --popover-foreground: 40 15% 25%;/* Dark Warm Grey/Brown */
-    --primary: 90 25% 45%;           /* Muted Green (Kept from previous) */
-    --primary-foreground: 0 0% 100%; /* White */
+    --card: 50 25% 97%;              /* Matches Background (Light Warm Beige) */
+    --card-foreground: 40 15% 25%;   /* Matches Foreground (Dark Warm Grey/Brown) */
+    --popover: 50 25% 97%;           /* Matches Background (Light Warm Beige) */
+    --popover-foreground: 40 15% 25%;/* Matches Foreground (Dark Warm Grey/Brown) */
+    --primary: 90 25% 45%;           /* Muted Green */
+    --primary-foreground: 0 0% 100%; /* White for contrast */
     --secondary: 50 20% 94%;         /* Slightly Darker Warm Beige */
-    --secondary-foreground: 40 15% 25%;/* Dark Warm Grey/Brown */
+    --secondary-foreground: 40 15% 25%;/* Matches Foreground (Dark Warm Grey/Brown) */
     --muted: 50 15% 92%;             /* Lighter Warm Beige Variant */
     --muted-foreground: 45 10% 55%;  /* Medium Warm Grey */
-    --accent: 50 20% 94%;            /* Slightly Darker Warm Beige (Hover) */
-    --accent-foreground: 40 15% 25%; /* Dark Warm Grey/Brown */
-    --destructive: 0 65% 55%;        /* Standard Red */
-    --destructive-foreground: 0 0% 100%;/* White */
+    --accent: 50 20% 94%;            /* Slightly Darker Warm Beige (Hover State) */
+    --accent-foreground: 40 15% 25%; /* Matches Foreground (Dark Warm Grey/Brown) */
+    --destructive: 0 65% 55%;        /* Standard Red for destructive actions */
+    --destructive-foreground: 0 0% 100%;/* White for contrast */
     --border: 50 20% 90%;            /* Warm Beige Border */
-    --input: 50 20% 90%;             /* Warm Beige Border */
-    --ring: 40 15% 25%;              /* Dark Warm Grey/Brown */
-    --accent-orange: 30 80% 60%;     /* Muted Orange Accent */
+    --input: 50 20% 90%;             /* Matches Border (Warm Beige) */
+    --ring: 40 15% 25%;              /* Matches Foreground (Dark Warm Grey/Brown) */
+    --accent-orange: 15 56% 52%;     /* Muted Orange Accent */
     --accent-orange-foreground: 0 0% 100%; /* White for contrast on orange */
-    --sample-questions-background: var(--card); /* Background for sample questions panel (light) */
-    --radius: 0.75rem;
+    --sample-questions-background: var(--card); /* Matches Card Background (Light Theme) */
+    --radius: 0.75rem;               /* Default border radius for UI elements */
     /* Removed --hero-dark-background */
   }
 
   .dark { /* New Dark Theme based on screenshot */
-    --background: 240 5% 10%;             /* Very Dark Grey */
+    --background: 30 3% 12%;             /* Very Dark Grey */
     --foreground: 240 5% 85%;             /* Light Grey Text */
-    --card: 240 5% 15%;                  /* Slightly Lighter Dark Grey */
-    --card-foreground: 240 5% 85%;        /* Light Grey Text */
-    --popover: 240 5% 15%;               /* Slightly Lighter Dark Grey */
-    --popover-foreground: 240 5% 85%;     /* Light Grey Text */
-    --primary: 240 5% 85%;                /* Light Grey Text (Matching Foreground) */
-    --primary-foreground: 240 5% 10%;     /* Dark Background (Contrast for Primary BG) */
-    --secondary: 240 5% 15%;            /* Slightly Lighter Dark Grey */
-    --secondary-foreground: 240 5% 85%;  /* Light Grey Text */
-    --muted: 240 5% 25%;                 /* Lower contrast grey */
-    --muted-foreground: 240 5% 65%;       /* Lower contrast grey text */
-    --accent: 240 5% 15%;                /* Slightly Lighter Dark Grey (Hover) */
-    --accent-foreground: 240 5% 85%;     /* Light Grey Text */
-    --destructive: 0 60% 50%;            /* Desaturated Red */
-    --destructive-foreground: 0 0% 100%; /* White */
-    --border: 240 5% 15%;               /* Slightly Lighter Dark Grey */
-    --input: 240 5% 15%;                /* Slightly Lighter Dark Grey */
-    --ring: 30 80% 60%;                  /* Use Accent Orange for focus rings */
+    --card: 240 5% 15%;                   /* Slightly Lighter Dark Grey */
+    --card-foreground: 240 5% 85%;        /* Matches Foreground (Light Grey Text) */
+    --popover: 240 5% 15%;                /* Matches Card (Slightly Lighter Dark Grey) */
+    --popover-foreground: 240 5% 85%;     /* Matches Foreground (Light Grey Text) */
+    --primary: 90 25% 45%;                /* Muted Green */
+    --primary-foreground: 240 5% 10%;     /* Matches Background (Very Dark Grey) */
+    --secondary: 240 5% 15%;              /* Matches Card (Slightly Lighter Dark Grey) */
+    --secondary-foreground: 240 5% 85%;   /* Matches Foreground (Light Grey Text) */
+    --muted: 240 5% 25%;                  /* Lower Contrast Grey */
+    --muted-foreground: 240 5% 65%;       /* Lower Contrast Grey Text */
+    --accent: 38 5% 15%;                  /* Slightly Lighter Dark Grey (Hover State) */
+    --accent-foreground: 240 5% 85%;      /* Matches Foreground (Light Grey Text) */
+    --destructive: 0 60% 50%;             /* Desaturated Red for destructive actions */
+    --destructive-foreground: 0 0% 100%;  /* White for contrast */
+    --border: 38 5% 25%;                  /* Slightly Lighter Dark Grey */
+    --input: 240 5% 15%;                  /* Matches Card (Slightly Lighter Dark Grey) */
+    --ring: 30 80% 60%;                   /* Accent Orange for focus rings */
     /* --accent-orange remains defined in :root */
     /* --accent-orange-foreground remains defined in :root */
-    --sample-questions-background: 30 12% 12%; /* Background for sample questions panel (dark) */
+    --sample-questions-background: 60 4% 15%; /* Background for sample questions panel (Dark Theme) */
   }
 }
 

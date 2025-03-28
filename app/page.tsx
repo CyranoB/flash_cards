@@ -114,7 +114,7 @@ export default function HomePage() {
                         <Button
                           size="lg"
                           onClick={handleStart}
-                          className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                          className="gap-1.5 bg-accent-orange hover:bg-accent-orange/90 text-accent-orange-foreground dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                         >
                           {t.startButton} <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -123,7 +123,7 @@ export default function HomePage() {
                         <SignInButton mode="modal" forceRedirectUrl="/start">
                           <Button
                             size="lg"
-                            className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                            className="gap-1.5 bg-accent-orange hover:bg-accent-orange/90 text-accent-orange-foreground dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                           >
                             {t.startButton} <ArrowRight className="h-4 w-4" />
                           </Button>
@@ -134,7 +134,7 @@ export default function HomePage() {
                     <Button
                       size="lg"
                       onClick={handleStart}
-                      className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                      className="gap-1.5 bg-accent-orange hover:bg-accent-orange/90 text-accent-orange-foreground dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                     >
                       {t.startButton} <ArrowRight className="h-4 w-4" />
                     </Button>
@@ -340,7 +340,7 @@ export default function HomePage() {
                         <Button
                           size="lg"
                           onClick={handleStart}
-                          className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                          className="gap-1.5 bg-accent-orange hover:bg-accent-orange/90 text-accent-orange-foreground dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                         >
                           {t.startButton} <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -349,7 +349,7 @@ export default function HomePage() {
                         <SignInButton mode="modal" forceRedirectUrl="/start">
                           <Button
                             size="lg"
-                            className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                            className="gap-1.5 bg-accent-orange hover:bg-accent-orange/90 text-accent-orange-foreground dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                         >
                           {t.startButton} <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -360,7 +360,7 @@ export default function HomePage() {
                     <Button
                       size="lg"
                       onClick={handleStart}
-                      className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-accent-orange dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
+                      className="gap-1.5 bg-accent-orange hover:bg-accent-orange/90 text-accent-orange-foreground dark:hover:bg-accent-orange/90 dark:text-accent-orange-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                     >
                       {t.startButton} <ArrowRight className="h-4 w-4" />
                     </Button>
