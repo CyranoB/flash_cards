@@ -115,7 +115,6 @@ export async function POST(req: NextRequest) {
           transcript: body.transcript,
           count: body.count || 10,
           language: body.language || "en",
-          existingQuestions: body.existingQuestions || []
         });
         return NextResponse.json(flashcardsResult);
         

@@ -3,30 +3,32 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 40 40% 95%;        /* Light Beige */
-    --foreground: 35 20% 25%;        /* Dark Brownish-Grey */
-    --card: 40 50% 97%;              /* Lighter Beige */
-    --card-foreground: 35 20% 25%;   /* Dark Brownish-Grey */
-    --popover: 40 50% 97%;           /* Lighter Beige */
-    --popover-foreground: 35 20% 25%;/* Dark Brownish-Grey */
-    --primary: 85 30% 45%;           /* Muted Earthy Green */
-    --primary-foreground: 0 0% 100%; /* White (for contrast on green) */
-    --secondary: 40 50% 92%;         /* Light Beige Variant */
-    --secondary-foreground: 35 20% 25%;/* Dark Brownish-Grey */
-    --muted: 40 40% 92%;             /* Lighter Beige Variant */
-    --muted-foreground: 35 15% 50%;  /* Medium Brownish-Grey */
-    --accent: 40 40% 90%;            /* Slightly Darker Beige (hover/accent) */
-    --accent-foreground: 35 20% 25%; /* Dark Brownish-Grey */
-    --destructive: 0 70% 55%;        /* Muted Red */
+  :root { /* New Warm Beige/Cream Theme */
+    --background: 50 25% 97%;        /* Light Warm Beige */
+    --foreground: 40 15% 25%;        /* Dark Warm Grey/Brown */
+    --card: 50 25% 97%;              /* Light Warm Beige (Matches Background) */
+    --card-foreground: 40 15% 25%;   /* Dark Warm Grey/Brown */
+    --popover: 50 25% 97%;           /* Light Warm Beige (Matches Background) */
+    --popover-foreground: 40 15% 25%;/* Dark Warm Grey/Brown */
+    --primary: 90 25% 45%;           /* Muted Green (Kept from previous) */
+    --primary-foreground: 0 0% 100%; /* White */
+    --secondary: 50 20% 94%;         /* Slightly Darker Warm Beige */
+    --secondary-foreground: 40 15% 25%;/* Dark Warm Grey/Brown */
+    --muted: 50 15% 92%;             /* Lighter Warm Beige Variant */
+    --muted-foreground: 45 10% 55%;  /* Medium Warm Grey */
+    --accent: 50 20% 94%;            /* Slightly Darker Warm Beige (Hover) */
+    --accent-foreground: 40 15% 25%; /* Dark Warm Grey/Brown */
+    --destructive: 0 65% 55%;        /* Standard Red */
     --destructive-foreground: 0 0% 100%;/* White */
-    --border: 38 25% 88%;            /* Subtle Beige/Brown Border */
-    --input: 38 25% 88%;             /* Subtle Beige/Brown Border */
-    --ring: 35 20% 25%;              /* Dark Brownish-Grey (focus) */
-    --radius: 0.75rem;               /* Increased border radius */
+    --border: 50 20% 90%;            /* Warm Beige Border */
+    --input: 50 20% 90%;             /* Warm Beige Border */
+    --ring: 40 15% 25%;              /* Dark Warm Grey/Brown */
+    --accent-orange: 30 80% 60%;     /* Muted Orange Accent */
+    --accent-orange-foreground: 0 0% 100%; /* White for contrast on orange */
+    --radius: 0.75rem;
   }
 
-  .dark {
+  .dark { /* Existing Dark Theme - Unchanged */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;

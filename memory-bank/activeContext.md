@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-Refactoring and improving the PDF upload and text extraction process. The main goal was to move PDF extraction to a background job handled by the backend API, add robust validation, and improve frontend state management.
+Reviewing the recent theme update applied to the landing page (`app/page.tsx`).
 
 ## Recent Changes (This Session)
 
@@ -30,15 +30,24 @@ Refactoring and improving the PDF upload and text extraction process. The main g
     - Fixed various TypeScript errors introduced during refactoring.
     - **Patched `pdf-parse`:** Applied a patch using `pnpm patch` to remove problematic debug code in `pdf-parse` that was causing build failures.
     - **Fixed Status Route:** Updated `app/api/pdf-extract/status/[jobId]/route.ts` to correctly `await params` as required by Next.js 15, and updated the TypeScript type definition for `params` to `Promise<{ jobId: string }>` to resolve linter warnings.
+- **Landing Page Theme Update (`app/page.tsx`):**
+    - Replaced hardcoded color classes (e.g., `bg-purple-600`, `text-indigo-500`, gradients) with theme-based Tailwind classes (e.g., `bg-primary`, `text-primary`, `bg-secondary/10`) to align with `globals.css` variables.
 - **Flashcard Flow Updates (`app/flashcards/page.tsx`, `app/summary/page.tsx`):**
     - **Batch Limit:** At the 10th card of a batch, only a "Finish" button is shown, directing the user to the summary page.
     - **Summary Options:** The summary page now provides "Do 10 More" (starts next batch) and "Finish" (goes to course overview) buttons.
     - **Skeleton Loader:** Implemented a `Skeleton` component loading state for flashcards. Fixed logic to ensure it displays correctly when generating initial *and* subsequent batches.
     - **Button Layout:** Restored the original layout with "Stop" on the left and "Next" on the right for cards 1-9.
     - **Card Counter:** Updated the counter to reset and show 1-10 for each batch.
+    - **Landing Page Theme Update (Warm Beige/Cream Theme):**
+        - Updated the default light theme CSS variables in `app/globals.css` (`:root` block) based on user feedback and screenshot inspiration, using warmer beige/cream tones (`hsl(50, 25%, 97%)` for background/cards, `hsl(50, 20%, 94%)` for secondary/accent) while keeping the muted green primary color.
+        - Added a new orange accent color (`--accent-orange: 30 80% 60%`) to `app/globals.css` and `tailwind.config.ts`.
+    - **Strategic Theme Application (`app/page.tsx`):**
+        - *Previous Step:* Applied theme colors strategically to landing page sections (using `bg-secondary`, `bg-background`, `bg-card`) and standardized inner card styles. *(This may need visual verification against the new warm theme).*
+        - Changed the "AI-Powered Learning" badge background color from primary (green) to the new `bg-accent-orange`.
 
 ## Next Steps
 
+- Visually verify the application's appearance in light mode (especially the landing page `app/page.tsx`) to ensure the new warm beige/cream theme colors and the orange badge are applied correctly and look as intended.
 - Thoroughly test the updated PDF upload flow and the flashcard study flow (including batch continuation, counter, and loading states).
 - Consider adding more granular progress updates for PDF extraction if feasible.
 - Review overall error handling and user feedback for clarity across all implemented features.

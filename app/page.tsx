@@ -92,17 +92,17 @@ export default function HomePage() {
       <main className="flex-1">
         <section className="relative py-20 md:py-28 overflow-hidden">
           {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-72 h-72 bg-purple-200 dark:bg-purple-900/20 rounded-full filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 right-0 w-72 h-72 bg-indigo-200 dark:bg-indigo-900/20 rounded-full filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
+          <div className="absolute top-0 left-0 w-72 h-72 bg-primary/10 dark:bg-primary/20 rounded-full filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-72 h-72 bg-secondary/10 dark:bg-secondary/20 rounded-full filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
 
           <div className="container px-4 md:px-6 relative">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_500px]">
               <div className="flex flex-col justify-center space-y-4">
-                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-gradient-to-r from-pink-500 to-orange-500 text-primary-foreground shadow hover:bg-primary/80 w-fit">
+                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-accent-orange text-accent-orange-foreground shadow hover:bg-accent-orange/80 w-fit"> {/* Changed bg-primary to bg-accent-orange */}
                   <Sparkles className="mr-1 h-3 w-3" /> {t.aiPoweredLearning}
                 </div>
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-primary">
                     {t.appTitle}
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">{t.appDescription}</p>
@@ -114,7 +114,7 @@ export default function HomePage() {
                         <Button
                           size="lg"
                           onClick={handleStart}
-                          className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                          className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                         >
                           {t.startButton} <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -123,7 +123,7 @@ export default function HomePage() {
                         <SignInButton mode="modal" forceRedirectUrl="/start">
                           <Button
                             size="lg"
-                            className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                            className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                           >
                             {t.startButton} <ArrowRight className="h-4 w-4" />
                           </Button>
@@ -134,7 +134,7 @@ export default function HomePage() {
                     <Button
                       size="lg"
                       onClick={handleStart}
-                      className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                      className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                     >
                       {t.startButton} <ArrowRight className="h-4 w-4" />
                     </Button>
@@ -142,36 +142,36 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <div className="relative h-[350px] w-full max-w-[400px] overflow-hidden rounded-2xl border shadow-xl bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/50 dark:to-indigo-950/50">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-pink-200 dark:bg-pink-900/20 rounded-full filter blur-2xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-200 dark:bg-blue-900/20 rounded-full filter blur-2xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
+                <div className="relative h-[350px] w-full max-w-[400px] overflow-hidden rounded-2xl border shadow-xl bg-gradient-to-br from-background to-card dark:from-purple-950/50 dark:to-indigo-950/50">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 dark:bg-primary/20 rounded-full filter blur-2xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/10 dark:bg-secondary/20 rounded-full filter blur-2xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
 
                   <div className="absolute inset-0 p-8 flex flex-col justify-center">
-                    <div className="mb-4 flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                    <div className="mb-4 flex items-center gap-2 text-sm font-medium text-primary dark:text-primary">
                       <BrainCircuit className="h-4 w-4" />
                       <span>{t.aiGenerated}</span>
                     </div>
                     <div className="space-y-4 h-[220px] overflow-hidden">
                       {/* Current question with fade transition */}
                       <div
-                        className={`rounded-xl border bg-white/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm transition-all duration-500 ${isTransitioning ? "opacity-0 transform -translate-y-4" : "opacity-100 transform translate-y-0"}`}
+                        className={`rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm transition-all duration-500 ${isTransitioning ? "opacity-0 transform -translate-y-4" : "opacity-100 transform translate-y-0"}`}
                       >
                         <p className="font-medium">{flashcardExamples[currentQuestionIndex]}</p>
                         <div className="mt-2 h-1 w-full rounded-full bg-muted overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
+                            className="h-full rounded-full bg-primary"
                             style={{ width: `${progressValues[currentQuestionIndex % progressValues.length]}%` }}
                           ></div>
                         </div>
                       </div>
 
                       {/* Preview of next questions (static) */}
-                      <div className="rounded-xl border bg-white/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm">
+                      <div className="rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm">
                         <p className="font-medium text-sm text-muted-foreground">
                           {flashcardExamples[(currentQuestionIndex + 1) % flashcardExamples.length]}
                         </p>
                       </div>
-                      <div className="rounded-xl border bg-white/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm">
+                      <div className="rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-4 shadow-sm">
                         <p className="font-medium text-sm text-muted-foreground">
                           {flashcardExamples[(currentQuestionIndex + 2) % flashcardExamples.length]}
                         </p>
@@ -183,7 +183,7 @@ export default function HomePage() {
                           <div
                             key={index}
                             className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${
-                              index === currentQuestionIndex ? "bg-indigo-500" : "bg-gray-300 dark:bg-gray-700"
+                              index === currentQuestionIndex ? "bg-primary" : "bg-gray-300 dark:bg-gray-700"
                             }`}
                           ></div>
                         ))}
@@ -198,14 +198,15 @@ export default function HomePage() {
 
         <section
           id="features"
-          className="relative py-20 bg-gradient-to-b from-white to-purple-50 dark:from-background dark:to-purple-950/10"
+          className="relative py-20 bg-secondary dark:bg-secondary/10" /* Changed background */
         >
-          <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-pink-200 dark:bg-pink-900/20 rounded-full filter blur-3xl opacity-20"></div>
-          <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-blue-200 dark:bg-blue-900/20 rounded-full filter blur-3xl opacity-20"></div>
+          {/* Decorative blurs - can adjust opacity/color if needed */}
+          <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-primary/10 dark:bg-primary/20 rounded-full filter blur-3xl opacity-20"></div>
+          <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-secondary/10 dark:bg-secondary/20 rounded-full filter blur-3xl opacity-20"></div>
 
           <div className="container px-4 md:px-6 relative">
             <div className="mb-12 text-center">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary">
                 {t.keyFeatures}
               </h2>
               <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
@@ -216,9 +217,9 @@ export default function HomePage() {
               {featureCards.map((feature, index) => (
                 <div
                   key={index}
-                  className="flex flex-col items-center space-y-2 rounded-xl border bg-white/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                  className="flex flex-col items-center space-y-2 rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
                 >
-                  <div className={`rounded-full p-3 ${featureIcons[index].bgColor}`}>{featureIcons[index].icon}</div>
+                  <div className={`rounded-full p-3 bg-primary/10`}>{featureIcons[index].icon}</div>
                   <h3 className="text-xl font-bold">{feature.title}</h3>
                   <p className="text-center text-muted-foreground">{feature.description}</p>
                 </div>
@@ -227,12 +228,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="how-it-works" className="relative py-20">
-          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-indigo-50 to-transparent dark:from-indigo-950/10 dark:to-transparent"></div>
-
+        <section id="how-it-works" className="relative py-20 bg-background">
+          {/* Removed gradient div */}
           <div className="container px-4 md:px-6 relative">
             <div className="mb-12 text-center">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary">
                 {t.howItWorks}
               </h2>
               <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
@@ -243,10 +243,10 @@ export default function HomePage() {
               {howItWorksSteps.map((step, index) => (
                 <div
                   key={index}
-                  className="flex flex-col items-center space-y-2 rounded-xl border bg-white/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                  className="flex flex-col items-center space-y-2 rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
                 >
                   <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold text-white ${stepGradients[index]}`}
+                    className={`flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold text-primary-foreground bg-primary`}
                   >
                     {index + 1}
                   </div>
@@ -260,14 +260,15 @@ export default function HomePage() {
 
         <section
           id="testimonials"
-          className="relative py-20 bg-gradient-to-b from-indigo-50 to-white dark:from-indigo-950/10 dark:to-background"
+          className="relative py-20 bg-secondary dark:bg-secondary/10" 
         >
-          <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-purple-200 dark:bg-purple-900/20 rounded-full filter blur-3xl opacity-20"></div>
-          <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-blue-200 dark:bg-blue-900/20 rounded-full filter blur-3xl opacity-20"></div>
+          {/* Decorative blurs */}
+          <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-primary/10 dark:bg-primary/20 rounded-full filter blur-3xl opacity-20"></div>
+          <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-secondary/10 dark:bg-secondary/20 rounded-full filter blur-3xl opacity-20"></div>
 
           <div className="container px-4 md:px-6 relative">
             <div className="mb-12 text-center">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-600">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary">
                 {t.whatStudentsAreSaying}
               </h2>
               <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
@@ -279,10 +280,10 @@ export default function HomePage() {
               {testimonials.map((testimonial, index) => (
                 <div
                   key={index}
-                  className="flex flex-col rounded-xl border bg-white/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                  className="flex flex-col rounded-xl border bg-card/80 dark:bg-black/20 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
                 >
                   <div
-                    className={`mb-4 text-${testimonialStyles[index].accentColor}-500 dark:text-${testimonialStyles[index].accentColor}-400`}
+                    className={`mb-4 text-primary dark:text-primary`}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -303,7 +304,7 @@ export default function HomePage() {
                   <p className="mb-4 text-muted-foreground italic">{testimonial.quote}</p>
                   <div className="mt-auto flex items-center gap-4">
                     <div
-                      className={`h-10 w-10 rounded-full bg-gradient-to-br ${testimonialStyles[index].gradient} flex items-center justify-center text-white font-bold`}
+                      className={`h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold`}
                     >
                       {testimonial.initials}
                     </div>
@@ -318,14 +319,14 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="relative py-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-100 via-indigo-50 to-blue-100 dark:from-purple-950/30 dark:via-indigo-950/20 dark:to-blue-950/30"></div>
-          <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-pink-200 dark:bg-pink-900/20 rounded-full filter blur-3xl opacity-20"></div>
-          <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-blue-200 dark:bg-blue-900/20 rounded-full filter blur-3xl opacity-20"></div>
+        <section className="relative py-20 bg-card dark:bg-card/50">
+          {/* Decorative blurs */}
+          <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-primary/10 dark:bg-primary/20 rounded-full filter blur-3xl opacity-20"></div>
+          <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-secondary/10 dark:bg-secondary/20 rounded-full filter blur-3xl opacity-20"></div>
 
           <div className="container px-4 md:px-6 relative">
             <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-primary">
                 {t.readyToTransform}
               </h2>
               <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
@@ -338,7 +339,7 @@ export default function HomePage() {
                       <Button
                         size="lg"
                         onClick={handleStart}
-                        className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                        className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                       >
                         {t.startButton} <ArrowRight className="h-4 w-4" />
                       </Button>
@@ -347,7 +348,7 @@ export default function HomePage() {
                       <SignInButton mode="modal" forceRedirectUrl="/start">
                         <Button
                           size="lg"
-                          className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                          className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                         >
                           {t.startButton} <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -358,7 +359,7 @@ export default function HomePage() {
                   <Button
                     size="lg"
                     onClick={handleStart}
-                    className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+                    className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-primary/25"
                   >
                     {t.startButton} <ArrowRight className="h-4 w-4" />
                   </Button>
@@ -368,7 +369,7 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-      <footer className="border-t bg-gradient-to-b from-white to-purple-50 dark:from-background dark:to-purple-950/10">
+      <footer className="border-t bg-secondary dark:bg-secondary/10">
         <div className="container flex flex-col gap-6 py-8 md:flex-row md:items-center md:justify-between md:py-12">
           <div className="flex items-center gap-2 font-bold">
             <BookOpen className="h-5 w-5 text-primary" />
@@ -397,28 +398,28 @@ export default function HomePage() {
 // Feature icons data
 const featureIcons = [
   {
-    icon: <FileText className="h-6 w-6 text-pink-600 dark:text-pink-400" />,
-    bgColor: "bg-pink-100 dark:bg-pink-950/50",
+    icon: <FileText className="h-6 w-6 text-primary dark:text-primary" />,
+    bgColor: "bg-primary/10 dark:bg-primary/20",
   },
   {
-    icon: <BrainCircuit className="h-6 w-6 text-purple-600 dark:text-purple-400" />,
-    bgColor: "bg-purple-100 dark:bg-purple-950/50",
+    icon: <BrainCircuit className="h-6 w-6 text-primary dark:text-primary" />,
+    bgColor: "bg-primary/10 dark:bg-primary/20",
   },
   {
-    icon: <BookOpen className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />,
-    bgColor: "bg-indigo-100 dark:bg-indigo-950/50",
+    icon: <BookOpen className="h-6 w-6 text-primary dark:text-primary" />,
+    bgColor: "bg-primary/10 dark:bg-primary/20",
   },
   {
-    icon: <BarChart className="h-6 w-6 text-blue-600 dark:text-blue-400" />,
-    bgColor: "bg-blue-100 dark:bg-blue-950/50",
+    icon: <BarChart className="h-6 w-6 text-primary dark:text-primary" />,
+    bgColor: "bg-primary/10 dark:bg-primary/20",
   },
   {
-    icon: <Languages className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />,
-    bgColor: "bg-cyan-100 dark:bg-cyan-950/50",
+    icon: <Languages className="h-6 w-6 text-primary dark:text-primary" />,
+    bgColor: "bg-primary/10 dark:bg-primary/20",
   },
   {
-    icon: <Shield className="h-6 w-6 text-teal-600 dark:text-teal-400" />,
-    bgColor: "bg-teal-100 dark:bg-teal-950/50",
+    icon: <Shield className="h-6 w-6 text-primary dark:text-primary" />,
+    bgColor: "bg-primary/10 dark:bg-primary/20",
   },
 ]
 
@@ -466,11 +467,11 @@ const howItWorksSteps = [
   },
 ]
 
-// Step gradients
+// Step gradients (Removed - Use bg-primary instead)
 const stepGradients = [
-  "bg-gradient-to-r from-pink-500 to-purple-500",
-  "bg-gradient-to-r from-purple-500 to-indigo-500",
-  "bg-gradient-to-r from-indigo-500 to-blue-500",
+  "bg-primary",
+  "bg-primary",
+  "bg-primary",
 ]
 
 // Testimonials
@@ -519,30 +520,30 @@ const testimonials = [
   },
 ]
 
-// Testimonial styles
+// Testimonial styles (Removed - Use bg-primary for gradient and text-primary for accentColor)
 const testimonialStyles = [
   {
-    accentColor: "purple",
-    gradient: "from-purple-500 to-indigo-600",
+    accentColor: "primary",
+    gradient: "bg-primary",
   },
   {
-    accentColor: "indigo",
-    gradient: "from-indigo-500 to-blue-600",
+    accentColor: "primary",
+    gradient: "bg-primary",
   },
   {
-    accentColor: "blue",
-    gradient: "from-blue-500 to-cyan-600",
+    accentColor: "primary",
+    gradient: "bg-primary",
   },
   {
-    accentColor: "pink",
-    gradient: "from-pink-500 to-purple-600",
+    accentColor: "primary",
+    gradient: "bg-primary",
   },
   {
-    accentColor: "cyan",
-    gradient: "from-cyan-500 to-blue-600",
+    accentColor: "primary",
+    gradient: "bg-primary",
   },
   {
-    accentColor: "teal",
-    gradient: "from-teal-500 to-emerald-600",
+    accentColor: "primary",
+    gradient: "bg-primary",
   },
 ]

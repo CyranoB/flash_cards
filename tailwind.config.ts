@@ -51,6 +51,10 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "accent-orange": { // Added orange accent
+          DEFAULT: "hsl(var(--accent-orange))",
+          foreground: "hsl(var(--accent-orange-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -78,4 +82,3 @@ const config: Config = {
 }
 
 export default config
-
