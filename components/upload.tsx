@@ -43,6 +43,46 @@ export function Upload() {
     })
   }
 
+  const validateWordCount = (text: string, minCount: number, maxCount: number, t: any, showError: (title: string, message: string) => void) => {
+    const wordCount = text.trim().split(/\s+/).length;
+    console.log('📝 Word count validation:', wordCount);
+    
+    if (wordCount < minCount) {
+      const errorMessage = t.errorWordCountMin.replace('{count}', wordCount.toLocaleString());
+      showError(t.errorTitle, errorMessage);
+      return false;
+    }
+    if (wordCount > maxCount) {
+      const errorMessage = t.errorWordCount.replace('{count}', wordCount.toLocaleString());
+      showError(t.errorTitle, errorMessage);
+      return false;
+    }
+    return true;
+  }
+
+  const getPdfResultAndValidate = async (jobId: string, t: any, showError: (title: string, message: string) => void) => {
+    try {
+      const response = await fetch(`/api/pdf-extract/status/${jobId}`);
+      const data = await response.json();
+      
+      if (data.status !== 'completed' || !data.result) {
+        console.error("❌ PDF processing not completed or result missing:", data);
+        showError(t.errorTitle, 'PDF processing not completed or result missing.');
+        return null;
+      }
+
+      if (!validateWordCount(data.result, config.minWordCount, config.maxWordCount, t, showError)) {
+        return null;
+      }
+
+      return data.result;
+    } catch (error) {
+      console.error('❌ Error fetching PDF result:', error);
+      showError(t.errorTitle, error instanceof Error ? error.message : t.errorProcessing);
+      return null;
+    }
+  }
+
   // Effect to poll job status
   useEffect(() => {
     if (!jobId) return
@@ -251,41 +291,17 @@ export function Upload() {
       const isPdfFile = file.type === "application/pdf";
       
       if (isPdfFile) {
-        // PDF processing should be complete if !isProcessing and file is set
-        // Fetch the final status one last time to get the text result
         if (!jobId) {
-            throw new Error("Missing Job ID for completed PDF processing.");
+          throw new Error("Missing Job ID for completed PDF processing.");
         }
-        const response = await fetch(`/api/pdf-extract/status/${jobId}`);
-        const data = await response.json();
-        
-        if (data.status !== 'completed' || !data.result) {
-          console.error("❌ [UPLOAD] PDF processing not completed or result missing:", data);
-          throw new Error('PDF processing not completed or result missing.');
-        }
-        text = data.result;
-        
-        // Re-validate PDF word count *after* extraction just before proceeding
-        const wordCount = text.trim().split(/\s+/).length;
-        console.log('📝 [UPLOAD] PDF Word count check before proceeding:', wordCount);
-        if (wordCount < config.minWordCount) {
-          const errorMessage = t.errorWordCountMin.replace('{count}', wordCount.toLocaleString());
-          showError(t.errorTitle, errorMessage);
-          setIsUploading(false); // Ensure button is re-enabled
-          return; 
-        }
-        if (wordCount > config.maxWordCount) {
-          const errorMessage = t.errorWordCount.replace('{count}', wordCount.toLocaleString());
-          showError(t.errorTitle, errorMessage);
-          setIsUploading(false); // Ensure button is re-enabled
+        text = await getPdfResultAndValidate(jobId, t, showError);
+        if (!text) {
+          setIsUploading(false);
           return;
         }
-        
       } else {
-        // Use the validated text stored in state for non-PDFs
         if (!validatedText) {
-           console.error('❌ [UPLOAD] Validated text not found for non-PDF file.');
-           throw new Error('Validated text missing for non-PDF file.'); 
+          throw new Error('Validated text missing for non-PDF file.');
         }
         text = validatedText;
         console.log('📄 [UPLOAD] Using stored validated text for non-PDF upload.');
@@ -299,8 +315,6 @@ export function Upload() {
       showError(t.errorTitle, error instanceof Error ? error.message : t.errorProcessing);
       setIsUploading(false);
     } finally {
-      // Keep setIsUploading(false) here if needed, but navigation usually makes it irrelevant
-      // setIsUploading(false); 
       console.log('🏁 [UPLOAD] Final processing step completed');
     }
   }
