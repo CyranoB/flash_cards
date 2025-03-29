@@ -18,6 +18,7 @@ interface Flashcard {
 }
 
 export default function FlashcardsPage() {
+  console.log("--- Rendering FlashcardsPage ---"); // Added Log
   const [flashcards, setFlashcards] = useState<Flashcard[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [batchStartIndex, setBatchStartIndex] = useState(0)
@@ -33,58 +34,72 @@ export default function FlashcardsPage() {
   // Memoize the generateMoreFlashcards function to prevent recreation on each render
   const generateMoreFlashcards = useCallback(async () => {
     setIsLoading(true)
-    
+    console.log("generateMoreFlashcards: Starting generation..."); // Added Log
+
     try {
       const courseData = JSON.parse(sessionStorage.getItem("courseData") || "{}")
       const transcript = sessionStorage.getItem("transcript") || ""
       const batchSize = 10 // Number of flashcards to generate at once
 
       // Use the content language for generating flashcards
-      const newFlashcards = await generateFlashcards(courseData, transcript, batchSize, contentLanguage, flashcards)
+      let newFlashcards;
+      try {
+        console.log("generateMoreFlashcards: Calling generateFlashcards API..."); // Added Log
+        newFlashcards = await generateFlashcards(courseData, transcript, batchSize, contentLanguage, flashcards);
+        console.log("generateMoreFlashcards: API call successful."); // Added Log
+      } catch (apiError) {
+        console.error("generateMoreFlashcards: generateFlashcards API call failed:", apiError); // Enhanced Error Logging
+        toast({
+          title: t.errorTitle,
+          description: `${t.flashcardError}: ${apiError instanceof Error ? apiError.message : 'Unknown API error'}`,
+          variant: "destructive",
+        });
+        return false; // Indicate failure
+      }
 
       // Use functional updates to ensure we're working with the latest state
-      setFlashcards(prev => [...prev, ...newFlashcards])
-      return true
-    } catch (error) {
-      toast({
-        title: t.errorTitle,
-        description: t.flashcardError,
-        variant: "destructive",
-      })
-      return false
+      setFlashcards(prev => [...prev, ...newFlashcards]);
+      console.log("generateMoreFlashcards: State updated with new flashcards."); // Added Log
+      return true;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
+      console.log("generateMoreFlashcards: Finished generation attempt."); // Added Log
     }
   }, [contentLanguage, t, toast])
 
   // Function to move to the next flashcard
   const goToNextFlashcard = useCallback(async () => {
-    setShowAnswer(false)
+    setShowAnswer(false);
 
-    // If we're at the 10th card in this batch, go to summary
-    if (currentIndex === batchStartIndex + 10) {
-      // Store current flashcards and the count of completed cards (10, 20, etc.)
-      sessionStorage.setItem("flashcards", JSON.stringify(flashcards))
-      sessionStorage.setItem("lastCompletedIndex", (currentIndex + 1).toString())
-      router.push("/summary")
-      return
+    // Check if the *current* card is the 10th one (index 9 relative to batch start)
+    if (currentIndex === batchStartIndex + 9) {
+      console.log("goToNextFlashcard: Reached 10th card, navigating to summary."); // Added Log
+      sessionStorage.setItem("flashcards", JSON.stringify(flashcards));
+      // Store the index *after* the 10th card (e.g., 10, 20) as the completed count
+      sessionStorage.setItem("lastCompletedIndex", (currentIndex + 1).toString()); 
+      router.push("/summary");
+    } 
+    // Otherwise, if it's not the last card and we have more cards loaded, advance the index
+    else if (currentIndex < flashcards.length - 1) { 
+      console.log(`goToNextFlashcard: Advancing from index ${currentIndex} to ${currentIndex + 1}.`); // Added Log
+      setCurrentIndex(prev => prev + 1);
+    } else {
+        // This case might occur if trying to advance past the last loaded card before summary transition
+        console.log("goToNextFlashcard: Attempted to advance past the last available card."); // Added Log
     }
-    
-    // Only advance if we have cards available for this batch
-    if (currentIndex < flashcards.length) {
-      setCurrentIndex(prev => prev + 1)
-    }
-  }, [currentIndex, flashcards.length, generateMoreFlashcards, isLoading, batchStartIndex, router])
+  }, [currentIndex, flashcards, batchStartIndex, router]); // Removed unused dependencies
 
   // Check for course data and set content language - only once on mount
   useEffect(() => {
     let mounted = true;
-    
+
     const initializeFlashcards = async () => {
-      const courseData = sessionStorage.getItem("courseData")
-      const storedContentLanguage = sessionStorage.getItem("contentLanguage") as "en" | "fr"
+      console.log("FlashcardsPage useEffect[mount]: Running initialization checks."); // Added Log
+      const courseData = sessionStorage.getItem("courseData");
+      const storedContentLanguage = sessionStorage.getItem("contentLanguage") as "en" | "fr";
 
       if (!courseData) {
+        console.log("FlashcardsPage useEffect[mount]: No courseData found in sessionStorage. Redirecting."); // Added Log
         toast({
           title: t.errorTitle,
           description: t.noResults,
@@ -93,20 +108,24 @@ export default function FlashcardsPage() {
         router.push("/")
         return
       }
+      console.log("FlashcardsPage useEffect[mount]: courseData found."); // Added Log
 
       // Set the content language (the language used for generating content)
       if (storedContentLanguage && mounted) {
-        setContentLanguage(storedContentLanguage)
+        console.log(`FlashcardsPage useEffect[mount]: Setting content language from storage: ${storedContentLanguage}`); // Added Log
+        setContentLanguage(storedContentLanguage);
       } else if (mounted) {
+        console.log(`FlashcardsPage useEffect[mount]: Setting content language from UI language: ${language}`); // Added Log
         // If no stored content language, use the current UI language
-        setContentLanguage(language)
-        sessionStorage.setItem("contentLanguage", language)
+        setContentLanguage(language);
+        sessionStorage.setItem("contentLanguage", language);
       }
 
       if (mounted) {
-        setIsInitialized(true)
+        console.log("FlashcardsPage useEffect[mount]: Setting isInitialized to true."); // Added Log
+        setIsInitialized(true);
       }
-    }
+    };
     
     initializeFlashcards();
     
@@ -115,72 +134,110 @@ export default function FlashcardsPage() {
     };
   }, []) // Empty dependency array - only run on mount
 
-  // Initialize flashcards - handles both new sessions and continuing sessions
+  // Generate/Load flashcards when initialized
   useEffect(() => {
-    const initializeFlashcards = async () => {
-      if (isInitialized && !isLoading) {
-        const isContinuingSession = sessionStorage.getItem('startNextFlashcardBatch')
-        
-        if (isContinuingSession) {
-          // Load existing flashcards from storage
-          const storedFlashcards = sessionStorage.getItem("flashcards")
-          if (storedFlashcards) {
-            const loadedCards = JSON.parse(storedFlashcards)
-            
-            // Set states synchronously before generating more
-            setFlashcards(loadedCards)
-            const newBatchStart = Math.floor(loadedCards.length / 10) * 10
-            setBatchStartIndex(newBatchStart)
-            setCurrentIndex(newBatchStart + 1) // Set index to the start of the new batch
-            setIsLoading(true) // Set loading to true *before* generating
-            
-            // Generate next batch using loaded cards directly
-            try {
-              const courseData = JSON.parse(sessionStorage.getItem("courseData") || "{}")
-              const transcript = sessionStorage.getItem("transcript") || ""
-              const batchSize = 10
-              
-              const newFlashcards = await generateFlashcards(
-                courseData,
-                transcript,
-                batchSize,
-                contentLanguage,
-                loadedCards // Pass loaded cards directly instead of using state
-              )
-              
-              // Update state with combined cards
-              setFlashcards(prev => [...prev, ...newFlashcards])
-            } catch (error) {
-              toast({
-                title: t.errorTitle,
-                description: t.flashcardError,
-                variant: "destructive",
-              })
-            }
-          }
-          sessionStorage.removeItem('startNextFlashcardBatch')
-        } else if (flashcards.length === 0) {
-          // New session - generate first batch
-          await generateMoreFlashcards()
-          setCurrentIndex(1)
-          setBatchStartIndex(0)
-        }
+    const generateOrLoadFlashcards = async () => {
+      // Only run if initialized and not already loading
+      if (!isInitialized || isLoading) {
+        console.log(`FlashcardsPage useEffect[generate/load]: Skipping (isInitialized: ${isInitialized}, isLoading: ${isLoading})`); // Added Log
+        return;
       }
-    }
-    initializeFlashcards()
-  }, [isInitialized, isLoading, contentLanguage, t])
+
+      console.log("FlashcardsPage useEffect[generate/load]: Proceeding to generate or load."); // Added Log
+      const isContinuingSession = sessionStorage.getItem('startNextFlashcardBatch');
+
+      if (isContinuingSession) {
+        console.log("FlashcardsPage useEffect[generate/load]: Continuing session detected."); // Added Log
+        sessionStorage.removeItem('startNextFlashcardBatch'); // Consume the flag
+        const storedFlashcards = sessionStorage.getItem("flashcards");
+
+        if (storedFlashcards) {
+          try {
+            const loadedCards = JSON.parse(storedFlashcards);
+            console.log(`FlashcardsPage useEffect[generate/load]: Loaded ${loadedCards.length} existing cards.`); // Added Log
+
+            // Set states synchronously before generating more
+            setFlashcards(loadedCards);
+            const newBatchStart = Math.floor(loadedCards.length / 10) * 10;
+            setBatchStartIndex(newBatchStart);
+            setCurrentIndex(newBatchStart); // Set index to the start of the new batch
+            console.log(`FlashcardsPage useEffect[generate/load]: Set batchStart=${newBatchStart}, currentIndex=${newBatchStart}`); // Added Log
+            setIsLoading(true); // Set loading to true *before* generating
+
+            // Generate next batch using loaded cards directly
+            const courseData = JSON.parse(sessionStorage.getItem("courseData") || "{}");
+            const transcript = sessionStorage.getItem("transcript") || "";
+            const batchSize = 10;
+
+            console.log("FlashcardsPage useEffect[generate/load]: Calling generateFlashcards API for next batch..."); // Added Log
+            const newFlashcards = await generateFlashcards(
+              courseData,
+              transcript,
+              batchSize,
+              contentLanguage,
+              loadedCards // Pass loaded cards directly
+            );
+            console.log(`FlashcardsPage useEffect[generate/load]: API returned ${newFlashcards.length} new cards.`); // Added Log
+
+            // Update state with combined cards
+            setFlashcards(prev => [...prev, ...newFlashcards]);
+          } catch (error) {
+            console.error("FlashcardsPage useEffect[generate/load]: Error during continuing session generation:", error); // Enhanced Error Logging
+            toast({
+              title: t.errorTitle,
+              description: `${t.flashcardError}: ${error instanceof Error ? error.message : 'Unknown generation error'}`,
+              variant: "destructive",
+            });
+            // Consider redirecting or showing a persistent error state here
+          } finally {
+            setIsLoading(false); // Ensure loading is set to false even on error
+          }
+        } else {
+            console.log("FlashcardsPage useEffect[generate/load]: No stored flashcards found for continuing session."); // Added Log
+        }
+      } else if (flashcards.length === 0) {
+        // New session - generate first batch
+        console.log("FlashcardsPage useEffect[generate/load]: Starting new session, generating first batch..."); // Added Log
+        try {
+            const success = await generateMoreFlashcards(); // generateMoreFlashcards now handles its own loading state and errors
+            if (success) {
+                setCurrentIndex(0); // Start at index 0 for the first card
+                setBatchStartIndex(0);
+                console.log("FlashcardsPage useEffect[generate/load]: First batch generated successfully."); // Added Log
+            } else {
+                console.log("FlashcardsPage useEffect[generate/load]: First batch generation failed."); // Added Log
+                // Handle generation failure (e.g., show error message, redirect)
+            }
+        } catch (error) {
+             console.error("FlashcardsPage useEffect[generate/load]: Unexpected error calling generateMoreFlashcards:", error); // Added Log for safety
+             toast({ title: t.errorTitle, description: t.flashcardError, variant: "destructive" });
+        }
+      } else {
+         console.log(`FlashcardsPage useEffect[generate/load]: Already have ${flashcards.length} cards, no action needed.`); // Added Log
+      }
+    };
+
+    generateOrLoadFlashcards();
+  // Rerun when isInitialized changes, or when contentLanguage changes (to potentially regenerate if needed)
+  }, [isInitialized, contentLanguage, t, toast, flashcards.length]); // Added flashcards.length dependency
 
   const handleStop = () => {
+    console.log(`handleStop: Stopping at index ${currentIndex}. Storing ${flashcards.length} cards.`); // Added Log
     // Store the flashcards for the summary
-    // Store the next card's index to be consistent with automatic redirection
-    sessionStorage.setItem("flashcards", JSON.stringify(flashcards))
-    sessionStorage.setItem("lastCompletedIndex", (currentIndex + 1).toString())
-    router.push("/summary")
-  }
+    sessionStorage.setItem("flashcards", JSON.stringify(flashcards));
+    // Store the *next* card's index if stopped mid-batch, or the total count if finished batch
+    const lastIndex = currentIndex === batchStartIndex + 10 ? currentIndex : currentIndex + 1;
+    sessionStorage.setItem("lastCompletedIndex", lastIndex.toString());
+    router.push("/summary");
+  };
 
-  const currentFlashcard = currentIndex > 0 && currentIndex <= flashcards.length 
-    ? flashcards[currentIndex - 1] 
-    : null
+  // Current index is 0-based, but we display 1-based count
+  const currentCardIndexInBatch = currentIndex - batchStartIndex;
+  const currentFlashcard = currentIndex >= 0 && currentIndex < flashcards.length
+    ? flashcards[currentIndex]
+    : null;
+
+  console.log(`Rendering card: overallIndex=${currentIndex}, batchStartIndex=${batchStartIndex}, cardsLoaded=${flashcards.length}, isLoading=${isLoading}`); // Added Log
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -219,33 +276,44 @@ export default function FlashcardsPage() {
               </CardFooter>
             </Card>
           ) : (
-            <Card className="w-full min-h-[16rem] flex items-center justify-center">
-              <p>{t.loading}</p>
+            <Card className="w-full min-h-[16rem] flex flex-col items-center justify-center text-center p-4">
+                {isInitialized ? (
+                    <p>{t.flashcardError}</p> // Replaced non-existent key with existing error key
+                ) : (
+                    <p>{t.loading}</p> // Initial loading before initialization check
+                )}
             </Card>
           )}
 
+          {/* Buttons */}
           <div className="flex justify-between">
-            {currentIndex === batchStartIndex + 10 ? (
-              <div className="w-full flex justify-center">
-                <Button onClick={handleStop}>
-                  {t.finishButton}
-                </Button>
-              </div>
-            ) : (
-              <>
-                <Button variant="outline" onClick={handleStop}>
-                  {t.stopButton}
-                </Button>
-                <Button onClick={goToNextFlashcard} disabled={isLoading}>
-                  {isLoading ? t.generating : t.nextButton}
-                </Button>
-              </>
-            )}
-          </div>
+             {/* Show only Finish button on the 10th card */}
+             {(currentCardIndexInBatch === 10 && currentFlashcard) || (flashcards.length > 0 && !currentFlashcard && !isLoading) ? (
+               <div className="w-full flex justify-center">
+                 <Button onClick={handleStop}>
+                   {t.finishButton}
+                 </Button>
+               </div>
+             ) : flashcards.length > 0 || isLoading ? ( // Show Stop/Next only if cards exist or loading
+               <>
+                 <Button variant="outline" onClick={handleStop} disabled={isLoading && flashcards.length === 0}>
+                   {t.stopButton}
+                 </Button>
+                 <Button onClick={goToNextFlashcard} disabled={isLoading || !currentFlashcard}>
+                   {isLoading ? t.generating : t.nextButton}
+                 </Button>
+               </>
+             ) : null /* Show nothing if initialized but no cards generated yet */ }
+           </div>
 
-          <p className="text-center text-sm text-muted-foreground">
-            {t.cardCount}: {currentIndex > 0 ? currentIndex - batchStartIndex : 0}
-          </p>
+
+          {/* Card Counter */}
+          {flashcards.length > 0 && currentFlashcard && ( // Only show counter if a card is actually displayed
+             <p className="text-center text-sm text-muted-foreground">
+               {/* Display 1-based index relative to the batch */}
+               Card {currentCardIndexInBatch + 1}/10 
+             </p>
+          )}
         </div>
       </div>
     </div>

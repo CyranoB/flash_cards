@@ -23,7 +23,7 @@
     -   Basic flashcard viewer (`app/flashcards/page.tsx`) displays question/answer.
     -   AI generates flashcards in batches of 10 (`lib/ai.ts`).
     -   Navigation between cards and batches works.
-    -   Summary page (`app/summary/page.tsx`) shows the last 10 cards and provides options to finish or continue.
+    -   Summary page (`app/summary/page.tsx`) shows the last 10 cards studied and provides an option to finish (redirects to course overview). The option to generate more cards ("Do 10 More") has been removed.
     -   Skeleton loading state implemented for card generation.
     -   Card counter resets for each batch.
 

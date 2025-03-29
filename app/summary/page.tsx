@@ -50,12 +50,6 @@ export default function SummaryPage() {
     router.push("/course-overview")
   }
 
-  const handleMoreFlashcards = () => {
-    // Set flag to continue with next batch
-    sessionStorage.setItem('startNextFlashcardBatch', 'true')
-    router.push("/flashcards")
-  }
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-2xl space-y-8">
@@ -88,9 +82,7 @@ export default function SummaryPage() {
         </div>
 
         <div className="flex justify-center gap-4">
-          <Button variant="outline" size="lg" onClick={handleMoreFlashcards}>
-            {t.do10MoreButton || "Do 10 More"}
-          </Button>
+          {/* "Do 10 More" button removed */}
           <Button size="lg" onClick={handleFinish}>
             {t.finishButton}
           </Button>

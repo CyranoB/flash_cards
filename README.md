@@ -1,182 +1,155 @@
-# AI-Powered Flashcard Generator
+# SmartDeck: AI-Powered Study Companion
 
-A modern web application designed to help university students study more effectively by automatically generating flashcards and multiple choice questions from course transcripts using AI.
+SmartDeck is a web application that leverages artificial intelligence to help students create interactive study materials from their course transcripts. By uploading documents in formats such as PDF, DOCX, or TXT, users can generate flashcards and multiple-choice questions (MCQs) tailored to their coursework. With features like multilingual support, user authentication, and progress tracking, SmartDeck transforms traditional studying into an efficient, engaging experience.
+
+## Description
+
+SmartDeck is designed for students seeking smarter study methods. It uses AI to analyze uploaded transcripts, extract key concepts, and produce flashcards and MCQs. The application offers an intuitive interface for flipping through flashcards, taking quizzes with immediate feedback, and reviewing study session summaries. Built with modern web technologies, it ensures a seamless experience across devices.
+
+## Technologies Used
+
+- **Frontend**: Next.js (React framework), TypeScript, Tailwind CSS, shadcn/ui components
+- **Backend**: Next.js API routes, Redis for caching/session management
+- **Authentication**: Clerk (optional, configurable)
+- **AI Integration**: OpenAI API for content generation
+- **File Processing**: pdf-parse (PDFs), mammoth (DOCX)
+- **Icons**: Lucide React
+- **Utilities**: LRU-cache for rate limiting, UUID for job IDs
+
+## Installation Instructions
+
+To set up SmartDeck locally, follow these steps:
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/your-username/flash_cards.git
+   cd flash_cards
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install  # Preferred, as indicated by pnpm-lock.yaml
+   ```
+
+3. **Configure Environment Variables**:
+   Create a `.env.local` file in the root directory with the following:
+   ```env
+   OPENAI_API_KEY=your_openai_api_key
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key  # Optional
+   CLERK_SECRET_KEY=your_clerk_secret_key  # Optional
+   ```
+   - **OPENAI_API_KEY**: Required for AI functionality (get it from OpenAI).
+   - **Clerk Keys**: Optional, for enabling authentication (get from Clerk dashboard).
+
+4. **Run the Development Server**:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   ```
+   Open `http://localhost:3000` in your browser to access the app.
+
+## Usage Instructions
+
+1. **Access the Application**:
+   Navigate to `http://localhost:3000` after starting the server.
+
+2. **Sign In (Optional)**:
+   If Clerk authentication is enabled, sign in or register via the auth header.
+
+3. **Upload a Transcript**:
+   - Go to the homepage (`/start`).
+   - Use the upload component to select a PDF, DOCX, or TXT file.
+   - Click "Process Transcript" to analyze the file.
+
+4. **Choose Study Mode**:
+   - After processing, select "Flashcards" or "Multiple Choice" from the course overview (`/course-overview`).
+
+5. **Study with Flashcards**:
+   - View questions, click "Show Answer" to flip, and proceed with "Next Card".
+   - End the session with "End Session" to see a summary.
+
+6. **Take an MCQ Quiz**:
+   - Select answers, submit for feedback, and proceed until completion.
+   - Review results on the quiz summary page.
+
+7. **Review Progress**:
+   - Check session summaries (`/summary` for flashcards, `/mcq-summary` for MCQs).
+
+**Example**:
+- Upload a biology lecture PDF.
+- Generate 10 flashcards or MCQs.
+- Study and track your progress.
 
 ## Features
 
-- **Transcript Upload**: Easily upload plain text transcript files
-- **PDF Processing**: Robust PDF text extraction with timeout handling and progress feedback
-- **AI Analysis**: Automatic extraction of course subject and detailed outline
-- **Flashcard Generation**: Create customizable sets of AI-generated flashcards
-- **Multiple Choice Questions**: Generate and take AI-powered MCQ quizzes with enhanced visual feedback
-- **Interactive Study Interface**: Navigate through flashcards and MCQs with simple controls
-- **Multi-language Support**: Available in English and French
-- **Duplicate Prevention**: Smart detection and filtering of similar flashcards and questions
-- **Study Session Summary**: Review all studied content with detailed performance metrics and visual feedback
-- **Accessibility**: High-contrast color schemes for improved readability in both light and dark modes
-- **Security Features**: Rate limiting, request validation, and comprehensive logging
+- **AI-Driven Content Generation**: Automatically creates flashcards and MCQs from transcripts.
+- **Multilingual Support**: Interface and content in English and French.
+- **Authentication**: Optional Clerk-based sign-in for personalized use.
+- **Interactive Study Modes**: Flashcard flipping and MCQ quizzes with feedback.
+- **Progress Tracking**: Summaries of study sessions with stats like accuracy and time spent.
+- **Responsive Design**: Works on desktop and mobile devices.
+- **File Support**: Handles PDF, DOCX, and TXT formats.
 
-## Tech Stack
+## API Reference
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS with shadcn UI components
-- **AI Integration**: OpenAI-compatible API with support for various models
-- **Deployment**: Serverless architecture
-- **Security**: LRU-based rate limiting and request validation
+SmartDeck includes internal API routes for core functionality:
 
-## Getting Started
+- **`/api/pdf-extract`**:
+  - **Method**: POST
+  - **Purpose**: Uploads and extracts text from PDFs.
+  - **Body**: `{ file: File }` (form-data)
+  - **Response**: `{ jobId: string }`
 
-### Prerequisites
+- **`/api/pdf-extract/status/[jobId]`**:
+  - **Method**: GET
+  - **Purpose**: Checks extraction job status.
+  - **Response**: `{ status: string, progress: number, result?: string }`
 
-- Node.js 18+ and pnpm
-- OpenAI API key or compatible API (Anthropic, etc.)
+- **`/api/ai`**:
+  - **Method**: POST
+  - **Purpose**: Handles AI operations (analyze, generate flashcards/MCQs).
+  - **Body**: 
+    - Analyze: `{ type: "analyze", transcript: string, language: string }`
+    - Flashcards: `{ type: "generate-batch", courseData: object, transcript: string, count: number, language: string }`
+    - MCQs: `{ type: "generate-mcq-batch", courseData: object, transcript: string, count: number, language: string }`
+  - **Response**: Varies by operation (e.g., `{ flashcards: Array }`).
 
-### Installation
+Detailed documentation is in [`docs/API_ARCHITECTURE.md`](./docs/API_ARCHITECTURE.md).
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/flashcard-generator.git
-   cd flashcard-generator
-   ```
+## Contributing Guidelines
 
-2. Install dependencies:
-   ```bash
-   pnpm install
-   ```
+We welcome contributions! To get started:
 
-3. Set up environment variables:
-   ```
-   # OpenAI Configuration
-   OPENAI_API_KEY=your_api_key
-   OPENAI_MODEL=gpt-4o-mini # or any other compatible model
-   OPENAI_BASE_URL=https://api.openai.com/v1 # or your custom endpoint
+1. **Fork and Clone**:
+   Fork the repo and clone it locally.
 
-   # Rate Limiting Configuration (optional)
-   RATE_LIMIT_REQUESTS_PER_MINUTE=10 # Default: 10
-   RATE_LIMIT_INTERVAL_MS=60000 # Default: 60000 (60 seconds)
-   RATE_LIMIT_MAX_TRACKED_IPS=500 # Default: 500 (maximum concurrent IPs to track)
-   ```
+2. **Set Up Development**:
+   Follow the installation steps above.
 
-4. Run the development server:
-   ```bash
-   pnpm dev
-   ```
+3. **Code Standards**:
+   - Use TypeScript with strict mode.
+   - Follow existing naming and structure conventions.
+   - Use Tailwind CSS for styling.
 
-5. Build for production:
-   ```bash
-   pnpm build
-   ```
+4. **Submit Changes**:
+   - Create a branch: `git checkout -b feature/your-feature`.
+   - Commit changes: `git commit -m "Add your message"`.
+   - Push and open a pull request on GitHub.
 
-## Application Flow
+5. **Testing**:
+   Add tests in the `test` directory if applicable.
 
-1. **Upload**: Users upload a transcript file on the home page
-2. **Processing**: The AI analyzes the transcript to extract course subject and outline
-3. **Study Mode Selection**: Users choose between flashcards or multiple choice questions
-4. **Interactive Study**: 
-   - **Flashcard Mode**: Interactive flashcard interface with question/answer toggling
-   - **MCQ Mode**: Multiple choice questions with immediate feedback and scoring
-5. **Summary**: Detailed review of study session with performance metrics and content review
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) (create if not present) for more details.
 
-## Key Components
+## License Information
 
-- **Upload Component**: Handles file validation and extraction with enhanced PDF processing
-- **PDF Processing**: Non-blocking PDF text extraction with timeout handling and visual progress feedback
-- **Processing Page**: Shows real-time AI analysis progress
-- **Flashcard Generator**: Creates and manages flashcards with deduplication
-- **MCQ Generator**: Creates multiple choice questions with smart answer options and accessible color feedback
-- **Error Dialog**: Provides clear feedback for any issues
-- **Summary Pages**: Display session statistics, performance metrics, and studied content with enhanced visual feedback
+SmartDeck is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details. (Note: If no LICENSE file exists, assume MIT as a common default and add one.)
 
-## Code Architecture
-
-The application follows a modular architecture for improved maintainability:
-
-### API Layer
-- **Route Handlers**: `/app/api/ai/route.ts` - Main entry point for AI operations with request validation and error handling
-- **Controllers**: `/lib/ai/controller.ts` - Separate controllers for each operation type (analyze, generate-batch, generate-mcq-batch)
-- **Services**: `/lib/ai/service.ts` - Core AI service logic with reusable functions for making AI requests and parsing responses
-
-### Middleware
-- **Request Validation**: `/lib/middleware.ts` - Validates incoming requests, IP addresses, and applies rate limiting
-- **Error Handling**: `/lib/errors.ts` - Custom error types for different scenarios
-- **Logging**: `/lib/logging.ts` - Centralized logging functions for consistent log formats
-
-### AI Integration
-- **Prompt Templates**: `/lib/ai/prompts.ts` - Separate file for all AI prompt templates
-- **Response Parsing**: Robust parsing of AI responses with markdown cleaning
-- **Error Recovery**: Detailed error logging for AI response parsing issues
-
-## Advanced Features
-
-### Flashcard Deduplication
-
-The application uses Jaccard similarity to detect and filter similar questions, preventing repetitive content:
-
-- Detects semantic similarity between questions
-- Automatically retries generation if too many duplicates are found
-- Maintains variety throughout the study session
-
-### PDF Processing
-
-The application implements robust PDF text extraction:
-
-- **Non-blocking Processing**: Extracts text without freezing the UI
-- **Timeout Handling**: Automatically cancels extractions that take too long
-- **Visual Feedback**: Shows real-time progress indicators during extraction
-- **Error Recovery**: Graceful handling of extraction failures with clear user feedback
-- **Authentication Compatibility**: Works seamlessly with authentication flows
-
-### Security Features
-
-The application implements several security measures:
-
-- **Rate Limiting**: Configurable rate limiting per IP:
-  - Requests per minute (default: 10)
-  - Time interval (default: 60 seconds)
-  - Maximum concurrent IPs tracked (default: 500)
-- **Request Validation**: 
-  - Content size limits (100KB max)
-  - Input validation for all parameters
-  - Type checking for API operations
-- **Error Handling**: Comprehensive error handling with detailed logging
-- **Logging**: Structured logging of all API requests with:
-  - Timestamp
-  - Request type
-  - IP address (anonymized)
-  - Status code
-  - Error details (when applicable)
-
-### Error Handling
-
-Comprehensive error handling with detailed logging:
-
-- API request/response logging for debugging
-- User-friendly error dialogs
-- Graceful fallbacks for network issues
-- Rate limit exceeded notifications
-
-## Customization
-
-### Styling
-
-The application uses Tailwind CSS with shadcn UI components for consistent styling. You can customize the theme in:
-- `tailwind.config.js` - For color schemes and general styling:
-  - Light mode colors (emerald-100/rose-100 for feedback)
-  - Dark mode colors (emerald-900/rose-900 for feedback)
-  - Border colors (emerald-500/rose-500 for emphasis)
-- `components/ui/*` - For individual component styling
-
-### Language Support
-
-To add or modify translations, edit the `lib/translations.ts` file.
-
-### Security Configuration
-
-You can customize security settings in:
-- `lib/rate-limit.ts` - Adjust rate limiting parameters
-- `app/api/ai/route.ts` - Modify request validation rules
-
-## License
-
-[MIT License](LICENSE) 
+For questions or support, feel free to reach out!
