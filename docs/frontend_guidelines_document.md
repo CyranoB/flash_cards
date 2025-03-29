@@ -34,12 +34,22 @@ For styling, we use Tailwind CSS, which allows us to quickly apply styles direct
 
 ### Color Palette
 
-We have chosen a balanced color palette that reflects a modern look:
+The application uses a theme defined in `app/globals.css` and configured in `tailwind.config.ts`. The current theme aims for a warm, focused, and modern feel:
 
-*   **Primary Color:** A deep navy or cool blue (for example, #1E3A8A)
-*   **Secondary Color:** A subtle, light gray (for example, #F3F4F6)
-*   **Accent Color:** A bright, inviting color like teal or coral (for example, #14B8A6 or #FB7185)
-*   **Background:** Clean white (#FFFFFF) with soft shadows to maintain a light and airy feel.
+*   **Light Mode:**
+    *   **Primary:** Muted Green (`hsl(140, 40%, 40%)`) - Used for key actions, highlights.
+    *   **Secondary:** Warm Off-White (`hsl(50, 20%, 94%)`) - Used for subtle backgrounds, borders.
+    *   **Background/Card:** Very Light Beige/Cream (`hsl(50, 25%, 97%)`) - Main background and card surfaces.
+    *   **Accent:** Orange (`hsl(30, 80%, 60%)`) - Used for specific highlights like badges and call-to-action buttons.
+    *   **Text:** Dark Gray/Near Black.
+*   **Dark Mode:**
+    *   **Primary:** Light Gray (`hsl(240, 5%, 85%)`) - Used for text and some highlights.
+    *   **Secondary/Card:** Dark Gray (`hsl(240, 5%, 15%)`) - Used for card backgrounds.
+    *   **Background:** Very Dark Gray (`hsl(240, 5%, 10%)`) - Main background.
+    *   **Accent:** Orange (`hsl(30, 80%, 60%)`) - Used for call-to-action buttons and focus rings.
+    *   **Text:** Light Gray/Near White.
+
+This palette provides good contrast and a calm, academic feel suitable for a study tool. Colors are primarily applied using Tailwind utility classes linked to CSS variables (e.g., `bg-primary`, `text-secondary-foreground`, `bg-card`).
 
 ### Fonts
 
@@ -62,7 +72,7 @@ The frontend implements several validation mechanisms to ensure a smooth user ex
 
 ### File Upload Validation
 
-* **File Size Limits**: The upload component validates files against the configurable maximum file size (default: 100MB, configurable via `MAX_FILE_SIZE_MB` environment variable)
+* **File Size Limits**: The upload component validates files against the configurable maximum file size (default: 25MB, configurable via `NEXT_PUBLIC_MAX_FILE_SIZE_MB` environment variable)
 * **File Type Validation**: Only accepts PDF, TXT, and DOCX file formats
 * **Visual Feedback**: Provides clear error messages when files exceed size limits or have unsupported formats
 

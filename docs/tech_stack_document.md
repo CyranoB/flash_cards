@@ -4,7 +4,7 @@
 > - Next.js 15 with App Router for modern React-based frontend
 > - TypeScript for type safety and code reliability
 > - Tailwind CSS with shadcn components for consistent UI
-> - Server-side PDF text extraction using `pdf-text-extract` with background job status tracking via Redis
+> - Server-side PDF text extraction using `pdf-parse` with background job status tracking via Redis (no temp files)
 > - Serverless architecture for scalable, cost-effective processing
 > - OpenAI API integration for AI-powered content generation
 > - Client-side session storage for temporary data management
@@ -48,10 +48,9 @@ The backend leverages Next.js API routes deployed as serverless functions to han
 
 *   **PDF Text Extraction API (`/api/pdf-extract`)**
     *   Receives PDF file uploads.
-    *   Saves the file temporarily to the server's file system.
-    *   Uses the `pdf-text-extract` library to extract text from the temporary file. This library was chosen after encountering bundling/runtime issues with `pdfjs-dist` and `pdf-parse`.
+    *   Reads the file buffer directly within the API route.
+    *   Uses the `pdf-parse` library to extract text directly from the buffer (no temporary files needed). This library was chosen for its pure JS nature, avoiding Vercel deployment issues associated with binaries required by `pdf-text-extract`. **Note:** A patch (`pnpm patch`) was applied to `pdf-parse` to resolve build issues caused by debug code.
     *   Initiates this extraction as a background process (non-blocking response to the client).
-    *   Cleans up the temporary file after processing.
 *   **Background Job Status Tracking (Redis)**
     *   Uses Redis (specifically Upstash) to store the status (`processing`, `completed`, `failed`), progress percentage, and final result (extracted text) or error message for PDF extraction jobs, keyed by a unique job ID.
     *   An API route (`/api/pdf-extract/status/[jobId]`) allows the client to poll for the job status.
@@ -92,8 +91,10 @@ To enhance functionality and streamline processes, the project incorporates seve
     *   Provides user authentication services.
 *   **Upstash Redis**
     *   Used as a managed Redis instance for tracking the status of background PDF extraction jobs.
-*   **`pdf-text-extract`**
-    *   Node.js library used for server-side PDF text extraction.
+*   **Upstash Redis**
+    *   Used as a managed Redis instance for tracking the status of background PDF extraction jobs.
+*   **`pdf-parse`**
+    *   Node.js library used for server-side PDF text extraction (pure JS, patched).
 *   **`mammoth`**
     *   Library used for converting `.docx` files to text.
 *   **Configurable Settings**
@@ -119,7 +120,6 @@ Security and performance are paramount in delivering a reliable and user-friendl
     *   Caching mechanisms (observed in logs for AI responses) help reduce redundant processing.
 *   **Potential Bottlenecks/Considerations:**
     *   Storing large extracted text in Redis can hit size limits (currently mitigated by frontend file size limit). Alternative storage (Vercel Blob, S3) might be needed.
-    *   Temporary file I/O for `pdf-text-extract` adds minor overhead on the server.
 
 Collectively, implementing robust security practices and focused performance enhancements guarantees that users enjoy a secure, fast, and efficient study session.
 
@@ -134,7 +134,7 @@ To summarize, our tech stack is carefully selected to match the project's goals 
     *   Client-side validation (file type, size)
 *   **Backend:**
     *   Next.js API Routes (Serverless Functions)
-    *   `pdf-text-extract` for PDF processing (server-side, async via Redis)
+    *   `pdf-parse` for PDF processing (server-side, async via Redis, patched)
     *   `mammoth` for DOCX processing
     *   Redis (Upstash) for job status tracking
     *   OpenAI API for AI analysis/generation

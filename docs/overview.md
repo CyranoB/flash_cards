@@ -6,7 +6,7 @@
 |-----------|------------|---------|
 | Frontend | Next.js 15 (App Router) | Modern, responsive UI with server-side rendering |
 | Styling | Tailwind CSS + shadcn | Clean, accessible design with utility-first approach |
-| PDF Processing | Web Workers | Non-blocking PDF text extraction with progress tracking |
+| PDF Processing | Next.js API Routes + Redis + pdf-parse | Server-side async PDF text extraction with status tracking |
 | AI Integration | OpenAI/Mistral API | Transcript analysis and content generation |
 | Data Storage | Client-side sessionStorage | Temporary session data without server persistence |
 | Architecture | Serverless | Scalable, cost-effective processing on demand |
@@ -39,10 +39,7 @@
 │  │ Components  │  │ Storage     │  │ (Next, Prev, Toggle)│  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 │                                                             │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │ PDF Web Worker (Non-blocking text extraction)       │    │
-│  └─────────────────────────────────────────────────────┘    │
-└───────────────────────────┬─────────────────────────────────┘
+└─────────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
@@ -50,19 +47,30 @@
 │                                                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │ Middleware  │  │ Controllers │  │ Service Layer       │  │
-│  │ Rate Limit  │  │ Operation   │  │ AI Integration      │  │
+│  │ Rate Limit  │  │ (AI Ops)    │  │ AI Integration      │  │
 │  │ Validation  │  │ Handlers    │  │ Response Processing │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
-└───────────────────────────┬─────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      External AI Service                    │
 │                                                             │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │ OpenAI/Mistral API (GPT-4o-Mini or similar model)   │    │
-│  └─────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────┘
+│  ┌───────────────────┐  ┌───────────────────────────────┐  │
+│  │ /api/pdf-extract  │  │ /api/pdf-extract/status/[jobId] │  │
+│  │ (POST - Start Job)│  │ (GET - Poll Status)           │  │
+│  └───────────────────┘  └───────────────────────────────┘  │
+└───────────────────────────┬───────────────────────┬─────────┘
+                            │                       │ ▲
+                            │                       │ │ Polls
+                            │ Calls                 │ │
+                            ▼                       │ │ Gets Status
+┌─────────────────────────────────────────────────┐ │ │┌──────────────────┐
+│               External AI Service               │ │ ││ External Service │
+│                                                 │ │ ││                  │
+│ ┌─────────────────────────────────────────────┐ │ │ ││ ┌──────────────┐ │
+│ │ OpenAI/Mistral API                          │ │ │ ││ │ Redis        │ │
+│ │ (GPT-4o-Mini or similar model)              │ │ │ ││ │ (Job Status) │ │
+│ └─────────────────────────────────────────────┘ │ │ ││ └──────────────┘ │
+└─────────────────────────────────────────────────┘ │ │└──────────────────┘
+                                                    │ │         ▲│
+                                                    └─┼─────────┘│ Stores/Reads
+                                                      └──────────┘
 ```
 
 ## Configuration System
@@ -71,7 +79,7 @@ The application uses a centralized configuration system that allows for easy adj
 
 ### File and Transcript Size Limits
 
-- **Maximum File Size**: Configurable via `MAX_FILE_SIZE_MB` environment variable (default: 100MB)
+- **Maximum File Size**: Configurable via `NEXT_PUBLIC_MAX_FILE_SIZE_MB` environment variable (default: 25MB) - Checked client-side.
 - **Maximum Word Count**: Configurable via `MAX_WORD_COUNT` environment variable (default: 50,000 words)
 - **Minimum Word Count**: Configurable via `MIN_WORD_COUNT` environment variable (default: 500 words)
 - **Transcript Chunk Threshold**: Configurable via `TRANSCRIPT_CHUNK_THRESHOLD` environment variable (default: 30,000 characters)
@@ -82,10 +90,14 @@ These limits ensure optimal performance and prevent resource exhaustion while al
 
 ### 1. Transcript Analysis
 
-1. User uploads transcript file
-2. For PDF files, Web Worker extracts text with progress tracking
-3. Client extracts text and stores in sessionStorage
-4. Request sent to `/api/ai` with `type: "analyze"`
+1. User uploads transcript file (TXT, DOCX, PDF).
+2. **For TXT/DOCX:** Client extracts text, validates word count, stores in `sessionStorage`.
+3. **For PDF:**
+    a. Client POSTs file to `/api/pdf-extract`.
+    b. API starts background extraction using `pdf-parse`, stores initial status in Redis, returns `jobId`.
+    c. Client polls `/api/pdf-extract/status/[jobId]`.
+    d. Once status is 'completed', client retrieves text from status response, validates word count, stores in `sessionStorage`.
+4. Once valid text is in `sessionStorage`, client sends request to `/api/ai` with `type: "analyze"`.
 5. Middleware validates request and applies rate limiting
 6. Controller routes to appropriate handler
 7. AI service generates subject and outline

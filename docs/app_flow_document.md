@@ -38,7 +38,7 @@ Before any user interaction, the application performs a server-side check for pr
 - **TXT/DOCX Processing:** Text is extracted directly using `lib/document-converter.ts` (which uses `mammoth` for DOCX). Word count is validated. If valid, text is stored in `sessionStorage` ("transcript") and user can proceed.
 - **PDF Processing (Async Server-Side):**
   - If validation passes, the PDF file is POSTed to `/api/pdf-extract`.
-  - The API saves the file temporarily, starts background extraction using `pdf-text-extract`, stores initial job status in Redis, and immediately returns a `jobId`.
+  - The API route reads the file buffer directly, starts background extraction using `pdf-parse` (no temporary files needed), stores initial job status in Redis, and immediately returns a `jobId`.
   - The client (`components/upload.tsx`) receives the `jobId` and starts polling `/api/pdf-extract/status/[jobId]` every second.
   - The UI updates the progress bar based on the polled status (`processing`, `progress %`).
   - If polling returns `status: 'completed'`, the extracted text (`result`) is retrieved from the response. Word count is validated. If valid, the text is stored in `sessionStorage` ("transcript"), and the user can proceed to the next step (clicking "Process Transcript").
@@ -127,12 +127,12 @@ Before any user interaction, the application performs a server-side check for pr
 **User Flow**:
 - User sees a list of all flashcards studied in the session
 - User can review all questions and answers
-- User clicks "Finish" to end the session and return to homepage
+- User clicks "Finish" to end the session and go to the course overview
 
 **Technical Implementation**:
 - Retrieves flashcards from `sessionStorage`
 - Displays all flashcards with questions and answers
-- "Finish" button clears `sessionStorage` and redirects to homepage
+- "Finish" button clears relevant `sessionStorage` and redirects to `/course-overview`
 
 ### 5b. MCQ Summary Page
 
