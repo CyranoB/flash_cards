@@ -102,14 +102,15 @@ export async function POST(req: NextRequest) {
     
     // Process based on operation type
     switch (body.type) {
-      case "analyze":
+      case "analyze": {
         const analysisResult = await analyzeTranscript({
           transcript: body.transcript,
           language: body.language || "en"
         });
         return NextResponse.json(analysisResult);
+      }
         
-      case "generate-batch":
+      case "generate-batch": {
         const flashcardsResult = await generateFlashcards({
           courseData: body.courseData,
           transcript: body.transcript,
@@ -117,8 +118,9 @@ export async function POST(req: NextRequest) {
           language: body.language || "en",
         });
         return NextResponse.json(flashcardsResult);
+      }
         
-      case "generate-mcq-batch":
+      case "generate-mcq-batch": {
         const mcqsResult = await generateMCQs({
           courseData: body.courseData,
           transcript: body.transcript,
@@ -126,12 +128,14 @@ export async function POST(req: NextRequest) {
           language: body.language || "en"
         });
         return NextResponse.json(mcqsResult);
+      }
         
-      default:
+      default: {
         return NextResponse.json(
           { error: "Invalid operation type" },
           { status: 400 }
         );
+      }
     }
   } catch (error: any) {
     console.error("API Error:", error);

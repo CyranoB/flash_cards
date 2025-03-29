@@ -57,6 +57,7 @@ Reviewing the recent theme update applied to the landing page (`app/page.tsx`).
                 - Changed the sample questions panel div in `app/page.tsx` to use the single class `bg-sample-questions` instead of separate light/dark classes (`bg-card dark:bg-hero-dark`).
     - **Updated Start Buttons (`app/page.tsx`):** Changed the main call-to-action "Start" buttons to use `bg-accent-orange` in both light and dark modes (previously `bg-primary` in light, `dark:bg-accent-orange` in dark).
     - **Simplified Summary Page (`app/summary/page.tsx`):** Removed the "Do 10 More" button and its corresponding handler (`handleMoreFlashcards`), leaving only the "Finish" button.
+    - **Fixed AI Route Scope:** Addressed a code review comment in `app/api/ai/route.ts` by adding block scopes (`{}`) to `case` statements to prevent lexical declaration scope issues.
 
 ## Next Steps
 
